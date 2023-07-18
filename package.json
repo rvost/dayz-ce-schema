@@ -25,7 +25,21 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": []
+    "commands": [],
+    "jsonValidation": [
+      {
+        "fileMatch": ["cfgeffectarea.json", "cfgEffectArea.json"],
+        "url": "https://rvost.github.io/DayZ-Central-Economy-Schema/cfgEffectArea.schema.json"
+      },
+      {
+        "fileMatch": "cfggameplay.json",
+        "url": "https://rvost.github.io/DayZ-Central-Economy-Schema/cfggameplay.schema.json"
+      },
+      {
+        "fileMatch": "cfgundergroundtriggers.json",
+        "url": "https://rvost.github.io/DayZ-Central-Economy-Schema/cfgundergroundtriggers.schema.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
