@@ -1,8 +1,9 @@
-import * as vscode from 'vscode';
-import { remoteSchemaAssociations } from './schemaAssociations';
+import * as vscode from "vscode";
+
+import { remoteSchemaAssociations } from "./xml/schemaAssociations";
 
 async function setupRedhatXml(inputFileAssociations: Array<{ systemId: string; pattern: string }>) {
-	const redHatExtension = vscode.extensions.getExtension('redhat.vscode-xml');
+	const redHatExtension = vscode.extensions.getExtension("redhat.vscode-xml");
 	try {
 		const extensionApi = await redHatExtension!.activate();
 		extensionApi.addXMLFileAssociations(inputFileAssociations);
@@ -13,7 +14,7 @@ async function setupRedhatXml(inputFileAssociations: Array<{ systemId: string; p
 		} else if (error instanceof Error) {
 			message = error.message;
 		}
-		else{
+		else {
 			message = "Unknown Error occurred";
 		}
 
