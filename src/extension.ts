@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import { SchemaAssociation, defaultSchemaAssociations, getSchemaForFileType } from "./xml/schemaAssociations";
 import { FILENAME_PATTERN, getCustomDefinitions, parseFile } from "./xml/cfgeconomycore";
 import { makeGlobPattern, mergePatterns, readFileAsText } from "./utils";
+import { documentationCommand, documentationHandler } from "./documentationProvider";
 
 async function getCustomAssociations() {
 	try {
@@ -68,6 +69,7 @@ async function updateAssociations() {
 export async function activate(context: vscode.ExtensionContext) {
 	const command = "dayz-ce-schema.updateCustomAssociations";
 	context.subscriptions.push(vscode.commands.registerCommand(command, updateAssociations));
+	context.subscriptions.push(vscode.commands.registerCommand(documentationCommand, documentationHandler));
 
 	const fileAssociations = await getAssociations();
 	await setupRedhatXml(fileAssociations);
