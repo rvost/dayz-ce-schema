@@ -47,10 +47,29 @@ async function setupRedhatXml(inputFileAssociations: SchemaAssociation[]) {
 	}
 }
 
-export async function activate(context: vscode.ExtensionContext) {
+async function getAssociations() {
 	const custom = await getCustomAssociations();
 	const fileAssociations = mergePatterns([...defaultSchemaAssociations, ...custom]);
+	return fileAssociations;
+}
 
+async function updateAssociations() {
+	const redHatExtension = vscode.extensions.getExtension("redhat.vscode-xml");
+	
+	if (redHatExtension && redHatExtension.isActive) {
+		const extensionApi = redHatExtension.exports;
+
+		const fileAssociations = await getAssociations();
+		extensionApi.removeXMLFileAssociations(fileAssociations);
+		extensionApi.addXMLFileAssociations(fileAssociations);
+	}
+}
+
+export async function activate(context: vscode.ExtensionContext) {
+	const command = "dayz-ce-schema.updateCustomAssociations";
+	context.subscriptions.push(vscode.commands.registerCommand(command, updateAssociations));
+
+	const fileAssociations = await getAssociations();
 	await setupRedhatXml(fileAssociations);
 }
 

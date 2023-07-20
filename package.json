@@ -25,7 +25,13 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [],
+    "commands": [
+      {
+        "command": "dayz-ce-schema.updateCustomAssociations",
+        "title": "Update modded files associations",
+        "category": "DayZ CE"
+      }
+    ],
     "jsonValidation": [
       {
         "fileMatch": [
