@@ -37,6 +37,14 @@
         "category": "DayZ CE"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "dayz-ce-schema.showDocumentation",
+          "when": "editorIsOpen"
+        }
+      ]
+    },
     "jsonValidation": [
       {
         "fileMatch": [
