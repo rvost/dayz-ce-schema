@@ -6,11 +6,21 @@ The extension automatically configures the [XML extension](https://marketplace.v
 
 ## Features
 
-- Automatically configures schema association for standard CE files.
+The extension automatically configures schema association for CE files (both XML and JSON), providing the following benefits:
 
-## Planed features
+- Autocompletion;
+  ![Autocompletion](./assets/Autocompletion.gif)
+- Validation;
+  ![Validation](./assets/Validation.png)
+- Tooltips on hover (WIP).
+  ![Tooltips](./assets/TooltipsOnHover.gif)
 
-- Make schema mappings aware of custom CE files (defined in `cfgeconomycore.xml`)
+If you have questions the extension can provide help on the active file:
+
+![Open Documentation](./assets/OpenDocumentation.gif)
+
+### Planed features
+
 - Make validation context aware (e.g. you can't use flags that are not defined in `cfglimitsdefinition.xml`)
 - Provide full project validation.
 
@@ -22,11 +32,18 @@ This extension relies on the [XML extension](https://marketplace.visualstudio.co
 
 Only open files can be validated. You won't get any validation errors until you open the file in the editor.
 
-At the moment only standard CE files are mapped to the appropriate schemas. If you use custom files, you *may* need to map them manually. See the instructions in the XML extension [documentation](https://github.com/redhat-developer/vscode-xml/blob/main/docs/Validation.md#XML-file-association-with-xsd) and the DayZ Central Economy schema [repo](https://github.com/rvost/DayZ-Central-Economy-Schema/#how-to).
-<!-- ## Release Notes
+Schemas for modded files aren't bound automatically.
+If you added new files in `cfgeconomycore.xml` you need to run `Update modded files associations` command from palette to update schema associations.
+
+## Release Notes
+
+### 0.2.0
+
+- Added schema associations for modded CE files.
+- Added context aware documentation.
 
 ### 0.1.0
 
 Initial release of the extension.
 
-- Added schema association on activation for standard CE files. -->
+- Added schema association on activation for standard CE files.
