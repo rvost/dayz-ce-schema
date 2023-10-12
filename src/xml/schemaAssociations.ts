@@ -19,7 +19,7 @@ export const defaultSchemaAssociations = [
 	},
 	{
 		"pattern": "**/cfgignorelist.xml",
-		"systemId": "https://rvost.github.io/DayZ-Central-Economy-Schema/cfgignorelist.xsd"
+		"systemId": "https://rvost.github.io/DayZ-Central-Economy-Schema/cfgIgnoreList.xsd"
 	},
 	{
 		"pattern": "**/cfglimitsdefinition.xml",
