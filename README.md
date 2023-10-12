@@ -1,4 +1,7 @@
 # DayZ CE Schema for VS Code
+[![Visual Studio Marketplace Version (including pre-releases)](https://img.shields.io/visual-studio-marketplace/v/rvost.dayz-ce-schema?style=for-the-badge&logo=visualstudiocode&label=VS%20Marketplace&color=informational)
+](https://marketplace.visualstudio.com/items?itemName=rvost.dayz-ce-schema)
+[![Open VSX Version](https://img.shields.io/open-vsx/v/rvost/dayz-ce-schema?style=for-the-badge&logo=vscodium&color=informational)](https://open-vsx.org/extension/rvost/dayz-ce-schema)
 
 This extension provides a streamlined way to consume the [DayZ Central Economy Schema](https://github.com/rvost/DayZ-Central-Economy-Schema/) and makes editing the XML configuration a little less tedious.
 
