@@ -61,7 +61,50 @@
         "fileMatch": "cfgundergroundtriggers.json",
         "url": "https://rvost.github.io/DayZ-Central-Economy-Schema/cfgundergroundtriggers.schema.json"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "DayZ CE Schema",
+      "properties": {
+        "dayz-ce-schema.documentationAssociations": {
+          "type": "array",
+          "description": "Custom documentation associations",
+          "default": [
+            {
+              "pattern": "**/types*.xml",
+              "links": [
+                {
+                  "title": "DayZ Forum thread: types.xml explanation",
+                  "url": "https://forums.dayz.com/topic/247502-typesxml-need-explanation/"
+                }
+              ]
+            }
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "description": "Glob pattern to match file"
+              },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

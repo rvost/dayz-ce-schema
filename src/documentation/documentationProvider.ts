@@ -1,16 +1,25 @@
 import * as vscode from "vscode";
 import { minimatch } from "minimatch";
-import defaultAssociations from "./associations.json";
+import _defaultAssociations from "./associations.json";
+import { toQuickPickItem, combine, toMap } from "./utils";
+import { DocumentationAssociation } from "./types";
 
-type DocumentationLink = { title: string, url: string };
+const defaultAssociations = _defaultAssociations as DocumentationAssociation[];
+let associations = new Map();
 
-function toQuickPickItem(link: DocumentationLink) {
-    return {
-        label: link.title,
-        detail: link.url,
-        url: link.url
-    }
+function updateAssociations() {
+    const config = vscode.workspace.getConfiguration("dayz-ce-schema");
+    const userAssociations = config.get("documentationAssociations") as DocumentationAssociation[];
+    associations = combine(toMap(defaultAssociations), toMap(userAssociations));
 }
+
+updateAssociations();
+
+vscode.workspace.onDidChangeConfiguration((e) => {
+    if (e.affectsConfiguration("dayz-ce-schema.documentationAssociations")) {
+        updateAssociations();
+    }
+});
 
 export const documentationCommand = "dayz-ce-schema.showDocumentation";
 
@@ -20,11 +29,14 @@ export async function documentationHandler() {
         return;
     }
 
-    let matches = defaultAssociations
-        .filter(a => minimatch(activeFileName, a.pattern, { nocase: true }))
-        .flatMap(a => a.links);
+    const matches = [];
+    for (let [pattern, links] of associations) {
+        if (minimatch(activeFileName, pattern, { nocase: true })) {
+            matches.push(...links);
+        }
+    }
 
-    if (!matches) {
+    if (!matches || matches.length == 0) {
         vscode.window.showInformationMessage("No documentation available for this file");
         return;
     }
@@ -35,8 +47,8 @@ export async function documentationHandler() {
     }
     else {
         const items = matches.map(toQuickPickItem);
-        const item = await vscode.window.showQuickPick(items, {placeHolder: "Pick page to open"});
-        
+        const item = await vscode.window.showQuickPick(items, { placeHolder: "Pick page to open" });
+
         if (item) {
             vscode.env.openExternal(vscode.Uri.parse(item.url));
         }
