@@ -3,8 +3,13 @@ name: Release
 on:
   push:
     tags:
-      - "*"
+      - "*.*.*"
   workflow_dispatch:
+     inputs:
+      PRERELEASE:
+        description: "Is this a pre-release?"
+        required: true
+        type: boolean
 
 jobs:
   release:
@@ -14,6 +19,24 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 16
+      - name: Extract minor version
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/*/}
+          MINOR_VERSION=$(echo $VERSION | cut -d'.' -f2)
+          echo "::set-output name=minor_version::$MINOR_VERSION"
+          echo $MINOR_VERSION
+      - name: Is Pre-Release
+        id: prerelease
+        run: |
+          PRERELEASE=${{inputs.PRERELEASE}};
+          if [[ $PRERELEASE == true ]]; then
+            echo "::set-output name=prerelease::true"
+          elif [[  $((${{steps.version.outputs.minor_version}} % 2)) -eq 1 ]]; then
+            echo "::set-output name=prerelease::true"
+          else
+            echo "::set-output name=prerelease::false"
+          fi
       - run: npm ci
       - name: Publish to Open VSX Registry
         uses: HaaLeo/publish-vscode-extension@v1
@@ -21,6 +44,7 @@ jobs:
         with:
           pat: ${{ secrets.OPEN_VSX_TOKEN }}
           skipDuplicate: true
+          preRelease: ${{ steps.prerelease.outputs.prerelease }}
       - name: Publish to Visual Studio Marketplace
         uses: HaaLeo/publish-vscode-extension@v1
         with:
@@ -28,9 +52,11 @@ jobs:
           registryUrl: https://marketplace.visualstudio.com
           extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
           skipDuplicate: true
+          preRelease: ${{ steps.prerelease.outputs.prerelease }}
       - name: Create release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           draft: true
           files: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+          prerelease: ${{ steps.prerelease.outputs.prerelease }}
