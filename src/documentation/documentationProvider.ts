@@ -1,122 +1,8 @@
 import * as vscode from "vscode";
 import { minimatch } from "minimatch";
+import defaultAssociations from "./associations.json";
 
 type DocumentationLink = { title: string, url: string };
-
-type DocumentationAssociation = {
-    pattern: string,
-    links: DocumentationLink[]
-};
-
-const associations: DocumentationAssociation[] = [
-    {
-        pattern: "**/cfgeffectarea.json",
-        links: [
-            {
-                title: "Wiki Page: Contaminated Areas Configuration",
-                url: "https://community.bistudio.com/wiki/DayZ:Contaminated_Areas_Configuration"
-            }
-        ]
-    },
-    {
-        pattern: "**/cfggameplay.json",
-        links: [
-            {
-                title: "Wiki Page: Gameplay Settings",
-                url: "https://community.bistudio.com/wiki/DayZ:Gameplay_Settings"
-            }
-        ]
-    },
-    {
-        pattern: "**/cfgundergroundtriggers.json",
-        links: [
-            {
-                title: "Wiki Page: Underground Areas Configuration",
-                url: "https://community.bistudio.com/wiki/DayZ:Underground_Areas_Configuration"
-            }
-        ]
-    },
-    {
-        pattern: "**/cfgeconomycore.xml",
-        links: [
-            {
-                title: "Wiki Page: Central Economy Configuration",
-                url: "https://community.bistudio.com/wiki/DayZ:Central_Economy_Configuration#cfgEconomyCore.xml"
-            },
-            {
-                title: "Wiki Page: Central Economy mission files modding",
-                url: "https://community.bistudio.com/wiki/DayZ:Central_Economy_mission_files_modding"
-            }
-        ]
-    },
-    {
-        pattern: "**/cfgweather.xml",
-        links: [
-            {
-                title: "Wiki Page: Weather Configuration",
-                url: "https://community.bistudio.com/wiki/DayZ:Weather_Configuration"
-            }
-        ]
-    },
-    {
-        pattern: "**/db/globals.xml",
-        links: [
-            {
-                title: "Wiki Page: Central Economy Configuration",
-                url: "https://community.bistudio.com/wiki/DayZ:Central_Economy_Configuration#db.5Cglobals.xml"
-            }
-        ]
-    },
-    {
-        pattern: "**/db/economy.xml",
-        links: [
-            {
-                title: "Wiki Page: Central Economy mission files modding",
-                url: "https://community.bistudio.com/wiki/DayZ:Central_Economy_mission_files_modding#File_specifics"
-            }
-        ]
-    },
-    {
-        pattern: "**/db/events.xml",
-        links: [
-            {
-                title: "Wiki Page: Central Economy mission files modding",
-                url: "https://community.bistudio.com/wiki/DayZ:Central_Economy_mission_files_modding#File_specifics"
-            }
-        ]
-    },
-    {
-        pattern: "**/db/messages.xml",
-        links: [
-            {
-                title: "Wiki Page: Central Economy mission files modding",
-                url: "https://community.bistudio.com/wiki/DayZ:Central_Economy_mission_files_modding#File_specifics"
-            }
-        ]
-    },
-    {
-        pattern: "**/types*.xml",
-        links: [
-            {
-                title: "Wiki Page: Central Economy mission files modding",
-                url: "https://community.bistudio.com/wiki/DayZ:Central_Economy_mission_files_modding#File_specifics"
-            },
-            {
-                title: "DayZ Forum thread: types.xml explanation",
-                url: "https://forums.dayz.com/topic/247502-typesxml-need-explanation/"
-            }
-        ]
-    },
-    {
-        pattern: "**/cfgspawnabletypes.xml",
-        links: [
-            {
-                title: "Wiki Page: Central Economy mission files modding",
-                url: "https://community.bistudio.com/wiki/DayZ:Central_Economy_mission_files_modding#File_specifics"
-            }
-        ]
-    },
-];
 
 function toQuickPickItem(link: DocumentationLink) {
     return {
@@ -134,7 +20,7 @@ export async function documentationHandler() {
         return;
     }
 
-    let matches = associations
+    let matches = defaultAssociations
         .filter(a => minimatch(activeFileName, a.pattern, { nocase: true }))
         .flatMap(a => a.links);
 

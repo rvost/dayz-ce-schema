@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { SchemaAssociation, defaultSchemaAssociations, getSchemaForFileType } from "./xml/schemaAssociations";
 import { FILENAME_PATTERN, getCustomDefinitions, parseFile } from "./xml/cfgeconomycore";
 import { makeGlobPattern, mergePatterns, readFileAsText } from "./utils";
-import { documentationCommand, documentationHandler } from "./documentationProvider";
+import { documentationCommand, documentationHandler } from "./documentation/documentationProvider";
 
 async function getCustomAssociations() {
 	try {
