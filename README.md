@@ -38,6 +38,10 @@ Only open files can be validated. You won't get any validation errors until you 
 Schemas for modded files aren't bound automatically.
 If you added new files in `cfgeconomycore.xml` you need to run `Update modded files associations` command from palette to update schema associations.
 
+Completion and validation for Object Spawner custom lists currently only works  for json files in the `objectSpawners` folder.
+For example, the `objectSpawners/nwaf.json` file will have completion and validation according to the [Object Spawner](https://community.bistudio.com/wiki?title=DayZ%3AObject_Spawner) rules, but `custom/berezino.json` or `altartrader.json` will not.
+*This is due to limitations of the VS Code JSON Schema API and may be resolved in the future.* 
+
 ## Release Notes
 
 ### 0.2.0

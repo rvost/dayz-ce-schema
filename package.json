@@ -60,6 +60,10 @@
       {
         "fileMatch": "cfgundergroundtriggers.json",
         "url": "https://rvost.github.io/DayZ-Central-Economy-Schema/cfgundergroundtriggers.schema.json"
+      },
+      {
+        "fileMatch": "**/objectSpawners/*.json",
+        "url": "https://rvost.github.io/DayZ-Central-Economy-Schema/objectSpawner.schema.json"
       }
     ],
     "configuration": {
