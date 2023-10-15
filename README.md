@@ -44,6 +44,12 @@ For example, the `objectSpawners/nwaf.json` file will have completion and valida
 
 ## Release Notes
 
+### 0.4.0
+
+- Added Ability for users to add documentation links.
+- Added schema for the Object Spawner custom lists.
+- Updated release workflow. From now on, odd minor version numbers will indicate pre-releases.
+
 ### 0.2.0
 
 - Added schema associations for modded CE files.

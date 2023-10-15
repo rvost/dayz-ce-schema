@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.4.0]
+
+### Added
+
+- Ability for users to add documentation links.
+- Schema for the Object Spawner custom lists.
+
 ## [0.2.0]
 
 ### Added
