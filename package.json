@@ -4,7 +4,7 @@
   "description": "Schema validation for DayZ CE configuration files",
   "publisher": "rvost",
   "license": "EPL-2.0",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "icon": "assets/icon.png",
   "engines": {
     "vscode": "^1.82.0"
