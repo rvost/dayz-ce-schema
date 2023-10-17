@@ -42,7 +42,14 @@ Completion and validation for Object Spawner custom lists currently only works  
 For example, the `objectSpawners/nwaf.json` file will have completion and validation according to the [Object Spawner](https://community.bistudio.com/wiki?title=DayZ%3AObject_Spawner) rules, but `custom/berezino.json` or `altartrader.json` will not.
 *This is due to limitations of the VS Code JSON Schema API and may be resolved in the future.* 
 
+Completion and validation for Spawning Gear Configuration currently only works for json files in the `spawnPresets` folder **or** files which name ends with `_loadout` (e.g. `deathmatch_loadout.json`).
+
 ## Release Notes
+
+### 0.5.0
+
+- Updated schemas for DayZ 1.23 Experimental 
+- Added schema for Spawning Gear Configuration.
 
 ### 0.4.0
 

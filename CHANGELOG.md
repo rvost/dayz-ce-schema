@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.5.0]
+
+### Added
+
+- Schema for Spawning Gear Configuration for 1.23 game update.
+
 ## [0.4.0]
 
 ### Added
