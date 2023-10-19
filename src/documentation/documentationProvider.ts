@@ -2,10 +2,10 @@ import * as vscode from "vscode";
 import {minimatch} from "minimatch";
 import _defaultAssociations from "./associations.json";
 import {toQuickPickItem, combine, toMap} from "./utils";
-import {DocumentationAssociation} from "./types";
+import {DocumentationAssociation, DocumentationLink} from "./types";
 
 const defaultAssociations = _defaultAssociations as DocumentationAssociation[];
-let associations = new Map();
+let associations = new Map<string, DocumentationLink[]>();
 
 function updateAssociations() {
     const config = vscode.workspace.getConfiguration("dayz-ce-schema");
@@ -30,26 +30,26 @@ export async function documentationHandler() {
     }
 
     const matches = [];
-    for (let [pattern, links] of associations) {
+    for (const [pattern, links] of associations) {
         if (minimatch(activeFileName, pattern, {nocase: true})) {
             matches.push(...links);
         }
     }
 
     if (!matches || matches.length == 0) {
-        vscode.window.showInformationMessage("No documentation available for this file");
+        await vscode.window.showInformationMessage("No documentation available for this file");
         return;
     }
 
     if (matches.length == 1) {
-        vscode.env.openExternal(vscode.Uri.parse(matches[0].url));
+        await vscode.env.openExternal(vscode.Uri.parse(matches[0].url));
         return;
     } else {
         const items = matches.map(toQuickPickItem);
         const item = await vscode.window.showQuickPick(items, {placeHolder: "Pick page to open"});
 
         if (item) {
-            vscode.env.openExternal(vscode.Uri.parse(item.url));
+            await vscode.env.openExternal(vscode.Uri.parse(item.url));
         }
     }
 }

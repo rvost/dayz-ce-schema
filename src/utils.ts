@@ -9,9 +9,9 @@ export function makeGlobPattern(filePath: string) {
 }
 
 export function mergePatterns(input: SchemaAssociation[]): SchemaAssociation[] {
-    const groups: Map<string, string[]> = input.reduce(
+    const groups = input.reduce(
         (entryMap, e) => entryMap.set(e.systemId, [...(entryMap.get(e.systemId) || []), e.pattern]),
-        new Map()
+        new Map<string, string[]>()
     );
 
     const result = [];

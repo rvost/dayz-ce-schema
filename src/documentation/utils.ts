@@ -9,15 +9,15 @@ export function toQuickPickItem(link: DocumentationLink) {
 }
 
 export function toMap(associations: DocumentationAssociation[]): Map<string, DocumentationLink[]> {
-    const result = new Map();
+    const result = new Map<string, DocumentationLink[]>();
     associations.forEach(x => result.set(x.pattern, x.links));
     return result;
 }
 
 export function combine<T>(map1: Map<string, T[]>, map2: Map<string, T[]>): Map<string, T[]> {
-    let result = new Map();
+    const result = new Map<string, T[]>();
 
-    for (let [key, value] of map1) {
+    for (const [key, value] of map1) {
         if (map2.has(key)) {
             result.set(key, value.concat(map2.get(key) || []));
         } else {
@@ -25,7 +25,7 @@ export function combine<T>(map1: Map<string, T[]>, map2: Map<string, T[]>): Map<
         }
     }
 
-    for (let [key, value] of map2) {
+    for (const [key, value] of map2) {
         if (!result.has(key)) {
             result.set(key, value);
         }

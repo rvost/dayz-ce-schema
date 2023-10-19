@@ -5,6 +5,7 @@ import _defaultAssociations from "./xml/associations.json";
 import {FILENAME_PATTERN, getCustomDefinitions, parseFile} from "./xml/cfgeconomycore";
 import {makeGlobPattern, mergePatterns, readFileAsText} from "./utils";
 import {documentationCommand, documentationHandler} from "./documentation/documentationProvider";
+import {XMLExtensionApi} from "./xml/xmlExtensionApi";
 
 const defaultSchemaAssociations = _defaultAssociations as SchemaAssociation[];
 
@@ -37,7 +38,7 @@ async function getCustomAssociations() {
 async function setupRedhatXml(inputFileAssociations: SchemaAssociation[]) {
     const redHatExtension = vscode.extensions.getExtension("redhat.vscode-xml");
     try {
-        const extensionApi = await redHatExtension!.activate();
+        const extensionApi = (await redHatExtension!.activate()) as XMLExtensionApi;
         extensionApi.addXMLFileAssociations(inputFileAssociations);
     } catch (error) {
         let message;
@@ -49,7 +50,7 @@ async function setupRedhatXml(inputFileAssociations: SchemaAssociation[]) {
             message = "Unknown Error occurred";
         }
 
-        vscode.window.showErrorMessage(message);
+        await vscode.window.showErrorMessage(message);
     }
 }
 
@@ -63,7 +64,7 @@ async function updateAssociations() {
     const redHatExtension = vscode.extensions.getExtension("redhat.vscode-xml");
 
     if (redHatExtension && redHatExtension.isActive) {
-        const extensionApi = redHatExtension.exports;
+        const extensionApi = redHatExtension.exports as XMLExtensionApi;
 
         const fileAssociations = await getAssociations();
         extensionApi.removeXMLFileAssociations(fileAssociations);
