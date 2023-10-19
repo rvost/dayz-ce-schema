@@ -1,4 +1,4 @@
-import { DocumentationLink, DocumentationAssociation } from "./types";
+import {DocumentationLink, DocumentationAssociation} from "./types";
 
 export function toQuickPickItem(link: DocumentationLink) {
     return {
@@ -8,9 +8,9 @@ export function toQuickPickItem(link: DocumentationLink) {
     };
 }
 
-export function toMap(associations: DocumentationAssociation[]):Map<string, DocumentationLink[]> {
+export function toMap(associations: DocumentationAssociation[]): Map<string, DocumentationLink[]> {
     const result = new Map();
-    associations.forEach(x => result.set(x.pattern, x.links))
+    associations.forEach(x => result.set(x.pattern, x.links));
     return result;
 }
 

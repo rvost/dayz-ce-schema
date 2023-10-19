@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import { minimatch } from "minimatch";
+import {minimatch} from "minimatch";
 import _defaultAssociations from "./associations.json";
-import { toQuickPickItem, combine, toMap } from "./utils";
-import { DocumentationAssociation } from "./types";
+import {toQuickPickItem, combine, toMap} from "./utils";
+import {DocumentationAssociation} from "./types";
 
 const defaultAssociations = _defaultAssociations as DocumentationAssociation[];
 let associations = new Map();
@@ -15,7 +15,7 @@ function updateAssociations() {
 
 updateAssociations();
 
-vscode.workspace.onDidChangeConfiguration((e) => {
+vscode.workspace.onDidChangeConfiguration(e => {
     if (e.affectsConfiguration("dayz-ce-schema.documentationAssociations")) {
         updateAssociations();
     }
@@ -31,7 +31,7 @@ export async function documentationHandler() {
 
     const matches = [];
     for (let [pattern, links] of associations) {
-        if (minimatch(activeFileName, pattern, { nocase: true })) {
+        if (minimatch(activeFileName, pattern, {nocase: true})) {
             matches.push(...links);
         }
     }
@@ -44,10 +44,9 @@ export async function documentationHandler() {
     if (matches.length == 1) {
         vscode.env.openExternal(vscode.Uri.parse(matches[0].url));
         return;
-    }
-    else {
+    } else {
         const items = matches.map(toQuickPickItem);
-        const item = await vscode.window.showQuickPick(items, { placeHolder: "Pick page to open" });
+        const item = await vscode.window.showQuickPick(items, {placeHolder: "Pick page to open"});
 
         if (item) {
             vscode.env.openExternal(vscode.Uri.parse(item.url));

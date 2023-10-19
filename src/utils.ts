@@ -1,23 +1,23 @@
 import * as path from "path";
 import * as vscode from "vscode";
 
-import { SchemaAssociation } from "./xml/schemaAssociations";
+import {SchemaAssociation} from "./xml/schemaAssociations";
 
 export function makeGlobPattern(filePath: string) {
     // patterns in redhat.vscode-xml use '/' regardless of the platform
-    return ["**", ...filePath.split(path.sep)].join("/")
+    return ["**", ...filePath.split(path.sep)].join("/");
 }
 
 export function mergePatterns(input: SchemaAssociation[]): SchemaAssociation[] {
     const groups: Map<string, string[]> = input.reduce(
-        (entryMap, e) => entryMap.set(e.systemId, [...entryMap.get(e.systemId) || [], e.pattern]),
+        (entryMap, e) => entryMap.set(e.systemId, [...(entryMap.get(e.systemId) || []), e.pattern]),
         new Map()
     );
 
     const result = [];
 
     for (const [systemId, patterns] of groups) {
-        result.push({ systemId, pattern: `{${patterns.join(",")}}` })
+        result.push({systemId, pattern: `{${patterns.join(",")}}`});
     }
 
     return result;
