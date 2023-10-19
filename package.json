@@ -128,6 +128,7 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
+    "format-check": "prettier src --check",
     "test": "node ./out/test/runTest.js"
   },
   "dependencies": {
