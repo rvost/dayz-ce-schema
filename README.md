@@ -46,9 +46,13 @@ Completion and validation for Spawning Gear Configuration currently only works f
 
 ## Release Notes
 
+### 0.6.0
+
+- Stable release for the DayZ 1.23 Update.
+
 ### 0.5.0
 
-- Updated schemas for DayZ 1.23 Experimental 
+- Updated schemas for DayZ 1.23 Experimental.
 - Added schema for Spawning Gear Configuration.
 
 ### 0.4.0

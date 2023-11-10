@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.6.0]
+
+*Stable release for the DayZ 1.23 Update.*
+
 ## [0.5.0]
 
 ### Added
