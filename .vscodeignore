@@ -9,6 +9,7 @@ pom.xml
 out/**
 node_modules/**
 src/**
+scripts/**
 lemminx-dayz-ce/**
 .gitignore
 .prettierignore
