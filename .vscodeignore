@@ -1,9 +1,17 @@
 .vscode/**
 .vscode-test/**
+.idea/**
+.github/**
+.mvn/**
+mvnw
+mvnw.cmd
+pom.xml
 out/**
 node_modules/**
 src/**
+lemminx-dayz-ce/**
 .gitignore
+.prettierignore
 .yarnrc
 webpack.config.js
 vsc-extension-quickstart.md

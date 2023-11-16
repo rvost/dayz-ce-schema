@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.rvost</groupId>
+        <artifactId>lemminx-dayz-ce-parent</artifactId>
+        <version>0.7.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>lemminx-dayz-ce</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <lemminx.version>0.27.0</lemminx.version>
+    </properties>
+
+    <licenses>
+        <license>
+            <name>Eclipse Public License (EPL) v2.0</name>
+            <url>https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html</url>
+        </license>
+    </licenses>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.lemminx</groupId>
+            <artifactId>org.eclipse.lemminx</artifactId>
+            <version>${lemminx.version}</version>
+            <scope>provided</scope>
+            <!-- Provided by Java -->
+            <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>lemminx-releases</id>
+            <url>https://repo.eclipse.org/content/repositories/lemminx-releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <profiles>
+        <profile>
+            <id>generate-vscode-jars</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.6.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-vscode-jar-dependencies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>copy-to-vscode-jars</id>
+                                <phase>package</phase>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>${project.groupId}</groupId>
+                                            <artifactId>${project.artifactId}</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <overWrite>true</overWrite>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <outputDirectory>../jar</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
