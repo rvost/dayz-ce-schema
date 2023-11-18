@@ -2,6 +2,7 @@ package io.github.rvost.lemminx.dayz.participants;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.CfgEconomyCoreModel;
+import io.github.rvost.lemminx.dayz.model.TypesModel;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
@@ -14,7 +15,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import java.util.List;
 
 public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
-    private  static final String ERROR_SOURCE = "dayz-ce-schema";
+    private static final String ERROR_SOURCE = "dayz-ce-schema";
     private final DayzMissionService missionService;
 
     public DayzCEDiagnosticParticipant(DayzMissionService missionService) {
@@ -23,10 +24,11 @@ public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (!CfgEconomyCoreModel.isCfgEconomyCore(domDocument)) {
-            return;
+        if (CfgEconomyCoreModel.isCfgEconomyCore(domDocument)) {
+            validateCEFolders(domDocument, list);
+        } else if (TypesModel.isTypes(domDocument)) {
+            validateTypes(domDocument, list);
         }
-        validateCEFolders(domDocument, list);
     }
 
     private void validateCEFolders(DOMDocument document, List<Diagnostic> diagnostics) {
@@ -35,7 +37,7 @@ public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
             if (CfgEconomyCoreModel.CE_TAG.equals(node.getNodeName())) {
                 var folder = node.getAttribute(CfgEconomyCoreModel.FOLDER_ATTRIBUTE);
                 // Case of missing attribute is handled by schema validation
-                if (folder !=null && !missionService.hasFolder(folder)) {
+                if (folder != null && !missionService.hasFolder(folder)) {
                     var attrValue = node.getAttributeNode(CfgEconomyCoreModel.FOLDER_ATTRIBUTE).getNodeAttrValue();
                     var range = XMLPositionUtility.createRange(attrValue);
                     String message = "The folder \"" + folder + "\" does not exist.";
@@ -53,7 +55,7 @@ public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
             if (CfgEconomyCoreModel.FILE_TAG.equals(node.getNodeName())) {
                 var name = node.getAttribute(CfgEconomyCoreModel.NAME_ATTRIBUTE);
                 // Case of missing attribute is handled by schema validation
-                if (name !=null && !missionService.hasFile(folder, name)) {
+                if (name != null && !missionService.hasFile(folder, name)) {
                     var attrValue = node.getAttributeNode(CfgEconomyCoreModel.NAME_ATTRIBUTE).getNodeAttrValue();
                     var range = XMLPositionUtility.createRange(attrValue);
                     String message = "The file \"" + name + "\" does not exist in folder \"" + folder + "\".";
@@ -63,4 +65,26 @@ public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
         }
     }
 
+    private void validateTypes(DOMDocument document, List<Diagnostic> diagnostics) {
+        var limitsDefinition = missionService.getLimitsDefinitions();
+
+        for (var typeNode : document.getDocumentElement().getChildren()) {
+            for (var node : typeNode.getChildren()) {
+                if (limitsDefinition.containsKey(node.getNodeName())) {
+                    var name = node.getAttributeNode(TypesModel.NAME_ATTRIBUTE);
+
+                    if (name != null) {
+                        var validValues = limitsDefinition.get(node.getNodeName());
+                        if (!validValues.contains(name.getValue())) {
+                            var attrValue = name.getNodeAttrValue();
+                            var range = XMLPositionUtility.createRange(attrValue);
+                            String message = node.getNodeName() + " \"" + name.getValue() + "\"" + " does not exist.";
+                            diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, "invalid_limit_definition"));
+                        }
+                    }
+                    ;
+                }
+            }
+        }
+    }
 }

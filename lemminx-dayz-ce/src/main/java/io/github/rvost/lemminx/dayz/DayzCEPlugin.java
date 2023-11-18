@@ -9,10 +9,11 @@ import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipa
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DayzCEPlugin implements IXMLExtension  {
+public class DayzCEPlugin implements IXMLExtension {
     private static final Logger LOGGER = Logger.getLogger(DayzCEPlugin.class.getName());
 
     private DayzMissionService missionService;
@@ -29,14 +30,17 @@ public class DayzCEPlugin implements IXMLExtension  {
         // Register here completion, hover, etc participants
         LOGGER.log(Level.INFO, "DayZ CE Server started");
 
-         var folders = params.getWorkspaceFolders();
-         missionService = DayzMissionService.create(folders);
+        var folders = params.getWorkspaceFolders();
+        try {
+            missionService = DayzMissionService.create(folders);
+            completionParticipant = new DayzCECompletionParticipant(missionService);
+            registry.registerCompletionParticipant(completionParticipant);
 
-        completionParticipant = new DayzCECompletionParticipant(missionService);
-        registry.registerCompletionParticipant(completionParticipant);
-
-        diagnosticsParticipant = new DayzCEDiagnosticParticipant(missionService);
-        registry.registerDiagnosticsParticipant(diagnosticsParticipant);
+            diagnosticsParticipant = new DayzCEDiagnosticParticipant(missionService);
+            registry.registerDiagnosticsParticipant(diagnosticsParticipant);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
