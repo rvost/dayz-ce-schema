@@ -38,8 +38,8 @@ public class DayzCEPlugin implements IXMLExtension {
 
             diagnosticsParticipant = new DayzCEDiagnosticParticipant(missionService);
             registry.registerDiagnosticsParticipant(diagnosticsParticipant);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+        } catch (URISyntaxException ignored) {
+
         }
     }
 

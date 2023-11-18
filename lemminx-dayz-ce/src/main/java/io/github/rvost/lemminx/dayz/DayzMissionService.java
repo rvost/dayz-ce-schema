@@ -4,10 +4,10 @@ import org.eclipse.lsp4j.WorkspaceFolder;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
@@ -22,22 +22,28 @@ public class DayzMissionService {
     private final Path missionRoot;
     private final Map<String, Set<String>> missionFolders;
     private final Map<String, Set<String>> limitsDefinitions;
+    private final Map<String, Set<String>> userLimitsDefinitions;
 
-    protected DayzMissionService(Path missionRoot, Map<String, Set<String>> missionFolders,  Map<String, Set<String>>limitsDefinitions ) {
+    protected DayzMissionService(Path missionRoot,
+                                 Map<String, Set<String>> missionFolders,
+                                 Map<String, Set<String>> limitsDefinitions,
+                                 Map<String, Set<String>> userLimitsDefinitions) {
         this.missionRoot = missionRoot;
         this.missionFolders = missionFolders;
-        this.limitsDefinitions =limitsDefinitions;
+        this.limitsDefinitions = limitsDefinitions;
+        this.userLimitsDefinitions = userLimitsDefinitions;
     }
 
     public static DayzMissionService create(List<WorkspaceFolder> workspaceFolders) throws URISyntaxException {
-        var workspace = workspaceFolders.getFirst(); //TODO: Handle multiroot workspaces
+        var workspace = workspaceFolders.get(0); //TODO: Handle multiroot workspaces
         var rootUriString = workspace.getUri();
         var rootPath = Path.of(new URI(rootUriString));
 
         var missionFiles = getMissionFiles(rootPath);
-        var limitsDefinitions =  getLimitsDefinitions(rootPath);
+        var limitsDefinitions = getLimitsDefinitions(rootPath);
+        var userLimitsDefinitions = getUserLimitsDefinitions(rootPath);
 
-        return new DayzMissionService(rootPath, missionFiles, limitsDefinitions);
+        return new DayzMissionService(rootPath, missionFiles, limitsDefinitions, userLimitsDefinitions);
     }
 
     public Iterable<String> folders() {
@@ -58,6 +64,10 @@ public class DayzMissionService {
 
     public Map<String, Set<String>> getLimitsDefinitions() {
         return limitsDefinitions;
+    }
+
+    public Map<String, Set<String>> getUserLimitsDefinitions() {
+        return userLimitsDefinitions;
     }
 
     private static Map<String, Set<String>> getMissionFiles(Path path) {
@@ -101,6 +111,42 @@ public class DayzMissionService {
                 return Map.of();
             }
         } catch (IOException | ParserConfigurationException | SAXException e) {
+            return Map.of();
+        }
+    }
+
+    private static Map<String, Set<String>> getUserLimitsDefinitions(Path rootPath) {
+        var path = rootPath.resolve("./cfglimitsdefinitionuser.xml");
+
+        try (var input = Files.newInputStream(path)) {
+            return getUserLimitsDefinitions(input);
+        } catch (IOException e) {
+            return Map.of();
+        }
+    }
+
+    public static Map<String, Set<String>> getUserLimitsDefinitions(InputStream input) throws IOException {
+        try {
+            var db = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
+            var doc = db.parse(input);
+            if (doc.getDocumentElement() != null) {
+                doc.getDocumentElement().normalize();
+                var usageflagsNode = doc.getElementsByTagName("usageflags").item(0);
+                var valueflagsNode = doc.getElementsByTagName("valueflags").item(0);
+                var result = new HashMap<String, Set<String>>();
+                if (usageflagsNode != null) {
+                    var usageflags = getValues(usageflagsNode.getChildNodes());
+                    result.put("usage", usageflags);
+                }
+                if (valueflagsNode != null) {
+                    var valueflags = getValues(valueflagsNode.getChildNodes());
+                    result.put("value", valueflags);
+                }
+                return result;
+            } else {
+                return Map.of();
+            }
+        } catch (ParserConfigurationException | SAXException e) {
             return Map.of();
         }
     }

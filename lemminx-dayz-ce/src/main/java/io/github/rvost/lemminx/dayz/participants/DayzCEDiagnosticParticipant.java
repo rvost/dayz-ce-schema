@@ -66,23 +66,34 @@ public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
     }
 
     private void validateTypes(DOMDocument document, List<Diagnostic> diagnostics) {
-        var limitsDefinition = missionService.getLimitsDefinitions();
+        var limitsDefinitions = missionService.getLimitsDefinitions();
+        var userLimitsDefinitions = missionService.getUserLimitsDefinitions();
 
         for (var typeNode : document.getDocumentElement().getChildren()) {
             for (var node : typeNode.getChildren()) {
-                if (limitsDefinition.containsKey(node.getNodeName())) {
-                    var name = node.getAttributeNode(TypesModel.NAME_ATTRIBUTE);
-
-                    if (name != null) {
-                        var validValues = limitsDefinition.get(node.getNodeName());
+                var nodeName = node.getNodeName();
+                if (limitsDefinitions.containsKey(nodeName)) {
+                    if (node.hasAttribute(TypesModel.NAME_ATTRIBUTE)) {
+                        var name = node.getAttributeNode(TypesModel.NAME_ATTRIBUTE);
+                        var validValues = limitsDefinitions.get(nodeName);
                         if (!validValues.contains(name.getValue())) {
                             var attrValue = name.getNodeAttrValue();
                             var range = XMLPositionUtility.createRange(attrValue);
-                            String message = node.getNodeName() + " \"" + name.getValue() + "\"" + " does not exist.";
+                            String message = nodeName + " \"" + name.getValue() + "\"" + " does not exist.";
                             diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, "invalid_limit_definition"));
                         }
                     }
-                    ;
+
+                    if (userLimitsDefinitions.containsKey(nodeName) && node.hasAttribute(TypesModel.USER_ATTRIBUTE)) {
+                        var user = node.getAttributeNode(TypesModel.USER_ATTRIBUTE);
+                        var validValues = userLimitsDefinitions.get(nodeName);
+                        if (!validValues.contains(user.getValue())) {
+                            var attrValue = user.getNodeAttrValue();
+                            var range = XMLPositionUtility.createRange(attrValue);
+                            String message = nodeName + " \"" + user.getValue() + "\"" + " does not exist.";
+                            diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, "invalid_user_limit_definition"));
+                        }
+                    }
                 }
             }
         }

@@ -75,9 +75,22 @@ public class DayzCECompletionParticipant extends CompletionParticipantAdapter {
         var node = document.findNodeAt(offset);
         var attr = node.findAttrAt(offset);
         var availableDefinitions = missionService.getLimitsDefinitions();
+        var availableUserDefinitions = missionService.getUserLimitsDefinitions();
 
-        if (availableDefinitions.containsKey(node.getNodeName()) && TypesModel.NAME_ATTRIBUTE.equals(attr.getName())) {
+        if (TypesModel.NAME_ATTRIBUTE.equals(attr.getName()) && availableDefinitions.containsKey(node.getNodeName())) {
             var options = availableDefinitions.get(node.getNodeName());
+            for (var option : options) {
+                var item = new CompletionItem();
+                var insertText = request.getInsertAttrValue(option);
+                item.setLabel(insertText);
+                item.setFilterText(insertText);
+                item.setKind(CompletionItemKind.Enum);
+                item.setTextEdit(Either.forLeft(new TextEdit(editRange, insertText)));
+                response.addCompletionItem(item);
+            }
+        }
+        if (TypesModel.USER_ATTRIBUTE.equals(attr.getName()) && availableUserDefinitions.containsKey(node.getNodeName())) {
+            var options = availableUserDefinitions.get(node.getNodeName());
             for (var option : options) {
                 var item = new CompletionItem();
                 var insertText = request.getInsertAttrValue(option);
