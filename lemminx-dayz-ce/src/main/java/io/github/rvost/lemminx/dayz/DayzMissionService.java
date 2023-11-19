@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
@@ -17,21 +18,23 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 public class DayzMissionService {
     private final Path missionRoot;
     private final Map<String, Set<String>> missionFolders;
-    private final Map<String, Set<String>> limitsDefinitions;
-    private final Map<String, Set<String>> userLimitsDefinitions;
-    private  final DirWatch watch;
+    private volatile Map<String, Set<String>> limitsDefinitions;
+    private volatile Map<String, Set<String>> userLimitsDefinitions;
+    private final DirWatch watch;
     private final ConcurrentLinkedQueue<MissionFolderEvent> folderChangeEvents;
+    private final ConcurrentLinkedQueue<Path> fileModifiedEvents;
 
     private DayzMissionService(Path missionRoot,
-                                 Map<String, Set<String>> missionFolders,
-                                 Map<String, Set<String>> limitsDefinitions,
-                                 Map<String, Set<String>> userLimitsDefinitions) throws Exception {
+                               Map<String, Set<String>> missionFolders,
+                               Map<String, Set<String>> limitsDefinitions,
+                               Map<String, Set<String>> userLimitsDefinitions) throws Exception {
         this.missionRoot = missionRoot;
         this.missionFolders = missionFolders;
         this.limitsDefinitions = limitsDefinitions;
         this.userLimitsDefinitions = userLimitsDefinitions;
         this.folderChangeEvents = new ConcurrentLinkedQueue<>();
-        this.watch = DirWatch.watchDirectory(missionRoot, this.folderChangeEvents);
+        this.fileModifiedEvents = new ConcurrentLinkedQueue<>();
+        this.watch = DirWatch.watchDirectory(missionRoot, this.folderChangeEvents, this.fileModifiedEvents);
     }
 
     public static DayzMissionService create(List<WorkspaceFolder> workspaceFolders) throws Exception {
@@ -42,23 +45,24 @@ public class DayzMissionService {
         var missionFiles = getMissionFiles(rootPath);
         var limitsDefinitions = LimitsDefinitionsModel.getLimitsDefinitions(rootPath);
         var userLimitsDefinitions = LimitsDefinitionsModel.getUserLimitsDefinitions(rootPath);
-
-        return new DayzMissionService(rootPath, missionFiles, limitsDefinitions, userLimitsDefinitions);
+        var service = new DayzMissionService(rootPath, missionFiles, limitsDefinitions, userLimitsDefinitions);
+        new Thread(service::watchModifiedFiles).start();
+        return service;
     }
 
-    public void close(){
+    public void close() {
         watch.stop();
     }
 
     public synchronized Map<String, Set<String>> getMissionFolders() {
         applyEvents();
-        return  missionFolders;
+        return missionFolders;
     }
 
     private void applyEvents() {
-        for (var event: folderChangeEvents){
+        for (var event : folderChangeEvents) {
             var name = event.path().getFileName().toString();
-            switch (event.type()){
+            switch (event.type()) {
                 case FOLDER_CREATED -> {
                     missionFolders.put(name, new HashSet<>());
                 }
@@ -67,14 +71,34 @@ public class DayzMissionService {
                 }
                 case FILE_CREATED -> {
                     var parent = event.path().getParent().getFileName().toString();
-                    if(missionFolders.containsKey(parent)) {
+                    if (missionFolders.containsKey(parent)) {
                         missionFolders.get(parent).add(name);
                     }
                 }
                 case FILE_DELETED -> {
                     var parent = event.path().getParent().getFileName().toString();
-                    if(missionFolders.containsKey(parent)) {
+                    if (missionFolders.containsKey(parent)) {
                         missionFolders.get(parent).remove(name);
+                    }
+                }
+            }
+        }
+    }
+
+    private void watchModifiedFiles() {
+        while (true) {
+            var path = fileModifiedEvents.poll();
+            if (path != null) {
+                if (path.getFileName().toString().equals(LimitsDefinitionsModel.LIMITS_DEFINITION_FILE)) {
+                    var val = LimitsDefinitionsModel.getLimitsDefinitions(missionRoot);
+                    if (!val.isEmpty()) {
+                        limitsDefinitions = val;
+                    }
+                }
+                if (path.getFileName().toString().equals(LimitsDefinitionsModel.USER_LIMITS_DEFINITION_FILE)) {
+                    var val = LimitsDefinitionsModel.getUserLimitsDefinitions(missionRoot);
+                    if (!val.isEmpty()) {
+                        userLimitsDefinitions = val;
                     }
                 }
             }
@@ -103,7 +127,7 @@ public class DayzMissionService {
         }
     }
 
-    static boolean isCustomFile(Path path){
+    static boolean isCustomFile(Path path) {
         var fs = FileSystems.getDefault();
         var xmlMatcher = fs.getPathMatcher("glob:**.xml");
         var folderMatcher = fs.getPathMatcher("glob:**/{.*,env}/*.*");
@@ -113,20 +137,22 @@ public class DayzMissionService {
 
 }
 
-enum MissionFolderEventType{
+enum MissionFolderEventType {
     FOLDER_CREATED,
     FOLDER_DELETED,
     FILE_CREATED,
     FILE_DELETED
 }
 
-record  MissionFolderEvent(MissionFolderEventType type, Path path) { }
+record MissionFolderEvent(MissionFolderEventType type, Path path) {
+}
 
 class DirWatch {
     private final Path start;
     private final WatchService watcher;
     private final Map<WatchKey, Path> keys;
     private final ConcurrentLinkedQueue<MissionFolderEvent> folderEvents;
+    private final ConcurrentLinkedQueue<Path> fileModifiedEvents;
     private volatile boolean closeWatcherThread;
 
     /**
@@ -189,8 +215,9 @@ class DirWatch {
     }
 
 
-    public static DirWatch watchDirectory(Path dir, ConcurrentLinkedQueue<MissionFolderEvent> queue) throws Exception {
-        final DirWatch watchDir = new DirWatch(dir, queue);
+    public static DirWatch watchDirectory(Path dir, ConcurrentLinkedQueue<MissionFolderEvent> folderEventsQueue,
+                                          ConcurrentLinkedQueue<Path> fileModifiedEventsQueue) throws Exception {
+        final DirWatch watchDir = new DirWatch(dir, folderEventsQueue, fileModifiedEventsQueue);
         watchDir.closeWatcherThread = false;
         new Thread(watchDir::processEvents, "DirWatcherThread").start();
         return watchDir;
@@ -233,30 +260,34 @@ class DirWatch {
     /**
      * Creates a WatchService and registers the given directory
      */
-    private DirWatch(Path dir, ConcurrentLinkedQueue<MissionFolderEvent> queue) throws IOException {
+    private DirWatch(Path dir,
+                     ConcurrentLinkedQueue<MissionFolderEvent> folderEventsQueue,
+                     ConcurrentLinkedQueue<Path> fileModifiedEventsQueue) throws IOException {
         this.start = dir;
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<>();
-        this.folderEvents = queue;
+        this.folderEvents = folderEventsQueue;
+        this.fileModifiedEvents = fileModifiedEventsQueue;
         registerMissionFolder(dir);
     }
 
     private void handleEvent(WatchEvent.Kind<?> kind, Path path) {
         if (kind.equals(ENTRY_CREATE)) {
-            if(Files.isDirectory(path)){
+            if (Files.isDirectory(path)) {
                 folderEvents.add(new MissionFolderEvent(MissionFolderEventType.FOLDER_CREATED, path));
-            }
-            else if(DayzMissionService.isCustomFile(path)) {
+            } else if (DayzMissionService.isCustomFile(path)) {
                 folderEvents.add(new MissionFolderEvent(MissionFolderEventType.FILE_CREATED, path));
             }
         }
         if (kind.equals(ENTRY_DELETE)) {
-            if(Files.isDirectory(path)){
+            if (Files.isDirectory(path)) {
                 folderEvents.add(new MissionFolderEvent(MissionFolderEventType.FOLDER_DELETED, path));
-            }
-            else if(DayzMissionService.isCustomFile(path)) {
+            } else if (DayzMissionService.isCustomFile(path)) {
                 folderEvents.add(new MissionFolderEvent(MissionFolderEventType.FILE_DELETED, path));
             }
+        }
+        if (kind.equals(ENTRY_MODIFY) && !Files.isDirectory(path)) {
+            fileModifiedEvents.add(path);
         }
     }
 }
