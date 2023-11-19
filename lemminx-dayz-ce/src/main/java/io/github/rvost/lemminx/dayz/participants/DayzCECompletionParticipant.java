@@ -34,13 +34,13 @@ public class DayzCECompletionParticipant extends CompletionParticipantAdapter {
     private void computeCfgEconomyCoreCompletion(ICompletionRequest request, ICompletionResponse response, DOMDocument document) throws BadLocationException {
         var editRange = request.getReplaceRange();
         var offset = document.offsetAt(editRange.getStart());
-
         var node = document.findNodeAt(offset);
         var attr = node.findAttrAt(offset);
+        var missionFolders = missionService.getMissionFolders();
         switch (node.getNodeName()) {
             case CfgEconomyCoreModel.CE_TAG -> {
                 if (CfgEconomyCoreModel.FOLDER_ATTRIBUTE.equals(attr.getName())) {
-                    for (var folder : missionService.folders()) {
+                    for (var folder : missionFolders.keySet()) {
                         var item = new CompletionItem();
                         var insertText = request.getInsertAttrValue(folder);
                         item.setLabel(insertText);
@@ -55,7 +55,7 @@ public class DayzCECompletionParticipant extends CompletionParticipantAdapter {
             case CfgEconomyCoreModel.FILE_TAG -> {
                 if (CfgEconomyCoreModel.NAME_ATTRIBUTE.equals(attr.getName())) {
                     var folder = node.getParentNode().getAttribute(CfgEconomyCoreModel.FOLDER_ATTRIBUTE);
-                    for (var file : missionService.files(folder)) {
+                    for (var file : missionFolders.get(folder)) {
                         var item = new CompletionItem();
                         var insertText = request.getInsertAttrValue(file);
                         item.setLabel(insertText);

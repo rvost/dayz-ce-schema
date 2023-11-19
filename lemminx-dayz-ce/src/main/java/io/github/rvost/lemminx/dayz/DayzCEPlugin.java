@@ -38,7 +38,7 @@ public class DayzCEPlugin implements IXMLExtension {
 
             diagnosticsParticipant = new DayzCEDiagnosticParticipant(missionService);
             registry.registerDiagnosticsParticipant(diagnosticsParticipant);
-        } catch (URISyntaxException ignored) {
+        } catch (Exception ignored) {
 
         }
     }
@@ -50,5 +50,6 @@ public class DayzCEPlugin implements IXMLExtension {
 
         registry.unregisterCompletionParticipant(completionParticipant);
         registry.unregisterDiagnosticsParticipant(diagnosticsParticipant);
+        missionService.close();
     }
 }

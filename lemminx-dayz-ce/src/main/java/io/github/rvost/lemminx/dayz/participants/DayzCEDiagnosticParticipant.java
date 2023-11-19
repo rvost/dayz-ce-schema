@@ -13,6 +13,7 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.List;
+import java.util.Set;
 
 public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
     private static final String ERROR_SOURCE = "dayz-ce-schema";
@@ -33,29 +34,31 @@ public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
 
     private void validateCEFolders(DOMDocument document, List<Diagnostic> diagnostics) {
         var nodes = document.getDocumentElement().getChildren();
+        var missonFolders = missionService.getMissionFolders();
+
         for (var node : nodes) {
             if (CfgEconomyCoreModel.CE_TAG.equals(node.getNodeName())) {
                 var folder = node.getAttribute(CfgEconomyCoreModel.FOLDER_ATTRIBUTE);
                 // Case of missing attribute is handled by schema validation
-                if (folder != null && !missionService.hasFolder(folder)) {
+                if (folder != null && !missonFolders.containsKey(folder)) {
                     var attrValue = node.getAttributeNode(CfgEconomyCoreModel.FOLDER_ATTRIBUTE).getNodeAttrValue();
                     var range = XMLPositionUtility.createRange(attrValue);
                     String message = "The folder \"" + folder + "\" does not exist.";
                     diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, "missing_folder"));
                 } else {
                     var children = node.getChildren();
-                    validateCEFiles(children, diagnostics, folder);
+                    validateCEFiles(children, diagnostics, folder, missonFolders.get(folder));
                 }
             }
         }
     }
 
-    private void validateCEFiles(List<DOMNode> nodes, List<Diagnostic> diagnostics, String folder) {
+    private void validateCEFiles(List<DOMNode> nodes, List<Diagnostic> diagnostics, String folder, Set<String> files) {
         for (var node : nodes) {
             if (CfgEconomyCoreModel.FILE_TAG.equals(node.getNodeName())) {
                 var name = node.getAttribute(CfgEconomyCoreModel.NAME_ATTRIBUTE);
                 // Case of missing attribute is handled by schema validation
-                if (name != null && !missionService.hasFile(folder, name)) {
+                if (name != null && !files.contains(name)) {
                     var attrValue = node.getAttributeNode(CfgEconomyCoreModel.NAME_ATTRIBUTE).getNodeAttrValue();
                     var range = XMLPositionUtility.createRange(attrValue);
                     String message = "The file \"" + name + "\" does not exist in folder \"" + folder + "\".";
