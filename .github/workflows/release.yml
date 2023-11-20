@@ -42,6 +42,7 @@ jobs:
             echo "::set-output name=prerelease::false"
           fi
       - run: npm ci
+      - run: mvn verify -DskipTests -Pgenerate-vscode-jars
       - name: Publish to Open VSX Registry
         uses: HaaLeo/publish-vscode-extension@v1
         id: publishToOpenVSX
