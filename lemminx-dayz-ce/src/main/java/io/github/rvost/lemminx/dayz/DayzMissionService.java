@@ -1,6 +1,7 @@
 package io.github.rvost.lemminx.dayz;
 
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
+import io.github.rvost.lemminx.dayz.model.RandomPresetsModel;
 import org.eclipse.lsp4j.WorkspaceFolder;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class DayzMissionService {
     private final Map<String, Set<String>> missionFolders;
     private volatile Map<String, Set<String>> limitsDefinitions;
     private volatile Map<String, Set<String>> userLimitsDefinitions;
+    private volatile Map<String, Set<String>> randomPresets;
     private final DirWatch watch;
     private final ConcurrentLinkedQueue<MissionFolderEvent> folderChangeEvents;
     private final ConcurrentLinkedQueue<Path> fileModifiedEvents;
@@ -27,11 +29,14 @@ public class DayzMissionService {
     private DayzMissionService(Path missionRoot,
                                Map<String, Set<String>> missionFolders,
                                Map<String, Set<String>> limitsDefinitions,
-                               Map<String, Set<String>> userLimitsDefinitions) throws Exception {
+                               Map<String, Set<String>> userLimitsDefinitions,
+                               Map<String, Set<String>> randomPresets
+    ) throws Exception {
         this.missionRoot = missionRoot;
         this.missionFolders = missionFolders;
         this.limitsDefinitions = limitsDefinitions;
         this.userLimitsDefinitions = userLimitsDefinitions;
+        this.randomPresets = randomPresets;
         this.folderChangeEvents = new ConcurrentLinkedQueue<>();
         this.fileModifiedEvents = new ConcurrentLinkedQueue<>();
         this.watch = DirWatch.watchDirectory(missionRoot, this.folderChangeEvents, this.fileModifiedEvents);
@@ -45,7 +50,8 @@ public class DayzMissionService {
         var missionFiles = getMissionFiles(rootPath);
         var limitsDefinitions = LimitsDefinitionsModel.getLimitsDefinitions(rootPath);
         var userLimitsDefinitions = LimitsDefinitionsModel.getUserLimitsDefinitions(rootPath);
-        var service = new DayzMissionService(rootPath, missionFiles, limitsDefinitions, userLimitsDefinitions);
+        var randomPresets = RandomPresetsModel.getRandomPresets(rootPath);
+        var service = new DayzMissionService(rootPath, missionFiles, limitsDefinitions, userLimitsDefinitions, randomPresets);
         new Thread(service::watchModifiedFiles).start();
         return service;
     }
@@ -101,6 +107,12 @@ public class DayzMissionService {
                         userLimitsDefinitions = val;
                     }
                 }
+                if (path.getFileName().toString().equals(RandomPresetsModel.CFGRANDOMPRESETS_FILE)) {
+                    var val = RandomPresetsModel.getRandomPresets(missionRoot);
+                    if (!val.isEmpty()) {
+                        randomPresets = val;
+                    }
+                }
             }
         }
     }
@@ -135,6 +147,9 @@ public class DayzMissionService {
         return xmlMatcher.matches(path) && !folderMatcher.matches(path);
     }
 
+    public Map<String, Set<String>> getRandomPresets() {
+        return randomPresets;
+    }
 }
 
 enum MissionFolderEventType {

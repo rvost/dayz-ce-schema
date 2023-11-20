@@ -3,6 +3,7 @@ package io.github.rvost.lemminx.dayz.participants;
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.CfgEconomyCoreModel;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
+import io.github.rvost.lemminx.dayz.model.SpawnableTypesModel;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
@@ -35,6 +36,8 @@ public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
             validateTypes(domDocument, list);
         } else if (LimitsDefinitionsModel.isUserLimitsDefinitions(domDocument)) {
             validateUserLimitsDefinitions(domDocument, list);
+        } else if (SpawnableTypesModel.isSpawnableTypes(domDocument)) {
+            validateSpawnableTypes(domDocument, list);
         }
     }
 
@@ -143,4 +146,25 @@ public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
             }
         }
     }
+
+    private void validateSpawnableTypes(DOMDocument document, List<Diagnostic> diagnostics) {
+        var randomPresets = missionService.getRandomPresets();
+        for (var typeNode : document.getDocumentElement().getChildren()) {
+            if (typeNode.hasChildNodes()) {
+                for (var node : typeNode.getChildren()) {
+                    var kind = node.getNodeName();
+                    if (node.hasAttribute(SpawnableTypesModel.PRESET_ATTRIBUTE) && randomPresets.containsKey(kind)) {
+                        var attr = node.getAttributeNode(SpawnableTypesModel.PRESET_ATTRIBUTE);
+                        if (!randomPresets.get(kind).contains(attr.getValue())) {
+                            var attrValue = attr.getNodeAttrValue();
+                            var range = XMLPositionUtility.createRange(attrValue);
+                            String message = kind + " preset \"" + attr.getValue() + "\"" + " does not exist.";
+                            diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, "invalid_random_preset"));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
