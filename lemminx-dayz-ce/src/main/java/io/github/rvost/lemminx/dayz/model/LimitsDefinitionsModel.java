@@ -1,5 +1,6 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -26,6 +27,14 @@ public class LimitsDefinitionsModel {
     public static final String USAGEFLAGS_TAG = "usageflags";
     public static final String VALUEFLAGS_TAG = "valueflags";
     public static final String NAME_ATTRIBUTE = "name";
+
+    public static boolean isUserLimitsDefinitions(DOMDocument document) {
+        if (document == null) {
+            return false;
+        }
+        var uri = document.getDocumentURI();
+        return uri != null && uri.toLowerCase().endsWith(USER_LIMITS_DEFINITION_FILE);
+    }
 
     public static Map<String, Set<String>> getLimitsDefinitions(Path missionPath) {
         var path = missionPath.resolve(LIMITS_DEFINITION_FILE);

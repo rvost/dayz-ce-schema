@@ -2,6 +2,7 @@ package io.github.rvost.lemminx.dayz.participants;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.CfgEconomyCoreModel;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -27,6 +28,8 @@ public class DayzCECompletionParticipant extends CompletionParticipantAdapter {
             computeCfgEconomyCoreCompletion(request, response, doc);
         } else if (TypesModel.isTypes(doc)) {
             computeTypesCompletion(request, response, doc);
+        } else if (LimitsDefinitionsModel.isUserLimitsDefinitions(doc)) {
+            computeUserLimitsDefinitionsCompletion(request, response, doc);
         }
 
     }
@@ -99,6 +102,29 @@ public class DayzCECompletionParticipant extends CompletionParticipantAdapter {
                 item.setKind(CompletionItemKind.Enum);
                 item.setTextEdit(Either.forLeft(new TextEdit(editRange, insertText)));
                 response.addCompletionItem(item);
+            }
+        }
+    }
+
+    private void computeUserLimitsDefinitionsCompletion(ICompletionRequest request, ICompletionResponse response, DOMDocument document) throws BadLocationException {
+        var editRange = request.getReplaceRange();
+        var offset = document.offsetAt(editRange.getStart());
+        var node = document.findNodeAt(offset);
+        var attr = node.findAttrAt(offset);
+
+        if (LimitsDefinitionsModel.NAME_ATTRIBUTE.equals(attr.getName())) {
+            var availableDefinitions = missionService.getLimitsDefinitions();
+            if (availableDefinitions.containsKey(node.getNodeName())) {
+                var options = availableDefinitions.get(node.getNodeName());
+                for (var option : options) {
+                    var item = new CompletionItem();
+                    var insertText = request.getInsertAttrValue(option);
+                    item.setLabel(insertText);
+                    item.setFilterText(insertText);
+                    item.setKind(CompletionItemKind.Enum);
+                    item.setTextEdit(Either.forLeft(new TextEdit(editRange, insertText)));
+                    response.addCompletionItem(item);
+                }
             }
         }
     }

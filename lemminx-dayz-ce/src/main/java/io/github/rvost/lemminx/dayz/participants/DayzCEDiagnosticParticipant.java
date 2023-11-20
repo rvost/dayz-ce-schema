@@ -2,16 +2,20 @@ package io.github.rvost.lemminx.dayz.participants;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.CfgEconomyCoreModel;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
+import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.w3c.dom.NodeList;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,6 +33,8 @@ public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
             validateCEFolders(domDocument, list);
         } else if (TypesModel.isTypes(domDocument)) {
             validateTypes(domDocument, list);
+        } else if (LimitsDefinitionsModel.isUserLimitsDefinitions(domDocument)) {
+            validateUserLimitsDefinitions(domDocument, list);
         }
     }
 
@@ -96,6 +102,42 @@ public class DayzCEDiagnosticParticipant implements IDiagnosticsParticipant {
                             String message = nodeName + " \"" + user.getValue() + "\"" + " does not exist.";
                             diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, "invalid_user_limit_definition"));
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private void validateUserLimitsDefinitions(DOMDocument document, List<Diagnostic> diagnostics) {
+        var limitsDefinitions = missionService.getLimitsDefinitions();
+        for (var node : document.getDocumentElement().getChildren()) {
+            var nodeName = node.getNodeName();
+            if (node.hasChildNodes()) {
+                switch (nodeName) {
+                    case LimitsDefinitionsModel.USAGEFLAGS_TAG -> {
+                        validateUserNodes(node.getChildren(), limitsDefinitions.get(LimitsDefinitionsModel.USAGE_TAG), diagnostics);
+                    }
+                    case LimitsDefinitionsModel.VALUEFLAGS_TAG -> {
+                        validateUserNodes(node.getChildren(), limitsDefinitions.get(LimitsDefinitionsModel.VALUE_TAG), diagnostics);
+                    }
+                    default -> {
+                    }
+                }
+            }
+        }
+    }
+
+    private static void validateUserNodes(List<DOMNode> nodes, Set<String> availableValues, List<Diagnostic> diagnostics) {
+        for (var node : nodes) {
+            for (var limitNode : node.getChildren()) {
+                if (limitNode.hasAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE)) {
+                    var kind = limitNode.getNodeName();
+                    var attr = limitNode.getAttributeNode(LimitsDefinitionsModel.NAME_ATTRIBUTE);
+                    if (!availableValues.contains(attr.getValue())) {
+                        var attrValue = attr.getNodeAttrValue();
+                        var range = XMLPositionUtility.createRange(attrValue);
+                        String message = kind + " \"" + attr.getValue() + "\"" + " does not exist.";
+                        diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, "invalid_limit_definition"));
                     }
                 }
             }
