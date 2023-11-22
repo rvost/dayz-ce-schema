@@ -26,6 +26,7 @@ public class LimitsDefinitionsModel {
     public static final String VALUE_TAG = "value";
     public static final String USAGEFLAGS_TAG = "usageflags";
     public static final String VALUEFLAGS_TAG = "valueflags";
+    public static final String USER_TAG = "user";
     public static final String NAME_ATTRIBUTE = "name";
 
     public static boolean isUserLimitsDefinitions(DOMDocument document) {

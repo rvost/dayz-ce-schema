@@ -11,6 +11,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +20,10 @@ import static io.github.rvost.lemminx.dayz.participants.diagnostics.DiagnosticsU
 public class CfgLimitsDefinitionsUserDiagnosticsParticipant implements IDiagnosticsParticipant {
     private static final String INVALID_LIMIT_DEFINITION_CODE = "invalid_limit_definition";
     private static final String INVALID_LIMIT_DEFINITION_MESSAGE = "%s \"%s\" does not exist.";
+    private static final String DUPLICATE_LIMIT_DEFINITION_CODE = "duplicate_limit_definition";
+    private static final String DUPLICATE_LIMIT_DEFINITION_MESSAGE = "%s \"%s\" already used in this definition.";
+    private static final String EMPTY_DEFINITION_CODE = "empty_user_limit_definition";
+    private static final String EMPTY_DEFINITION_MESSAGE = "User flag \"%s\" is empty.";
     private final DayzMissionService missionService;
 
     public CfgLimitsDefinitionsUserDiagnosticsParticipant(DayzMissionService missionService) {
@@ -53,16 +58,38 @@ public class CfgLimitsDefinitionsUserDiagnosticsParticipant implements IDiagnost
 
     private static void validateUserNodes(List<DOMNode> nodes, Set<String> availableValues, List<Diagnostic> diagnostics) {
         for (var node : nodes) {
-            for (var limitNode : node.getChildren()) {
-                if (limitNode.hasAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE)) {
-                    var kind = limitNode.getNodeName();
-                    var attr = limitNode.getAttributeNode(LimitsDefinitionsModel.NAME_ATTRIBUTE);
-                    if (!availableValues.contains(attr.getValue())) {
-                        var attrValue = attr.getNodeAttrValue();
-                        var range = XMLPositionUtility.createRange(attrValue);
-                        String message = String.format(INVALID_LIMIT_DEFINITION_MESSAGE, kind, attr.getValue());
-                        diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, INVALID_LIMIT_DEFINITION_CODE));
+            if (LimitsDefinitionsModel.USER_TAG.equals(node.getNodeName())) {
+                if (node.hasChildNodes()) {
+                    var visited = new HashSet<String>();
+                    for (var limitNode : node.getChildren()) {
+                        if (limitNode.hasAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE)) {
+                            var kind = limitNode.getNodeName();
+                            var attr = limitNode.getAttributeNode(LimitsDefinitionsModel.NAME_ATTRIBUTE);
+                            var value = attr.getValue();
+                            if (visited.contains(value)) {
+                                var range = XMLPositionUtility.createRange(limitNode.getStart(), limitNode.getEnd(), limitNode.getOwnerDocument());
+                                String message = String.format(DUPLICATE_LIMIT_DEFINITION_MESSAGE, kind, attr.getValue());
+                                diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, DUPLICATE_LIMIT_DEFINITION_CODE));
+                            } else if (!availableValues.contains(value)) {
+                                var attrValue = attr.getNodeAttrValue();
+                                var range = XMLPositionUtility.createRange(attrValue);
+                                String message = String.format(INVALID_LIMIT_DEFINITION_MESSAGE, kind, attr.getValue());
+                                diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, INVALID_LIMIT_DEFINITION_CODE));
+                            }
+                            visited.add(value);
+                        }
                     }
+                    if (visited.isEmpty()){
+                        var name = node.getAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE);
+                        var range = XMLPositionUtility.createRange(node.getStart(), node.getEnd(), node.getOwnerDocument());
+                        String message = String.format(EMPTY_DEFINITION_MESSAGE, name);
+                        diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Warning, ERROR_SOURCE, EMPTY_DEFINITION_CODE));
+                    }
+                } else {
+                    var name = node.getAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE);
+                    var range = XMLPositionUtility.createRange(node.getStart(), node.getEnd(), node.getOwnerDocument());
+                    String message = String.format(EMPTY_DEFINITION_MESSAGE, name);
+                    diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Warning, ERROR_SOURCE, EMPTY_DEFINITION_CODE));
                 }
             }
         }
