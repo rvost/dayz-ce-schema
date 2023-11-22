@@ -4,6 +4,19 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "tasks: generate-vscode-jars",
+			"type": "shell",
+			"command": "mvn",
+			"args": ["package", "-DskipTests", "-Pgenerate-vscode-jars"],
+			"group": "build"
+		},
+		{
+			"label": "tasks: compile-with-java",
+			"type": "npm",
+			"script": "compile",
+			"dependsOn": [ "tasks: generate-vscode-jars"]
+		},
+		{
 			"type": "npm",
 			"script": "watch",
 			"problemMatcher": "$ts-webpack-watch",
