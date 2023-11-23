@@ -124,6 +124,7 @@ public class DirWatch {
         if (kind.equals(ENTRY_CREATE)) {
             return Files.isDirectory(path) ? MissionFolderEvent.EventType.FOLDER_CREATED : MissionFolderEvent.EventType.FILE_CREATED;
         } else if (kind.equals(ENTRY_DELETE)) {
+            // TODO: Refactor check because Files.isDirectory() returns false for non-existent path
             return Files.isDirectory(path) ? MissionFolderEvent.EventType.FOLDER_DELETED : MissionFolderEvent.EventType.FILE_DELETED;
         } else if (kind.equals(ENTRY_MODIFY)) {
             return Files.isDirectory(path) ? MissionFolderEvent.EventType.FOLDER_MODIFIED : MissionFolderEvent.EventType.FILE_MODIFIED;

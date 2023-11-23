@@ -76,7 +76,7 @@ public class DayzMissionService {
     }
 
     private void applyEvents() {
-        for (var event : folderChangeEvents) {
+        for (var event = folderChangeEvents.poll(); event != null; event = folderChangeEvents.poll()) {
             var name = event.path().getFileName().toString();
             switch (event.type()) {
                 case FOLDER_CREATED -> {
@@ -86,15 +86,21 @@ public class DayzMissionService {
                     missionFolders.remove(name);
                 }
                 case FILE_CREATED -> {
-                    var parent = event.path().getParent().getFileName().toString();
-                    if (missionFolders.containsKey(parent)) {
-                        missionFolders.get(parent).add(name);
+                    var parent = event.path().getParent();
+                    var parentName = parent.getFileName().toString();
+                    if (missionFolders.containsKey(parentName)) {
+                        missionFolders.get(parentName).add(name);
+                    } else if (isCustomFile(event.path()) && parent.getParent().equals(missionRoot)) {
+                        missionFolders.put(parentName, new HashSet<>());
+                        missionFolders.get(parentName).add(name);
                     }
                 }
                 case FILE_DELETED -> {
                     var parent = event.path().getParent().getFileName().toString();
                     if (missionFolders.containsKey(parent)) {
                         missionFolders.get(parent).remove(name);
+                    } else if (parent.equals(missionRoot.getFileName().toString())) {
+                        missionFolders.remove(name); // TODO: Refactor with FOLDER_DELETED
                     }
                 }
             }
