@@ -42,6 +42,7 @@ public class DayzCEPlugin implements IXMLExtension {
             missionService = DayzMissionService.create(folders);
             registerCompletionParticipants(registry, missionService);
             registerDiagnosticsParticipants(registry, missionService);
+            missionService.start();
         } catch (Exception ignored) {
 
         }
