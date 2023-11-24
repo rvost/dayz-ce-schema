@@ -1,13 +1,7 @@
 package io.github.rvost.lemminx.dayz;
 
-import io.github.rvost.lemminx.dayz.participants.completion.CfgLimitsDefinitionsUserCompletionParticipant;
-import io.github.rvost.lemminx.dayz.participants.diagnostics.CfgEconomyCoreDiagnosticsParticipant;
-import io.github.rvost.lemminx.dayz.participants.completion.CfgEconomyCoreCompletionParticipant;
-import io.github.rvost.lemminx.dayz.participants.completion.SpawnableTypesCompletionParticipant;
-import io.github.rvost.lemminx.dayz.participants.completion.TypesCompletionParticipant;
-import io.github.rvost.lemminx.dayz.participants.diagnostics.CfgLimitsDefinitionsUserDiagnosticsParticipant;
-import io.github.rvost.lemminx.dayz.participants.diagnostics.SpawnableTypesDiagnosticsParticipant;
-import io.github.rvost.lemminx.dayz.participants.diagnostics.TypesDiagnosticsParticipant;
+import io.github.rvost.lemminx.dayz.participants.completion.*;
+import io.github.rvost.lemminx.dayz.participants.diagnostics.*;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
@@ -64,7 +58,8 @@ public class DayzCEPlugin implements IXMLExtension {
             completionParticipants.add(new CfgLimitsDefinitionsUserCompletionParticipant(missionService));
             completionParticipants.add(new TypesCompletionParticipant(missionService));
             completionParticipants.add(new SpawnableTypesCompletionParticipant(missionService));
-
+            completionParticipants.add(new CfgRandomPresetsCompletionParticipant(missionService));
+            
             completionParticipants.forEach(registry::registerCompletionParticipant);
         }
     }
@@ -80,6 +75,7 @@ public class DayzCEPlugin implements IXMLExtension {
             diagnosticsParticipants.add(new CfgLimitsDefinitionsUserDiagnosticsParticipant(missionService));
             diagnosticsParticipants.add(new TypesDiagnosticsParticipant(missionService));
             diagnosticsParticipants.add(new SpawnableTypesDiagnosticsParticipant(missionService));
+            diagnosticsParticipants.add(new CfgRandomPresetsDiagnosticsParticipant(missionService));
 
             diagnosticsParticipants.forEach(registry::registerDiagnosticsParticipant);
         }

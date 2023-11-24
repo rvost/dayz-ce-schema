@@ -21,8 +21,6 @@ public class SpawnableTypesDiagnosticsParticipant implements IDiagnosticsPartici
     private static final String CONFIGURATION_NOT_ALLOWED_MESSAGE = "Configuration not allowed when preset is specified.";
     private static final String ATTRIBUTE_NOT_ALLOWED_CODE = "attribute_not_allowed";
     private static final String ATTRIBUTE_NOT_ALLOWED_MESSAGE = "Attribute not allowed when preset is specified.";
-    private static final String UNRECOGNISED_TYPE_CODE = "unrecognised_type_name";
-    private static final String UNRECOGNISED_TYPE_MESSAGE = "Type with classname \"%s\" does not exist.";
 
     private final DayzMissionService missionService;
 
@@ -46,8 +44,8 @@ public class SpawnableTypesDiagnosticsParticipant implements IDiagnosticsPartici
                 if (!types.contains(attr.getValue())) {
                     var attrValue = attr.getNodeAttrValue();
                     var range = XMLPositionUtility.createRange(attrValue);
-                    String message = String.format(UNRECOGNISED_TYPE_MESSAGE, attr.getValue());
-                    diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Warning, ERROR_SOURCE, UNRECOGNISED_TYPE_CODE));
+                    String message = String.format(DiagnosticsUtils.UNRECOGNISED_TYPE_MESSAGE, attr.getValue());
+                    diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Warning, ERROR_SOURCE, DiagnosticsUtils.UNRECOGNISED_TYPE_CODE));
                 }
             }
             if (typeNode.hasChildNodes()) {
@@ -81,8 +79,8 @@ public class SpawnableTypesDiagnosticsParticipant implements IDiagnosticsPartici
                             if (!types.contains(attr.getValue())) {
                                 var attrValue = attr.getNodeAttrValue();
                                 var range = XMLPositionUtility.createRange(attrValue);
-                                String message = String.format(UNRECOGNISED_TYPE_MESSAGE, attr.getValue());
-                                diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Warning, ERROR_SOURCE, UNRECOGNISED_TYPE_CODE));
+                                String message = String.format(DiagnosticsUtils.UNRECOGNISED_TYPE_MESSAGE, attr.getValue());
+                                diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Warning, ERROR_SOURCE, DiagnosticsUtils.UNRECOGNISED_TYPE_CODE));
                             }
                         }
                     }

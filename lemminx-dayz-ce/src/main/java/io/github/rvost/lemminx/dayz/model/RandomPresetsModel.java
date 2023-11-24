@@ -21,6 +21,7 @@ public class RandomPresetsModel {
     public static final String CFGRANDOMPRESETS_FILE = "cfgrandompresets.xml";
     public static final String CARGO_TAG = "cargo";
     public static final String ATTACHMENTS_TAG = "attachments";
+    public static final String ITEM_TAG = "item";
     public static final String NAME_ATTRIBUTE = "name";
 
     public static boolean isRandomPresets(DOMDocument document) {
