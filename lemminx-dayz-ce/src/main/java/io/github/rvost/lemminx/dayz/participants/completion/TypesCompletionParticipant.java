@@ -11,6 +11,9 @@ import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.HashSet;
 
 public class TypesCompletionParticipant extends CompletionParticipantAdapter {
@@ -54,6 +57,18 @@ public class TypesCompletionParticipant extends CompletionParticipantAdapter {
             availableUserDefinitions.get(node.getNodeName()).stream()
                     .map(option -> CompletionUtils.toCompletionItem(option, request, editRange, CompletionItemKind.Enum))
                     .forEach(response::addCompletionItem);
+        }
+        if (TypesModel.NAME_ATTRIBUTE.equals(attr.getName()) && TypesModel.TYPE_TAG.equals(node.getNodeName())) {
+            try {
+                var path = Path.of(new URI(document.getDocumentURI()));
+                if (!TypesModel.isRootTypes(missionService.missionRoot, path)) {
+                    var availableTypes = missionService.getRootTypes();
+                    availableTypes.stream()
+                            .map(option -> CompletionUtils.toCompletionItem(option, request, editRange, CompletionItemKind.Class))
+                            .forEach(response::addCompletionItem);
+                }
+            } catch (URISyntaxException ignored) {
+            }
         }
     }
 }

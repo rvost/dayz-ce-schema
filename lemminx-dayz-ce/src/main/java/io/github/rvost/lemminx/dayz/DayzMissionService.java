@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class DayzMissionService {
-    private final Path missionRoot;
+    public final Path missionRoot;
     private final ExecutorService executor;
     private final Map<String, Set<String>> missionFolders;
     private volatile Map<String, Set<String>> limitsDefinitions;
