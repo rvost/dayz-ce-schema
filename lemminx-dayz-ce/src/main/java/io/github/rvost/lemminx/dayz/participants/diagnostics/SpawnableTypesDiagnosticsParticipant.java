@@ -21,6 +21,8 @@ public class SpawnableTypesDiagnosticsParticipant implements IDiagnosticsPartici
     private static final String CONFIGURATION_NOT_ALLOWED_MESSAGE = "Configuration not allowed when preset is specified.";
     private static final String ATTRIBUTE_NOT_ALLOWED_CODE = "attribute_not_allowed";
     private static final String ATTRIBUTE_NOT_ALLOWED_MESSAGE = "Attribute not allowed when preset is specified.";
+    private static final String UNRECOGNISED_TYPE_CODE = "unrecognised_type_name";
+    private static final String UNRECOGNISED_TYPE_MESSAGE = "Type with classname \"%s\" does not exist.";
 
     private final DayzMissionService missionService;
 
@@ -37,7 +39,17 @@ public class SpawnableTypesDiagnosticsParticipant implements IDiagnosticsPartici
 
     private void validateSpawnableTypes(DOMDocument document, List<Diagnostic> diagnostics) {
         var randomPresets = missionService.getRandomPresets();
+        var types = missionService.getRootTypes();
         for (var typeNode : document.getDocumentElement().getChildren()) {
+            if (typeNode.hasAttribute(SpawnableTypesModel.NAME_ATTRIBUTE)) {
+                var attr = typeNode.getAttributeNode(SpawnableTypesModel.NAME_ATTRIBUTE);
+                if (!types.contains(attr.getValue())) {
+                    var attrValue = attr.getNodeAttrValue();
+                    var range = XMLPositionUtility.createRange(attrValue);
+                    String message = String.format(UNRECOGNISED_TYPE_MESSAGE, attr.getValue());
+                    diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Warning, ERROR_SOURCE, UNRECOGNISED_TYPE_CODE));
+                }
+            }
             if (typeNode.hasChildNodes()) {
                 for (var node : typeNode.getChildren()) {
                     var kind = node.getNodeName();
@@ -63,6 +75,18 @@ public class SpawnableTypesDiagnosticsParticipant implements IDiagnosticsPartici
                                 })
                                 .forEach(diagnostics::add);
                     }
+                    for (var itemNode : node.getChildren()) {
+                        if (itemNode.hasAttribute(SpawnableTypesModel.NAME_ATTRIBUTE)) {
+                            var attr = itemNode.getAttributeNode(SpawnableTypesModel.NAME_ATTRIBUTE);
+                            if (!types.contains(attr.getValue())) {
+                                var attrValue = attr.getNodeAttrValue();
+                                var range = XMLPositionUtility.createRange(attrValue);
+                                String message = String.format(UNRECOGNISED_TYPE_MESSAGE, attr.getValue());
+                                diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Warning, ERROR_SOURCE, UNRECOGNISED_TYPE_CODE));
+                            }
+                        }
+                    }
+
                 }
             }
         }
