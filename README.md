@@ -24,12 +24,15 @@ If you have questions the extension can provide help on the active file:
 
 ### Planed features
 
-- Make validation context aware (e.g. you can't use flags that are not defined in `cfglimitsdefinition.xml`)
 - Provide full project validation.
+- Provide quick fixes for common validation errors.
+- Provide actions to split and organise custom files.
 
 ## Requirements
 
-This extension relies on the [XML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml) for schema validation, so make sure you have this installed.
+**This extension requires [Java](https://www.java.com/)** (17 or newer), so make sure you have this installed.
+
+It also relies on the [XML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml) for schema validation, but this can be installed automatically if you don't have it.
 
 ## Known Issues
 
@@ -45,6 +48,17 @@ For example, the `objectSpawners/nwaf.json` file will have completion and valida
 Completion and validation for Spawning Gear Configuration currently only works for json files in the `spawnPresets` folder **or** files which name ends with `_loadout` (e.g. `deathmatch_loadout.json`).
 
 ## Release Notes
+
+### 0.7.1
+
+- Added classnames completion and validation for `types`, `spawnabletypes` and `cfgrandompresets.xml` files.
+- Improved completion and validation. See [CHANGELOG](CHANGELOG.md#071) for more details.
+- Fixed high CPU usage at idle.
+- Fixed completion for folder names in `cfgeconomycore.xml`.
+
+### 0.7.0
+
+- Added [Language server](https://microsoft.github.io/language-server-protocol/) for DayZ mission files. See [CHANGELOG](CHANGELOG.md#070) for more details.
 
 ### 0.6.0
 
