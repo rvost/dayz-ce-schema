@@ -48,6 +48,14 @@ public class TypesModel {
         }
     }
 
+    public static Set<String> getTypes(Path path) {
+        try (var input = Files.newInputStream(path)) {
+            return getTypes(input);
+        } catch (IOException e) {
+            return Set.of();
+        }
+    }
+
     public static Set<String> getTypes(InputStream input) throws IOException {
         try {
             var db = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();

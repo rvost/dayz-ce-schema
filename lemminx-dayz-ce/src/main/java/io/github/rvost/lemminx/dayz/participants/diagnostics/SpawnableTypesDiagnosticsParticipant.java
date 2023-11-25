@@ -37,11 +37,10 @@ public class SpawnableTypesDiagnosticsParticipant implements IDiagnosticsPartici
 
     private void validateSpawnableTypes(DOMDocument document, List<Diagnostic> diagnostics) {
         var randomPresets = missionService.getRandomPresets();
-        var types = missionService.getRootTypes();
         for (var typeNode : document.getDocumentElement().getChildren()) {
             if (typeNode.hasAttribute(SpawnableTypesModel.NAME_ATTRIBUTE)) {
                 var attr = typeNode.getAttributeNode(SpawnableTypesModel.NAME_ATTRIBUTE);
-                if (!types.contains(attr.getValue())) {
+                if (!missionService.hasType(attr.getValue())) {
                     var attrValue = attr.getNodeAttrValue();
                     var range = XMLPositionUtility.createRange(attrValue);
                     String message = String.format(DiagnosticsUtils.UNRECOGNISED_TYPE_MESSAGE, attr.getValue());
@@ -76,7 +75,7 @@ public class SpawnableTypesDiagnosticsParticipant implements IDiagnosticsPartici
                     for (var itemNode : node.getChildren()) {
                         if (itemNode.hasAttribute(SpawnableTypesModel.NAME_ATTRIBUTE)) {
                             var attr = itemNode.getAttributeNode(SpawnableTypesModel.NAME_ATTRIBUTE);
-                            if (!types.contains(attr.getValue())) {
+                            if (!missionService.hasType(attr.getValue())) {
                                 var attrValue = attr.getNodeAttrValue();
                                 var range = XMLPositionUtility.createRange(attrValue);
                                 String message = String.format(DiagnosticsUtils.UNRECOGNISED_TYPE_MESSAGE, attr.getValue());

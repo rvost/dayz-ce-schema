@@ -42,11 +42,10 @@ public class SpawnableTypesCompletionParticipant extends CompletionParticipantAd
                         .forEach(response::addCompletionItem);
             }
         }
-        
-        if (SpawnableTypesModel.NAME_ATTRIBUTE.equals(attr.getName())){
-            var availableTypes = missionService.getRootTypes();
-            availableTypes.stream()
-                    .map(option -> CompletionUtils.toCompletionItem(option, request, editRange, CompletionItemKind.Class))
+
+        if (SpawnableTypesModel.NAME_ATTRIBUTE.equals(attr.getName())) {
+            var availableTypes = missionService.getAllTypes();
+            availableTypes.map(option -> CompletionUtils.toCompletionItem(option, request, editRange, CompletionItemKind.Class))
                     .forEach(response::addCompletionItem);
         }
     }

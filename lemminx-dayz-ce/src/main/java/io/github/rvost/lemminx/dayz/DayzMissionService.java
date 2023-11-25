@@ -11,6 +11,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DayzMissionService {
     public final Path missionRoot;
@@ -21,6 +22,7 @@ public class DayzMissionService {
     private volatile Map<String, Set<String>> userLimitsDefinitions;
     private volatile Map<String, Set<String>> randomPresets;
     private volatile Set<String> rootTypes;
+    private final ConcurrentMap<Path, Set<String>> customTypes = new ConcurrentHashMap<>();
     private final DirWatch watch;
     private final ConcurrentLinkedQueue<MissionFolderEvent> folderChangeEvents;
 
@@ -58,6 +60,7 @@ public class DayzMissionService {
 
     public void start() {
         executor.execute(watch::processEvents);
+        executor.execute(this::refreshCustomTypes);
     }
 
     public void close() {
@@ -110,6 +113,14 @@ public class DayzMissionService {
     }
 
     private void onFileModified(Path path) {
+        if (path.getFileName().toString().equals(CfgEconomyCoreModel.CFGECONOMYCORE_XML)) {
+            var val = CfgEconomyCoreModel.getCustomFiles(missionRoot);
+            // TODO: Fix
+            if (!val.isEmpty()) {
+                customFiles = val;
+                refreshCustomTypes();
+            }
+        }
         if (path.getFileName().toString().equals(LimitsDefinitionsModel.LIMITS_DEFINITION_FILE)) {
             var val = LimitsDefinitionsModel.getLimitsDefinitions(missionRoot);
             if (!val.isEmpty()) {
@@ -134,6 +145,15 @@ public class DayzMissionService {
                 rootTypes = val;
             }
         }
+
+        var fullPath =path.toAbsolutePath();
+        if (customFiles.containsKey(fullPath)) {
+            var type = customFiles.get(fullPath);
+            switch (type){
+                case TYPES -> updateTypes(fullPath);
+                default -> {}
+            }
+        }
     }
 
     private void onMissionFolderEvent(MissionFolderEvent event) {
@@ -149,6 +169,28 @@ public class DayzMissionService {
         }
     }
 
+    private void refreshCustomTypes() {
+        var types = customFiles.entrySet().stream()
+                .filter(e -> e.getValue().equals(DayzFileType.TYPES))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        customTypes.keySet().retainAll(types.keySet());
+
+        types.keySet().removeAll(customTypes.keySet());
+        types.forEach((path, type) -> executor.execute(() -> {
+                    var val = TypesModel.getTypes(path);
+                    customTypes.putIfAbsent(path, val);
+                })
+        );
+    }
+
+    private void  updateTypes(Path path){
+        var val = TypesModel.getTypes(path);
+        if(!val.isEmpty()){
+            customTypes.replace(path, val);
+        }
+    }
+
     public Map<String, Set<String>> getLimitsDefinitions() {
         return limitsDefinitions;
     }
@@ -159,6 +201,15 @@ public class DayzMissionService {
 
     public Set<String> getRootTypes() {
         return rootTypes;
+    }
+
+    public Stream<String> getAllTypes() {
+        var custom = customTypes.values().stream().flatMap(Set::stream);
+        return Stream.concat(rootTypes.stream(), custom).distinct();
+    }
+
+    public boolean hasType(String className) {
+        return rootTypes.contains(className) || customTypes.values().stream().anyMatch(s -> s.contains(className));
     }
 
     private static Map<String, Set<String>> getMissionFiles(Path path) {

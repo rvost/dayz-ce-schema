@@ -29,12 +29,11 @@ public class CfgRandomPresetsDiagnosticsParticipant implements IDiagnosticsParti
     }
 
     private void validateRandomPresets(DOMDocument document, List<Diagnostic> diagnostics) {
-        var types = missionService.getRootTypes();
         for (var presetNode : document.getDocumentElement().getChildren()) {
             for (var itemNode : presetNode.getChildren()) {
                 if (itemNode.hasAttribute(RandomPresetsModel.NAME_ATTRIBUTE)) {
                     var attr = itemNode.getAttributeNode(RandomPresetsModel.NAME_ATTRIBUTE);
-                    if (!types.contains(attr.getValue())) {
+                    if (!missionService.hasType(attr.getValue())) {
                         var attrValue = attr.getNodeAttrValue();
                         var range = XMLPositionUtility.createRange(attrValue);
                         String message = String.format(DiagnosticsUtils.UNRECOGNISED_TYPE_MESSAGE, attr.getValue());

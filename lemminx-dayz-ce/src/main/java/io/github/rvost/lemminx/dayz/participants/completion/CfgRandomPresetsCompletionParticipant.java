@@ -33,9 +33,8 @@ public class CfgRandomPresetsCompletionParticipant extends CompletionParticipant
         var attr = node.findAttrAt(offset);
 
         if (RandomPresetsModel.NAME_ATTRIBUTE.equals(attr.getName()) && RandomPresetsModel.ITEM_TAG.equals(node.getNodeName())) {
-            var availableTypes = missionService.getRootTypes();
-            availableTypes.stream()
-                    .map(option -> CompletionUtils.toCompletionItem(option, request, editRange, CompletionItemKind.Class))
+            var availableTypes = missionService.getAllTypes();
+            availableTypes.map(option -> CompletionUtils.toCompletionItem(option, request, editRange, CompletionItemKind.Class))
                     .forEach(response::addCompletionItem);
         }
     }
