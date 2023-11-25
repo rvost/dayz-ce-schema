@@ -1,8 +1,6 @@
 package io.github.rvost.lemminx.dayz;
 
-import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
-import io.github.rvost.lemminx.dayz.model.RandomPresetsModel;
-import io.github.rvost.lemminx.dayz.model.TypesModel;
+import io.github.rvost.lemminx.dayz.model.*;
 import io.github.rvost.lemminx.dayz.utils.DirWatch;
 import io.github.rvost.lemminx.dayz.utils.MissionFolderEvent;
 import org.eclipse.lsp4j.WorkspaceFolder;
@@ -11,16 +9,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class DayzMissionService {
     public final Path missionRoot;
     private final ExecutorService executor;
     private final Map<String, Set<String>> missionFolders;
+    private volatile Map<Path, DayzFileType> customFiles;
     private volatile Map<String, Set<String>> limitsDefinitions;
     private volatile Map<String, Set<String>> userLimitsDefinitions;
     private volatile Map<String, Set<String>> randomPresets;
@@ -30,12 +26,13 @@ public class DayzMissionService {
 
     private DayzMissionService(Path missionRoot,
                                Map<String, Set<String>> missionFolders,
-                               Map<String, Set<String>> limitsDefinitions,
+                               Map<Path, DayzFileType> customFiles, Map<String, Set<String>> limitsDefinitions,
                                Map<String, Set<String>> userLimitsDefinitions,
                                Map<String, Set<String>> randomPresets,
                                Set<String> rootTypes) throws Exception {
         this.missionRoot = missionRoot;
         this.missionFolders = missionFolders;
+        this.customFiles = customFiles;
         this.limitsDefinitions = limitsDefinitions;
         this.userLimitsDefinitions = userLimitsDefinitions;
         this.randomPresets = randomPresets;
@@ -51,11 +48,12 @@ public class DayzMissionService {
         var rootPath = Path.of(new URI(rootUriString));
 
         var missionFiles = getMissionFiles(rootPath);
+        var customFiles = CfgEconomyCoreModel.getCustomFiles(rootPath);
         var limitsDefinitions = LimitsDefinitionsModel.getLimitsDefinitions(rootPath);
         var userLimitsDefinitions = LimitsDefinitionsModel.getUserLimitsDefinitions(rootPath);
         var randomPresets = RandomPresetsModel.getRandomPresets(rootPath);
         var rootTypes = TypesModel.getRootTypes(rootPath);
-        return new DayzMissionService(rootPath, missionFiles, limitsDefinitions, userLimitsDefinitions, randomPresets, rootTypes);
+        return new DayzMissionService(rootPath, missionFiles, customFiles, limitsDefinitions, userLimitsDefinitions, randomPresets, rootTypes);
     }
 
     public void start() {
