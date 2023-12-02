@@ -13,6 +13,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// TODO: Refactor
 public class DayzMissionService {
     public final Path missionRoot;
     private final ExecutorService executor;
@@ -22,7 +23,9 @@ public class DayzMissionService {
     private volatile Map<String, Set<String>> userLimitsDefinitions;
     private volatile Map<String, Set<String>> randomPresets;
     private volatile Set<String> rootTypes;
+    private volatile Set<String> rootEvents;
     private final ConcurrentMap<Path, Set<String>> customTypes = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Path, Set<String>> customEvents = new ConcurrentHashMap<>();
     private final DirWatch watch;
     private final ConcurrentLinkedQueue<MissionFolderEvent> folderChangeEvents;
 
@@ -31,7 +34,8 @@ public class DayzMissionService {
                                Map<Path, DayzFileType> customFiles, Map<String, Set<String>> limitsDefinitions,
                                Map<String, Set<String>> userLimitsDefinitions,
                                Map<String, Set<String>> randomPresets,
-                               Set<String> rootTypes) throws Exception {
+                               Set<String> rootTypes,
+                               Set<String> rootEvents) throws Exception {
         this.missionRoot = missionRoot;
         this.missionFolders = missionFolders;
         this.customFiles = customFiles;
@@ -39,6 +43,7 @@ public class DayzMissionService {
         this.userLimitsDefinitions = userLimitsDefinitions;
         this.randomPresets = randomPresets;
         this.rootTypes = rootTypes;
+        this.rootEvents = rootEvents;
         this.folderChangeEvents = new ConcurrentLinkedQueue<>();
         this.watch = new DirWatch(missionRoot, this::onMissionFolderEvent);
         this.executor = Executors.newCachedThreadPool();
@@ -55,12 +60,15 @@ public class DayzMissionService {
         var userLimitsDefinitions = LimitsDefinitionsModel.getUserLimitsDefinitions(rootPath);
         var randomPresets = RandomPresetsModel.getRandomPresets(rootPath);
         var rootTypes = TypesModel.getRootTypes(rootPath);
-        return new DayzMissionService(rootPath, missionFiles, customFiles, limitsDefinitions, userLimitsDefinitions, randomPresets, rootTypes);
+        var rootEvents = EventsModel.getRootEvents(rootPath);
+        return new DayzMissionService(rootPath, missionFiles, customFiles, limitsDefinitions,
+                userLimitsDefinitions, randomPresets, rootTypes, rootEvents);
     }
 
     public void start() {
         executor.execute(watch::processEvents);
         executor.execute(this::refreshCustomTypes);
+        executor.execute(this::refreshCustomEvents);
     }
 
     public void close() {
@@ -119,6 +127,7 @@ public class DayzMissionService {
             if (!val.isEmpty()) {
                 customFiles = val;
                 refreshCustomTypes();
+                refreshCustomEvents();
             }
         }
         if (path.getFileName().toString().equals(LimitsDefinitionsModel.LIMITS_DEFINITION_FILE)) {
@@ -145,13 +154,21 @@ public class DayzMissionService {
                 rootTypes = val;
             }
         }
+        if (EventsModel.isRootEvents(missionRoot, path)) {
+            var val = EventsModel.getRootEvents(missionRoot);
+            if (!val.isEmpty()) {
+                rootEvents = val;
+            }
+        }
 
-        var fullPath =path.toAbsolutePath();
+        var fullPath = path.toAbsolutePath();
         if (customFiles.containsKey(fullPath)) {
             var type = customFiles.get(fullPath);
-            switch (type){
+            switch (type) {
                 case TYPES -> updateTypes(fullPath);
-                default -> {}
+                case EVENTS -> updateEvents(fullPath);
+                default -> {
+                }
             }
         }
     }
@@ -184,10 +201,31 @@ public class DayzMissionService {
         );
     }
 
-    private void  updateTypes(Path path){
+    private void refreshCustomEvents() {
+        var events = customFiles.entrySet().stream()
+                .filter(e -> e.getValue().equals(DayzFileType.EVENTS))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        customEvents.keySet().retainAll(events.keySet());
+
+        events.keySet().removeAll(customEvents.keySet());
+        events.forEach((path, type) -> executor.execute(() -> {
+                    var val = EventsModel.getEvents(path);
+                    customEvents.putIfAbsent(path, val);
+                })
+        );
+    }
+
+    private void updateTypes(Path path) {
         var val = TypesModel.getTypes(path);
-        if(!val.isEmpty()){
+        if (!val.isEmpty()) {
             customTypes.replace(path, val);
+        }
+    }
+    private void updateEvents(Path path) {
+        var val = EventsModel.getEvents(path);
+        if (!val.isEmpty()) {
+            customEvents.replace(path, val);
         }
     }
 
@@ -210,6 +248,19 @@ public class DayzMissionService {
 
     public boolean hasType(String className) {
         return rootTypes.contains(className) || customTypes.values().stream().anyMatch(s -> s.contains(className));
+    }
+
+    public Set<String> getRootEvents() {
+        return rootEvents;
+    }
+
+    public Stream<String> getAllEvents() {
+        var custom = customEvents.values().stream().flatMap(Set::stream);
+        return Stream.concat(rootEvents.stream(), custom).distinct();
+    }
+
+    public boolean hasEvent(String eventName) {
+        return rootEvents.contains(eventName) || customEvents.values().stream().anyMatch(s -> s.contains(eventName));
     }
 
     private static Map<String, Set<String>> getMissionFiles(Path path) {
