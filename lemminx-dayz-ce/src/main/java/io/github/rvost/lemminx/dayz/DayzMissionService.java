@@ -18,6 +18,7 @@ public class DayzMissionService {
     public final Path missionRoot;
     private final ExecutorService executor;
     private final Map<String, Set<String>> missionFolders;
+    private volatile Set<String> envFiles;
     private volatile Map<Path, DayzFileType> customFiles;
     private volatile Map<String, Set<String>> limitsDefinitions;
     private volatile Map<String, Set<String>> userLimitsDefinitions;
@@ -38,6 +39,7 @@ public class DayzMissionService {
                                Set<String> rootEvents) throws Exception {
         this.missionRoot = missionRoot;
         this.missionFolders = missionFolders;
+        this.envFiles = getEnvFiles(missionRoot); // TODO: remove
         this.customFiles = customFiles;
         this.limitsDefinitions = limitsDefinitions;
         this.userLimitsDefinitions = userLimitsDefinitions;
@@ -178,6 +180,17 @@ public class DayzMissionService {
             case FOLDER_CREATED, FOLDER_DELETED, FILE_CREATED, FILE_DELETED -> {
                 folderChangeEvents.add(event);
             }
+            case FOLDER_MODIFIED -> {
+                var folder = event.path().getFileName().toString();
+                if ("env".equals(folder)) {
+                    executor.execute(() -> {
+                        var newVal = getEnvFiles(missionRoot);
+                        if (!newVal.isEmpty()) {
+                            envFiles = newVal;
+                        }
+                    });
+                }
+            }
             case FILE_MODIFIED -> {
                 executor.execute(() -> onFileModified(event.path()));
             }
@@ -222,6 +235,7 @@ public class DayzMissionService {
             customTypes.replace(path, val);
         }
     }
+
     private void updateEvents(Path path) {
         var val = EventsModel.getEvents(path);
         if (!val.isEmpty()) {
@@ -244,6 +258,10 @@ public class DayzMissionService {
     public Stream<String> getAllTypes() {
         var custom = customTypes.values().stream().flatMap(Set::stream);
         return Stream.concat(rootTypes.stream(), custom).distinct();
+    }
+
+    public Set<String> getEnvFiles() {
+        return envFiles;
     }
 
     public boolean hasType(String className) {
@@ -274,6 +292,20 @@ public class DayzMissionService {
                     );
         } catch (IOException e) {
             return Map.of();
+        }
+    }
+
+    private static Set<String> getEnvFiles(Path root) {
+        var env = root.resolve("env");
+        try (var stream = Files.list(env)) {
+            return stream
+                    .filter(p -> p.toString().endsWith(".xml"))
+                    .map(root::relativize)
+                    .map(Path::toString)
+                    .map(s -> s.replace('\\', '/'))
+                    .collect(Collectors.toSet());
+        } catch (IOException e) {
+            return Set.of();
         }
     }
 
