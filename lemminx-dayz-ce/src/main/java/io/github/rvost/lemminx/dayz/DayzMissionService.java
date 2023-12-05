@@ -25,6 +25,7 @@ public class DayzMissionService {
     private volatile Map<String, Set<String>> randomPresets;
     private volatile Set<String> rootTypes;
     private volatile Set<String> rootEvents;
+    private volatile Set<String> mapGroups;
     private final ConcurrentMap<Path, Set<String>> customTypes = new ConcurrentHashMap<>();
     private final ConcurrentMap<Path, Set<String>> customEvents = new ConcurrentHashMap<>();
     private final DirWatch watch;
@@ -36,7 +37,8 @@ public class DayzMissionService {
                                Map<String, Set<String>> userLimitsDefinitions,
                                Map<String, Set<String>> randomPresets,
                                Set<String> rootTypes,
-                               Set<String> rootEvents) throws Exception {
+                               Set<String> rootEvents,
+                               Set<String> mapGroups) throws Exception {
         this.missionRoot = missionRoot;
         this.missionFolders = missionFolders;
         this.envFiles = getEnvFiles(missionRoot); // TODO: remove
@@ -46,6 +48,7 @@ public class DayzMissionService {
         this.randomPresets = randomPresets;
         this.rootTypes = rootTypes;
         this.rootEvents = rootEvents;
+        this.mapGroups = mapGroups;
         this.folderChangeEvents = new ConcurrentLinkedQueue<>();
         this.watch = new DirWatch(missionRoot, this::onMissionFolderEvent);
         this.executor = Executors.newCachedThreadPool();
@@ -63,8 +66,9 @@ public class DayzMissionService {
         var randomPresets = RandomPresetsModel.getRandomPresets(rootPath);
         var rootTypes = TypesModel.getRootTypes(rootPath);
         var rootEvents = EventsModel.getRootEvents(rootPath);
+        var mapGroups = MapGroupProtoModel.getGroups(rootPath);
         return new DayzMissionService(rootPath, missionFiles, customFiles, limitsDefinitions,
-                userLimitsDefinitions, randomPresets, rootTypes, rootEvents);
+                userLimitsDefinitions, randomPresets, rootTypes, rootEvents, mapGroups);
     }
 
     public void start() {
@@ -160,6 +164,12 @@ public class DayzMissionService {
             var val = EventsModel.getRootEvents(missionRoot);
             if (!val.isEmpty()) {
                 rootEvents = val;
+            }
+        }
+        if (path.getFileName().toString().equals(MapGroupProtoModel.MAPGROUPPROTO_FILE)) {
+            var val = MapGroupProtoModel.getGroups(missionRoot);
+            if (!val.isEmpty()) {
+                mapGroups = val;
             }
         }
 
@@ -279,6 +289,10 @@ public class DayzMissionService {
 
     public boolean hasEvent(String eventName) {
         return rootEvents.contains(eventName) || customEvents.values().stream().anyMatch(s -> s.contains(eventName));
+    }
+
+    public Set<String> getMapGroups() {
+        return mapGroups;
     }
 
     private static Map<String, Set<String>> getMissionFiles(Path path) {
