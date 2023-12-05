@@ -62,6 +62,7 @@ public class DayzCEPlugin implements IXMLExtension {
             completionParticipants.add(new EventsCompletionParticipant(missionService));
             completionParticipants.add(new CfgEventSpawnsCompletionParticipant(missionService));
             completionParticipants.add(new CfgEnvironmentCompletionParticipant(missionService));
+            completionParticipants.add(new MapGroupProtoCompletionParticipant(missionService));
 
             completionParticipants.forEach(registry::registerCompletionParticipant);
         }
@@ -83,6 +84,7 @@ public class DayzCEPlugin implements IXMLExtension {
             diagnosticsParticipants.add(new CfgEventSpawnsDiagnosticsParticipant(missionService));
             diagnosticsParticipants.add(new GlobalsDiagnosticsParticipant());
             diagnosticsParticipants.add(new CfgEnvironmentDiagnosticsParticipant(missionService));
+            diagnosticsParticipants.add(new MapGroupProtoDiagnosticsParticipant(missionService));
 
             diagnosticsParticipants.forEach(registry::registerDiagnosticsParticipant);
         }
