@@ -76,6 +76,7 @@ public class DayzCEPlugin implements IXMLExtension {
 
     private void registerDiagnosticsParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService) {
         if (diagnosticsParticipants.isEmpty()) {
+            diagnosticsParticipants.add(new MissionDiagnosticsParticipant(missionService));
             diagnosticsParticipants.add(new CfgEconomyCoreDiagnosticsParticipant(missionService));
             diagnosticsParticipants.add(new CfgLimitsDefinitionsUserDiagnosticsParticipant(missionService));
             diagnosticsParticipants.add(new TypesDiagnosticsParticipant(missionService));

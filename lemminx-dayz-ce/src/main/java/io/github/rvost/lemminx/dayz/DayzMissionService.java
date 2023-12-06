@@ -30,6 +30,7 @@ public class DayzMissionService {
     private final ConcurrentMap<Path, Set<String>> customEvents = new ConcurrentHashMap<>();
     private final DirWatch watch;
     private final ConcurrentLinkedQueue<MissionFolderEvent> folderChangeEvents;
+    private final Set<Path> rootFilePaths;
 
     private DayzMissionService(Path missionRoot,
                                Map<String, Set<String>> missionFolders,
@@ -52,6 +53,14 @@ public class DayzMissionService {
         this.folderChangeEvents = new ConcurrentLinkedQueue<>();
         this.watch = new DirWatch(missionRoot, this::onMissionFolderEvent);
         this.executor = Executors.newCachedThreadPool();
+        rootFilePaths = Set.of(
+                missionRoot.resolve(TypesModel.DB_FOLDER).resolve(TypesModel.TYPES_FILE),
+                missionRoot.resolve(SpawnableTypesModel.SPAWNABLETYPES_FILE),
+                missionRoot.resolve(TypesModel.DB_FOLDER).resolve(GlobalsModel.GLOBALS_FILE),
+                missionRoot.resolve(EconomyModel.DB_FOLDER).resolve(EconomyModel.ECONOMY_FILE),
+                missionRoot.resolve(EventsModel.DB_FOLDER).resolve(EventsModel.EVENTS_FILE),
+                missionRoot.resolve(MessagesModel.DB_FOLDER).resolve(MessagesModel.MESSAGES_FILE)
+        );
     }
 
     public static DayzMissionService create(List<WorkspaceFolder> workspaceFolders) throws Exception {
@@ -293,6 +302,11 @@ public class DayzMissionService {
 
     public Set<String> getMapGroups() {
         return mapGroups;
+    }
+
+    public boolean isRegistered(Path path) {
+        var abs = path.toAbsolutePath();
+        return rootFilePaths.contains(abs) || customFiles.containsKey(abs);
     }
 
     private static Map<String, Set<String>> getMissionFiles(Path path) {

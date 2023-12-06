@@ -3,12 +3,18 @@ package io.github.rvost.lemminx.dayz.model;
 import java.util.Optional;
 
 public enum DayzFileType {
-    TYPES,
-    SPAWNABLETYPES,
-    GLOBALS,
-    ECONOMY,
-    EVENTS,
-    MESSAGES;
+    TYPES("types"),
+    SPAWNABLETYPES("spawnabletypes"),
+    GLOBALS("variables"),
+    ECONOMY("economy"),
+    EVENTS("events"),
+    MESSAGES("messages");
+
+    public final String RootTag;
+
+    DayzFileType(String rootTag) {
+        RootTag = rootTag;
+    }
 
     public static Optional<DayzFileType> optionalOf(String value) {
         try {
