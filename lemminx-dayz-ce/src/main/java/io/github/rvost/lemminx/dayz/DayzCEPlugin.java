@@ -1,9 +1,11 @@
 package io.github.rvost.lemminx.dayz;
 
+import io.github.rvost.lemminx.dayz.participants.codeaction.AddCustomFileCodeAction;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
 import io.github.rvost.lemminx.dayz.participants.diagnostics.*;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
@@ -20,6 +22,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private DayzMissionService missionService;
     private final List<ICompletionParticipant> completionParticipants = new ArrayList<>();
     private final List<IDiagnosticsParticipant> diagnosticsParticipants = new ArrayList<>();
+    private final List<ICodeActionParticipant> codeActionParticipants = new ArrayList<>();
 
     @Override
     public void doSave(ISaveContext context) {
@@ -36,6 +39,7 @@ public class DayzCEPlugin implements IXMLExtension {
             missionService = DayzMissionService.create(folders);
             registerCompletionParticipants(registry, missionService);
             registerDiagnosticsParticipants(registry, missionService);
+            registerCodeActionParticipants(registry, missionService);
             missionService.start();
         } catch (Exception ignored) {
 
@@ -49,6 +53,7 @@ public class DayzCEPlugin implements IXMLExtension {
 
         unregisterCompletionParticipants(registry);
         unregisterDiagnosticsParticipants(registry);
+        unregisterCodeActionParticipants(registry);
         missionService.close();
     }
 
@@ -96,5 +101,18 @@ public class DayzCEPlugin implements IXMLExtension {
     private void unregisterDiagnosticsParticipants(XMLExtensionsRegistry registry) {
         diagnosticsParticipants.forEach(registry::unregisterDiagnosticsParticipant);
         diagnosticsParticipants.clear();
+    }
+
+    private void registerCodeActionParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService) {
+        if (codeActionParticipants.isEmpty()) {
+            codeActionParticipants.add(new AddCustomFileCodeAction(missionService));
+
+            codeActionParticipants.forEach(registry::registerCodeActionParticipant);
+        }
+    }
+
+    private void unregisterCodeActionParticipants(XMLExtensionsRegistry registry) {
+        codeActionParticipants.forEach(registry::unregisterCodeActionParticipant);
+        codeActionParticipants.clear();
     }
 }

@@ -21,7 +21,7 @@ import static io.github.rvost.lemminx.dayz.participants.diagnostics.DiagnosticsU
 
 public class MissionDiagnosticsParticipant implements IDiagnosticsParticipant {
 
-    private static final String FILE_NOT_REGISTERED_CODE = "file_not_registered";
+    public static final String FILE_NOT_REGISTERED_CODE = "file_not_registered";
     private static final String FILE_NOT_REGISTERED_MESSAGE = "File \"%s\" is not registered in cfgeconomycore.xml.";
 
     private static final String FILE_OUT_OF_FOLDER_CODE = "file_out_of_folder";
