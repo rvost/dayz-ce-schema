@@ -1,6 +1,7 @@
 package io.github.rvost.lemminx.dayz;
 
 import io.github.rvost.lemminx.dayz.participants.codeaction.AddCustomFileCodeAction;
+import io.github.rvost.lemminx.dayz.participants.codeaction.FixFileTypeCodeAction;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
 import io.github.rvost.lemminx.dayz.participants.diagnostics.*;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
@@ -106,7 +107,8 @@ public class DayzCEPlugin implements IXMLExtension {
     private void registerCodeActionParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService) {
         if (codeActionParticipants.isEmpty()) {
             codeActionParticipants.add(new AddCustomFileCodeAction(missionService));
-
+            codeActionParticipants.add(new FixFileTypeCodeAction(missionService));
+            
             codeActionParticipants.forEach(registry::registerCodeActionParticipant);
         }
     }

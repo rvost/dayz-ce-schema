@@ -5,6 +5,7 @@ import io.github.rvost.lemminx.dayz.model.CfgEconomyCoreModel;
 import io.github.rvost.lemminx.dayz.model.DayzFileType;
 import io.github.rvost.lemminx.dayz.model.MissionModel;
 import io.github.rvost.lemminx.dayz.participants.IndentUtils;
+import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import io.github.rvost.lemminx.dayz.participants.diagnostics.MissionDiagnosticsParticipant;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -53,11 +54,11 @@ public class AddCustomFileCodeAction implements ICodeActionParticipant {
 
             var edits = new ArrayList<Either<TextDocumentEdit, ResourceOperation>>();
             Command command = null;
-            if (match(diagnostic, MissionDiagnosticsParticipant.FILE_NOT_REGISTERED_CODE)) {
+            if (ParticipantsUtils.match(diagnostic, MissionDiagnosticsParticipant.FILE_NOT_REGISTERED_CODE)) {
                 var edit = getCfgEconomyEdit(document, docPath, docType.get());
                 edits.add(Either.forLeft(edit));
             }
-            if (match(diagnostic, MissionDiagnosticsParticipant.FILE_OUT_OF_FOLDER_CODE)) {
+            if (ParticipantsUtils.match(diagnostic, MissionDiagnosticsParticipant.FILE_OUT_OF_FOLDER_CODE)) {
                 var newPath = getNewDocumentPath(docPath);
 
                 var createFileEdit = getCreateFileOperation(newPath);
@@ -172,12 +173,4 @@ public class AddCustomFileCodeAction implements ICodeActionParticipant {
         return missionService.missionRoot.resolve(CfgEconomyCoreModel.CFGECONOMYCORE_XML).toUri().toString();
     }
 
-    public static boolean match(Diagnostic diagnostic, String code) {
-        if (diagnostic == null || diagnostic.getCode() == null || !diagnostic.getCode().isLeft()) {
-            return false;
-        }
-
-        return code == null ? diagnostic.getCode().getLeft() == null :
-                code.equals(diagnostic.getCode().getLeft());
-    }
 }
