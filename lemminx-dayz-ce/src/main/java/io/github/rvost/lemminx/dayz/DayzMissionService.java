@@ -309,6 +309,11 @@ public class DayzMissionService {
         return rootFilePaths.contains(abs) || customFiles.containsKey(abs);
     }
 
+    public Optional<DayzFileType> getRegisteredType(Path path){
+        var abs = path.toAbsolutePath();
+        return  Optional.ofNullable(customFiles.get(abs));
+    }
+
     private static Map<String, Set<String>> getMissionFiles(Path path) {
         try {
             return Files.walk(path)

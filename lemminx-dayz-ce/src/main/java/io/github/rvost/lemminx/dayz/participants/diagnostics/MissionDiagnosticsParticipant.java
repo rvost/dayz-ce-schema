@@ -22,11 +22,15 @@ public class MissionDiagnosticsParticipant implements IDiagnosticsParticipant {
 
     public static final String FILE_NOT_REGISTERED_CODE = "custom_file_not_registered";
     private static final String FILE_NOT_REGISTERED_MESSAGE = "File \"%1$s\" is not registered in cfgeconomycore.xml.\n"
-            +"\"%1$s\" can be registered as custom \"%2$s\" file.";
+            + "\"%1$s\" can be registered as custom \"%2$s\" file.";
 
     public static final String FILE_OUT_OF_FOLDER_CODE = "custom_file_out_of_folder";
     private static final String FILE_OUT_OF_FOLDER_MESSAGE = "File \"%1$s\" is not a part of the mission folder.\n"
-            +"\"%1$s\" can be registered as a custom \"%2$s\" file, but located outside the currently open mission folder.";
+            + "\"%1$s\" can be registered as a custom \"%2$s\" file, but located outside the currently open mission folder.";
+
+    public static final String FILE_TYPE_MISMATCH_CODE = "custom_file_type_mismatch";
+    private static final String FILE_TYPE_MISMATCH_MESSAGE = "Incorrect file type registered in cfgeconomycore.xml.\n"
+            + "File is registered as \"%s\", but actual type appears to be \"%s\".";
 
     private final DayzMissionService missionService;
 
@@ -39,8 +43,14 @@ public class MissionDiagnosticsParticipant implements IDiagnosticsParticipant {
         var docMatch = MissionModel.IsCustomFile(document);
 
         if (docMatch) {
-            validateFileInMissionFolder(document).ifPresentOrElse(diagnostics::add,
-                    () -> validateCustomFileRegistration(document).ifPresent(diagnostics::add));
+            var inFolderDiagnostics = validateFileInMissionFolder(document);
+
+            if (inFolderDiagnostics.isPresent()) {
+                diagnostics.add(inFolderDiagnostics.get());
+            } else {
+                validateCustomFileRegistration(document).ifPresent(diagnostics::add);
+                validateCustomFileType(document).ifPresent(diagnostics::add);
+            }
         }
     }
 
@@ -69,8 +79,27 @@ public class MissionDiagnosticsParticipant implements IDiagnosticsParticipant {
                 var rootTag = document.getDocumentElement();
                 var range = XMLPositionUtility.createRange(rootTag.getStartTagOpenOffset(), rootTag.getStartTagCloseOffset(), document);
                 var fileType = MissionModel.TryGetFileType(document).get();
-                var message = String.format(FILE_NOT_REGISTERED_MESSAGE, docPath.getFileName(), fileType.toString().toLowerCase() );
+                var message = String.format(FILE_NOT_REGISTERED_MESSAGE, docPath.getFileName(), fileType.toString().toLowerCase());
                 return Optional.of(new Diagnostic(range, message, DiagnosticSeverity.Warning, ERROR_SOURCE, FILE_NOT_REGISTERED_CODE));
+            }
+        } catch (URISyntaxException ignored) {
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Diagnostic> validateCustomFileType(DOMDocument document) {
+        try {
+            var docPath = Path.of(new URI(document.getDocumentURI()));
+            var registeredType = missionService.getRegisteredType(docPath);
+            var actualType = MissionModel.TryGetFileType(document);
+
+            if (registeredType.isPresent() && !registeredType.equals(actualType)) {
+                var rootTag = document.getDocumentElement();
+                var range = XMLPositionUtility.createRange(rootTag.getStartTagOpenOffset(), rootTag.getStartTagCloseOffset(), document);
+                var message = String.format(FILE_TYPE_MISMATCH_MESSAGE,
+                        registeredType.get().toString().toLowerCase(),
+                        actualType.get().toString().toLowerCase());
+                return Optional.of(new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, FILE_TYPE_MISMATCH_CODE));
             }
         } catch (URISyntaxException ignored) {
         }
