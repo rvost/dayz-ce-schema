@@ -24,7 +24,7 @@ public class MissionDiagnosticsParticipant implements IDiagnosticsParticipant {
     private static final String FILE_NOT_REGISTERED_MESSAGE = "File \"%1$s\" is not registered in cfgeconomycore.xml.\n"
             +"\"%1$s\" can be registered as custom \"%2$s\" file.";
 
-    private static final String FILE_OUT_OF_FOLDER_CODE = "custom_file_out_of_folder";
+    public static final String FILE_OUT_OF_FOLDER_CODE = "custom_file_out_of_folder";
     private static final String FILE_OUT_OF_FOLDER_MESSAGE = "File \"%1$s\" is not a part of the mission folder.\n"
             +"\"%1$s\" can be registered as a custom \"%2$s\" file, but located outside the currently open mission folder.";
 

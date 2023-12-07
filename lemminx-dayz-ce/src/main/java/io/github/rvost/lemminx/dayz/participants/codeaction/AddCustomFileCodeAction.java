@@ -3,30 +3,28 @@ package io.github.rvost.lemminx.dayz.participants.codeaction;
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.CfgEconomyCoreModel;
 import io.github.rvost.lemminx.dayz.model.DayzFileType;
+import io.github.rvost.lemminx.dayz.model.MissionModel;
 import io.github.rvost.lemminx.dayz.participants.IndentUtils;
 import io.github.rvost.lemminx.dayz.participants.diagnostics.MissionDiagnosticsParticipant;
-import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
+import org.eclipse.lemminx.utils.TextEditUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
-import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-/**
- * This code action adresses 3 main situations:
- * 1) Add a file to an existing empty ce section
- * 2) Add a file to an existing ce section with children
- * 3) Add a file and new ce section
- */
+import static org.eclipse.lemminx.client.ClientCommands.OPEN_URI;
+
 public class AddCustomFileCodeAction implements ICodeActionParticipant {
     private static final String FILE_TAG_FORMAT = "<file name=\"%s\" type=\"%s\"/>\n";
     private static final String CE_TAG_FORMAT =
@@ -42,27 +40,59 @@ public class AddCustomFileCodeAction implements ICodeActionParticipant {
     @Override
     public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
         var diagnostic = request.getDiagnostic();
-        if (!match(diagnostic, MissionDiagnosticsParticipant.FILE_NOT_REGISTERED_CODE)) {
-            return;
-        }
-
         var document = request.getDocument();
-        var rootTag = document.getDocumentElement();
-        var docType = Arrays.stream(DayzFileType.values())
-                .filter(v -> v.RootTag.equals(rootTag.getNodeName()))
-                .findFirst();
+        var docType = MissionModel.TryGetFileType(document);
+
         try {
             var docPath = Path.of(new URI(document.getDocumentURI()));
             var isRegistered = missionService.isRegistered(docPath);
-            if (docType.isPresent() && !isRegistered) {
-                computeCodeAction(document, docType.get(), docPath, codeActions, diagnostic);
+
+            if (docType.isEmpty() || isRegistered) {
+                return;
+            }
+
+            var edits = new ArrayList<Either<TextDocumentEdit, ResourceOperation>>();
+            Command command = null;
+            if (match(diagnostic, MissionDiagnosticsParticipant.FILE_NOT_REGISTERED_CODE)) {
+                var edit = getCfgEconomyEdit(document, docPath, docType.get());
+                edits.add(Either.forLeft(edit));
+            }
+            if (match(diagnostic, MissionDiagnosticsParticipant.FILE_OUT_OF_FOLDER_CODE)) {
+                var newPath = getNewDocumentPath(docPath);
+
+                var createFileEdit = getCreateFileOperation(newPath);
+                edits.add(Either.forRight(createFileEdit));
+
+                var copyFileContentEdit = copyFileContentEdit(document, newPath);
+                edits.add(Either.forLeft(copyFileContentEdit));
+
+                var cfgEconomyEdit = getCfgEconomyEdit(document, newPath, docType.get());
+                edits.add(Either.forLeft(cfgEconomyEdit));
+
+                command = new Command("Open file", OPEN_URI, List.of(newPath.toUri().toString()));
+            }
+
+            if (!edits.isEmpty()) {
+                var ca = new CodeAction("Add file to the mission");
+                ca.setKind(CodeActionKind.QuickFix);
+                ca.setDiagnostics(List.of(diagnostic));
+                ca.setEdit(new WorkspaceEdit(edits));
+                if (command != null) {
+                    ca.setCommand(command);
+                }
+                codeActions.add(ca);
             }
         } catch (URISyntaxException ignored) {
         }
     }
 
-    private void computeCodeAction(DOMDocument document, DayzFileType docType, Path docPath, List<CodeAction> codeActions,
-                                   Diagnostic diagnostic) {
+    /**
+     * This method addresses 3 main situations:
+     * 1) Add a file to an existing empty ce section
+     * 2) Add a file to an existing ce section with children
+     * 3) Add a file and new ce section
+     */
+    private TextDocumentEdit getCfgEconomyEdit(DOMDocument document, Path docPath, DayzFileType docType) throws URISyntaxException {
         var cfgEconomyDocument = org.eclipse.lemminx.utils.DOMUtils.loadDocument(
                 getCfgEconomyCoreURI(),
                 document.getResolverExtensionManager()
@@ -113,14 +143,29 @@ public class AddCustomFileCodeAction implements ICodeActionParticipant {
         var referenceRange = XMLPositionUtility.createRange(referenceRangeStart, referenceRangeEnd, cfgEconomyDocument);
         insertText = IndentUtils.formatText(insertText, "\t", referenceRange.getStart().getCharacter());
 
-        var addFileAction = CodeActionFactory.insert(
-                "Register file in the cfgeconomycore.xml",
-                referenceRange.getEnd(),
-                insertText,
-                cfgEconomyDocument.getTextDocument(),
-                diagnostic
-        );
-        codeActions.add(addFileAction);
+        var te = new TextEdit(new Range(referenceRange.getEnd(), referenceRange.getEnd()), insertText);
+        return TextEditUtils.creatTextDocumentEdit(cfgEconomyDocument, List.of(te));
+    }
+
+    private Path getNewDocumentPath(Path originalPath) {
+        var filename = originalPath.getFileName().toString();
+        var targetFolder = MissionModel.DEFAULT_FILENAMES.contains(filename) ?
+                originalPath.getParent().getFileName().toString() :
+                MissionModel.DB_FOLDER;
+
+        return missionService.missionRoot.resolve(targetFolder).resolve(filename);
+    }
+
+    private ResourceOperation getCreateFileOperation(Path docPath) {
+        var opt = new CreateFileOptions(false, true);
+
+        return new CreateFile(docPath.toUri().toString(), opt);
+    }
+
+    private TextDocumentEdit copyFileContentEdit(DOMDocument original, Path newDocPath) {
+        var identifier = new VersionedTextDocumentIdentifier(newDocPath.toUri().toString(), 0);
+        var te = new TextEdit(new Range(new Position(0, 0), new Position(0, 0)), original.getText());
+        return new TextDocumentEdit(identifier, Collections.singletonList(te));
     }
 
     private String getCfgEconomyCoreURI() {
