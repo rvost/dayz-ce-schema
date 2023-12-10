@@ -17,16 +17,13 @@ The extension automatically configures schema association for CE files (both XML
   ![Validation](./assets/Validation.png)
 - Tooltips on hover (WIP).
   ![Tooltips](./assets/TooltipsOnHover.gif)
-
-If you have questions the extension can provide help on the active file:
-
-![Open Documentation](./assets/OpenDocumentation.gif)
+- If you have questions the extension can provide help on the active file:
+  ![Open Documentation](./assets/OpenDocumentation.gif)
 
 ### Planed features
 
 - Provide full project validation.
 - Provide quick fixes for common validation errors.
-- Provide actions to split and organise custom files.
 
 ## Requirements
 
@@ -36,18 +33,33 @@ It also relies on the [XML extension](https://marketplace.visualstudio.com/items
 
 ## Known Issues
 
-Only open files can be validated. You won't get any validation errors until you open the file in the editor.
+- Only open files can be validated. You won't get any validation errors until you open the file in the editor.
 
-Schemas for modded files aren't bound automatically.
+- Schemas for modded files aren't bound automatically.
 If you added new files in `cfgeconomycore.xml` you need to run `Update modded files associations` command from palette to update schema associations.
 
-Completion and validation for Object Spawner custom lists currently only works  for json files in the `objectSpawners` folder.
+- Completion and validation for Object Spawner custom lists currently only works  for json files in the `objectSpawners` folder.
 For example, the `objectSpawners/nwaf.json` file will have completion and validation according to the [Object Spawner](https://community.bistudio.com/wiki?title=DayZ%3AObject_Spawner) rules, but `custom/berezino.json` or `altartrader.json` will not.
 *This is due to limitations of the VS Code JSON Schema API and may be resolved in the future.* 
 
-Completion and validation for Spawning Gear Configuration currently only works for json files in the `spawnPresets` folder **or** files which name ends with `_loadout` (e.g. `deathmatch_loadout.json`).
+- Completion and validation for Spawning Gear Configuration currently only works for json files in the `spawnPresets` folder **or** files which name ends with `_loadout` (e.g. `deathmatch_loadout.json`).
 
 ## Release Notes
+
+### 0.9.0
+
+- Added completion and validation for `events.xml`.
+- Added completion and validation for `cfgeventspawns.xml`.
+- Added validation for `globals.xml`.
+- Added completion and validation for `cfgenvironment.xml`.
+- Added completion and validation for `mapgroupproto.xml`.
+- Added completion and validation for `mapgrouppos.xml`.
+- Added diagnostic for unused custom files (not registered in `cfgeconomycore.xml`).
+- Added informational diagnostics for files outside the mission folder.
+- Added error diagnostics for the case where the type registered in the `cfgeconomycore.xml` file doesn't match the contents of the file.
+- Added quick fix for registering unused custom files in `cfgeconomycore.xml`. External files would be copied to the mission folder.
+- Added quick fix for file type mismatch.
+- Added refactoring action to move and copy elements between registered custom files.
 
 ### 0.7.1
 

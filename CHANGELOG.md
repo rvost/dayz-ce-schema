@@ -2,6 +2,37 @@
 
 ## [Unreleased]
 
+## [0.9.0]
+
+### Added
+
+- Completion and validation for `events.xml`:
+    - Completion for classnames in `events.xml`;
+    - Validation of event names;
+    - Validation for classnames referenced in events.xml.
+- Completion and validation for `cfgeventspawns.xml`:
+    - Completion for event names;
+    - Validation for event references.
+- Validation for `globals.xml`.
+- Completion and validation for `cfgenvironment.xml`:
+    - Completion for file paths;
+    - Context-sensitive completion for file references;
+    - Validation for file paths and references.
+- Completion and validation for `mapgroupproto.xml`:
+    - Context-sensitive completion for limit flags;
+    - Validation for event references.
+    - Validation for limit flags.
+- Completion and validation for `mapgrouppos.xml`.
+- Mission file diagnostics:
+    - Warning for unused custom files (not registered in `cfgeconomycore.xml`);
+    - Notice message for files outside the mission folder.
+    - Error if the type registered in `cfgeconomycore.xml` doesn't match the file content.
+- Code actions:
+    - Quick fix for registration of unused custom files in `cfgeconomycore.xml`;
+    - Copy external files to the mission folder and register in `cfgeconomycore.xml`;
+    - Quick fix for file type mismatch.
+    - Move and copy elements between registered custom files.
+
 ## [0.7.1]
 
 ### Added
