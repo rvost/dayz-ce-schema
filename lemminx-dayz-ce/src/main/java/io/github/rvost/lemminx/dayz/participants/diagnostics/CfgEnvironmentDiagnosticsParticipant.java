@@ -41,7 +41,7 @@ public class CfgEnvironmentDiagnosticsParticipant implements IDiagnosticsPartici
     }
 
     private void validateCfgEnvironment(DOMDocument document, List<Diagnostic> diagnostics) {
-        var territoriesNode = document.getDocumentElement().getChildren().getFirst();
+        var territoriesNode = document.getDocumentElement().getChildren().get(0);
         var fileNodes = territoriesNode.getChildren().stream()
                 .filter(n -> CfgEnvironmentModel.FILE_TAG.equals(n.getNodeName()))
                 .toList();

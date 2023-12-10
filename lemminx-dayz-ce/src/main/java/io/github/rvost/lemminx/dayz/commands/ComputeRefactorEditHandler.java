@@ -58,8 +58,8 @@ public class ComputeRefactorEditHandler extends AbstractDOMDocumentCommandHandle
         }
         var edits = new ArrayList<Either<TextDocumentEdit, ResourceOperation>>();
 
-        var actualStartOffset = selectedNodes.getFirst().getStart();
-        var actualEndOffset = selectedNodes.getLast().getEnd();
+        var actualStartOffset = selectedNodes.get(0).getStart();
+        var actualEndOffset = selectedNodes.get(selectedNodes.size() - 1).getEnd();
 
         var text = document.getTextDocument().getText().substring(actualStartOffset, actualEndOffset);
         var targetEdit = computeTargetEdit(targetDocument, text);

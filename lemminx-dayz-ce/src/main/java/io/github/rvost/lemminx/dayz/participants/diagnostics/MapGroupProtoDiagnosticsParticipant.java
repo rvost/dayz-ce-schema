@@ -40,7 +40,7 @@ public class MapGroupProtoDiagnosticsParticipant implements IDiagnosticsParticip
         var limitsDefinitions = missionService.getLimitsDefinitions();
         var userLimitDefinitions = missionService.getUserLimitsDefinitions();
 
-        var defaultsNode = document.getDocumentElement().getChildren().getFirst();
+        var defaultsNode = document.getDocumentElement().getChildren().get(0);
         defaultsNode.getChildren().stream()
                 .filter(n -> MapGroupProtoModel.DEFAULT_TAG.equals(n.getNodeName()))
                 .map(n -> n.getAttributeNode(MapGroupProtoModel.DE_ATTRIBUTE))
