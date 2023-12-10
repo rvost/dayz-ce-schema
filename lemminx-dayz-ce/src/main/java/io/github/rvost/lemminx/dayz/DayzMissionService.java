@@ -30,7 +30,7 @@ public class DayzMissionService {
     private final ConcurrentMap<Path, Set<String>> customEvents = new ConcurrentHashMap<>();
     private final DirWatch watch;
     private final ConcurrentLinkedQueue<MissionFolderEvent> folderChangeEvents;
-    private final Set<Path> rootFilePaths;
+    private final Map<Path, DayzFileType> rootFilePaths;
 
     private DayzMissionService(Path missionRoot,
                                Map<String, Set<String>> missionFolders,
@@ -53,13 +53,13 @@ public class DayzMissionService {
         this.folderChangeEvents = new ConcurrentLinkedQueue<>();
         this.watch = new DirWatch(missionRoot, this::onMissionFolderEvent);
         this.executor = Executors.newCachedThreadPool();
-        rootFilePaths = Set.of(
-                missionRoot.resolve(TypesModel.DB_FOLDER).resolve(TypesModel.TYPES_FILE),
-                missionRoot.resolve(SpawnableTypesModel.SPAWNABLETYPES_FILE),
-                missionRoot.resolve(TypesModel.DB_FOLDER).resolve(GlobalsModel.GLOBALS_FILE),
-                missionRoot.resolve(EconomyModel.DB_FOLDER).resolve(EconomyModel.ECONOMY_FILE),
-                missionRoot.resolve(EventsModel.DB_FOLDER).resolve(EventsModel.EVENTS_FILE),
-                missionRoot.resolve(MessagesModel.DB_FOLDER).resolve(MessagesModel.MESSAGES_FILE)
+        rootFilePaths = Map.ofEntries(
+                Map.entry(missionRoot.resolve(MissionModel.DB_FOLDER).resolve(TypesModel.TYPES_FILE), DayzFileType.TYPES),
+                Map.entry(missionRoot.resolve(SpawnableTypesModel.SPAWNABLETYPES_FILE), DayzFileType.SPAWNABLETYPES),
+                Map.entry(missionRoot.resolve(MissionModel.DB_FOLDER).resolve(GlobalsModel.GLOBALS_FILE), DayzFileType.GLOBALS),
+                Map.entry(missionRoot.resolve(MissionModel.DB_FOLDER).resolve(EconomyModel.ECONOMY_FILE), DayzFileType.ECONOMY),
+                Map.entry(missionRoot.resolve(MissionModel.DB_FOLDER).resolve(EventsModel.EVENTS_FILE), DayzFileType.EVENTS),
+                Map.entry(missionRoot.resolve(MissionModel.DB_FOLDER).resolve(MessagesModel.MESSAGES_FILE), DayzFileType.MESSAGES)
         );
     }
 
@@ -306,12 +306,20 @@ public class DayzMissionService {
 
     public boolean isRegistered(Path path) {
         var abs = path.toAbsolutePath();
-        return rootFilePaths.contains(abs) || customFiles.containsKey(abs);
+        return rootFilePaths.containsKey(abs) || customFiles.containsKey(abs);
     }
 
-    public Optional<DayzFileType> getRegisteredType(Path path){
+    public Optional<DayzFileType> getRegisteredType(Path path) {
         var abs = path.toAbsolutePath();
-        return  Optional.ofNullable(customFiles.get(abs));
+        return Optional.ofNullable(customFiles.get(abs));
+    }
+
+    public Stream<Path> getRegisteredFiles(DayzFileType type) {
+        var root = rootFilePaths.entrySet().stream();
+        var custom = customFiles.entrySet().stream();
+        return Stream.concat(root, custom)
+                .filter(e -> e.getValue().equals(type))
+                .map(Map.Entry::getKey);
     }
 
     private static Map<String, Set<String>> getMissionFiles(Path path) {

@@ -1,12 +1,15 @@
 package io.github.rvost.lemminx.dayz;
 
+import io.github.rvost.lemminx.dayz.commands.ComputeRefactorEditHandler;
 import io.github.rvost.lemminx.dayz.participants.codeaction.AddCustomFileCodeAction;
 import io.github.rvost.lemminx.dayz.participants.codeaction.FixFileTypeCodeAction;
+import io.github.rvost.lemminx.dayz.participants.codeaction.RefactorCustomFilesCodeAction;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
 import io.github.rvost.lemminx.dayz.participants.diagnostics.*;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
@@ -24,6 +27,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private final List<ICompletionParticipant> completionParticipants = new ArrayList<>();
     private final List<IDiagnosticsParticipant> diagnosticsParticipants = new ArrayList<>();
     private final List<ICodeActionParticipant> codeActionParticipants = new ArrayList<>();
+    private IXMLCommandService.IDelegateCommandHandler computeRefactorEditHandler;
 
     @Override
     public void doSave(ISaveContext context) {
@@ -41,6 +45,11 @@ public class DayzCEPlugin implements IXMLExtension {
             registerCompletionParticipants(registry, missionService);
             registerDiagnosticsParticipants(registry, missionService);
             registerCodeActionParticipants(registry, missionService);
+
+            var commandService = registry.getCommandService();
+            computeRefactorEditHandler = new ComputeRefactorEditHandler(registry.getDocumentProvider(), missionService);
+            commandService.registerCommand(ComputeRefactorEditHandler.COMMAND, computeRefactorEditHandler);
+
             missionService.start();
         } catch (Exception ignored) {
 
@@ -55,6 +64,9 @@ public class DayzCEPlugin implements IXMLExtension {
         unregisterCompletionParticipants(registry);
         unregisterDiagnosticsParticipants(registry);
         unregisterCodeActionParticipants(registry);
+
+        var commandService = registry.getCommandService();
+        commandService.unregisterCommand(ComputeRefactorEditHandler.COMMAND);
         missionService.close();
     }
 
@@ -108,7 +120,8 @@ public class DayzCEPlugin implements IXMLExtension {
         if (codeActionParticipants.isEmpty()) {
             codeActionParticipants.add(new AddCustomFileCodeAction(missionService));
             codeActionParticipants.add(new FixFileTypeCodeAction(missionService));
-            
+            codeActionParticipants.add(new RefactorCustomFilesCodeAction(missionService));
+
             codeActionParticipants.forEach(registry::registerCodeActionParticipant);
         }
     }

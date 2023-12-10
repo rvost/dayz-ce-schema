@@ -6,6 +6,7 @@ import {FILENAME_PATTERN, getCustomDefinitions, parseFile} from "./xml/cfgeconom
 import {makeGlobPattern, mergePatterns, readFileAsText} from "./utils";
 import {documentationCommand, documentationHandler} from "./documentation/documentationProvider";
 import {XMLExtensionApi} from "./xml/xmlExtensionApi";
+import {applyCustomFilesRefactorCommand, applyCustomFilesRefactorHandler} from "./applyCustomFilesRefactor";
 
 const defaultSchemaAssociations = _defaultAssociations as SchemaAssociation[];
 
@@ -76,6 +77,9 @@ export async function activate(context: vscode.ExtensionContext) {
     const command = "dayz-ce-schema.updateCustomAssociations";
     context.subscriptions.push(vscode.commands.registerCommand(command, updateAssociations));
     context.subscriptions.push(vscode.commands.registerCommand(documentationCommand, documentationHandler));
+    context.subscriptions.push(
+        vscode.commands.registerCommand(applyCustomFilesRefactorCommand, applyCustomFilesRefactorHandler)
+    );
 
     const fileAssociations = await getAssociations();
     await setupRedhatXml(fileAssociations);
