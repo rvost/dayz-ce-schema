@@ -28,6 +28,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private final List<IDiagnosticsParticipant> diagnosticsParticipants = new ArrayList<>();
     private final List<ICodeActionParticipant> codeActionParticipants = new ArrayList<>();
     private IXMLCommandService.IDelegateCommandHandler computeRefactorEditHandler;
+    private DayzSchemaURIResolver uriResolver;
 
     @Override
     public void doSave(ISaveContext context) {
@@ -50,6 +51,9 @@ public class DayzCEPlugin implements IXMLExtension {
             computeRefactorEditHandler = new ComputeRefactorEditHandler(registry.getDocumentProvider(), missionService);
             commandService.registerCommand(ComputeRefactorEditHandler.COMMAND, computeRefactorEditHandler);
 
+            uriResolver = new DayzSchemaURIResolver(registry.getDocumentProvider());
+            registry.getResolverExtensionManager().registerResolver(uriResolver);
+
             missionService.start();
         } catch (Exception ignored) {
 
@@ -65,8 +69,10 @@ public class DayzCEPlugin implements IXMLExtension {
         unregisterDiagnosticsParticipants(registry);
         unregisterCodeActionParticipants(registry);
 
-        var commandService = registry.getCommandService();
-        commandService.unregisterCommand(ComputeRefactorEditHandler.COMMAND);
+        registry.getCommandService().unregisterCommand(ComputeRefactorEditHandler.COMMAND);
+
+        registry.getResolverExtensionManager().unregisterResolver(uriResolver);
+
         missionService.close();
     }
 
