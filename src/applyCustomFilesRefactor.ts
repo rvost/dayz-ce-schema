@@ -11,8 +11,11 @@ export async function applyCustomFilesRefactorHandler(kind: string, range: Range
         .map(o => Uri.parse(o))
         .map(o => ({label: workspace.asRelativePath(o, false), description: o.toString(), uri: o}));
 
+    if (options.length === 0) {
+        return;
+    }
     const selectDocumentItem = await window.showQuickPick(documentItems, {
-        placeHolder: "Pick page to open",
+        placeHolder: "Pick destination file",
         canPickMany: false
     });
 
