@@ -31,11 +31,14 @@ public class EventsDiagnosticsParticipant implements IDiagnosticsParticipant {
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
         if (EventsModel.isEvents(domDocument)) {
-            validateEvents(domDocument, list, cancelChecker);
+            validateEventNames(domDocument, list, cancelChecker);
+            if(missionService.isInMissionFolder(domDocument)){
+                validateTypeReferences(domDocument, list, cancelChecker);
+            }
         }
     }
 
-    private void validateEvents(DOMDocument document, List<Diagnostic> diagnostics, CancelChecker cancelChecker) {
+    private void validateEventNames(DOMDocument document, List<Diagnostic> diagnostics, CancelChecker cancelChecker) {
         for (var eventNode : document.getDocumentElement().getChildren()) {
             if (eventNode.hasAttribute(EventsModel.NAME_ATTRIBUTE)) {
                 var nameAttr = eventNode.getAttributeNode(EventsModel.NAME_ATTRIBUTE);
@@ -48,7 +51,11 @@ public class EventsDiagnosticsParticipant implements IDiagnosticsParticipant {
                 }
             }
             cancelChecker.checkCanceled();
+        }
+    }
 
+    private void validateTypeReferences(DOMDocument document, List<Diagnostic> diagnostics, CancelChecker cancelChecker){
+        for (var eventNode : document.getDocumentElement().getChildren()) {
             eventNode.getChildren().stream()
                     .filter(n -> EventsModel.CHILDREN_TAG.equals(n.getNodeName()))
                     .flatMap(n -> n.getChildren().stream())

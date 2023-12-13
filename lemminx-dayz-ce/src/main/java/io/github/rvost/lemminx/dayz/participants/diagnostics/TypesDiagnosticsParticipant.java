@@ -35,7 +35,7 @@ public class TypesDiagnosticsParticipant implements IDiagnosticsParticipant {
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (TypesModel.isTypes(domDocument)) {
+        if (TypesModel.isTypes(domDocument) && missionService.isInMissionFolder(domDocument)) {
             validateTypes(domDocument, list, cancelChecker);
         }
     }

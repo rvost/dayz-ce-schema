@@ -26,7 +26,7 @@ public class MapGroupPosDiagnosticsParticipant implements IDiagnosticsParticipan
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (MapGroupPosModel.isMapGroupPos(domDocument)) {
+        if (MapGroupPosModel.isMapGroupPos(domDocument) && missionService.isInMissionFolder(domDocument)) {
             validate(domDocument, list, cancelChecker);
         }
     }

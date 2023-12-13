@@ -3,10 +3,12 @@ package io.github.rvost.lemminx.dayz;
 import io.github.rvost.lemminx.dayz.model.*;
 import io.github.rvost.lemminx.dayz.utils.DirWatch;
 import io.github.rvost.lemminx.dayz.utils.MissionFolderEvent;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lsp4j.WorkspaceFolder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -40,7 +42,7 @@ public class DayzMissionService {
                                Set<String> rootTypes,
                                Set<String> rootEvents,
                                Set<String> mapGroups) throws Exception {
-        this.missionRoot = missionRoot;
+        this.missionRoot = missionRoot.toAbsolutePath();
         this.missionFolders = missionFolders;
         this.envFiles = getEnvFiles(missionRoot); // TODO: remove
         this.customFiles = customFiles;
@@ -302,6 +304,16 @@ public class DayzMissionService {
 
     public Set<String> getMapGroups() {
         return mapGroups;
+    }
+
+    public boolean isInMissionFolder(DOMDocument document){
+        try {
+            var docPath = Path.of(new URI(document.getDocumentURI())).toAbsolutePath();
+            return docPath.startsWith(missionRoot);
+        }
+        catch (URISyntaxException ex){
+            return false;
+        }
     }
 
     public boolean isRegistered(Path path) {

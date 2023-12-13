@@ -31,7 +31,7 @@ public class MapGroupProtoDiagnosticsParticipant implements IDiagnosticsParticip
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (MapGroupProtoModel.isMapGroupProto(domDocument)) {
+        if (MapGroupProtoModel.isMapGroupProto(domDocument) && missionService.isInMissionFolder(domDocument)) {
             validate(domDocument, list, cancelChecker);
         }
     }

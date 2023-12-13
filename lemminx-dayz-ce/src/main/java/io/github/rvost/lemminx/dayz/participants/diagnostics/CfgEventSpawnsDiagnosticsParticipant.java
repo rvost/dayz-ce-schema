@@ -26,7 +26,7 @@ public class CfgEventSpawnsDiagnosticsParticipant implements IDiagnosticsPartici
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (CfgEventSpawnsModel.isEventSpawns(domDocument)) {
+        if (CfgEventSpawnsModel.isEventSpawns(domDocument) && missionService.isInMissionFolder(domDocument)) {
             validateEventSpawns(domDocument, list);
         }
     }

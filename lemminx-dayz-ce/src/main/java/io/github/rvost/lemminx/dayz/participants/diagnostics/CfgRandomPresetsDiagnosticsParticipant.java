@@ -23,7 +23,7 @@ public class CfgRandomPresetsDiagnosticsParticipant implements IDiagnosticsParti
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (RandomPresetsModel.isRandomPresets(domDocument)) {
+        if (RandomPresetsModel.isRandomPresets(domDocument) && missionService.isInMissionFolder(domDocument)) {
             validateRandomPresets(domDocument, list);
         }
     }

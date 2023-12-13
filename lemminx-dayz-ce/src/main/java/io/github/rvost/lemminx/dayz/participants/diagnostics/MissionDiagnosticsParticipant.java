@@ -57,9 +57,7 @@ public class MissionDiagnosticsParticipant implements IDiagnosticsParticipant {
     private Optional<Diagnostic> validateFileInMissionFolder(DOMDocument document) {
         try {
             var docPath = Path.of(new URI(document.getDocumentURI())).toAbsolutePath();
-            var missionPath = missionService.missionRoot.toAbsolutePath();
-
-            if (!docPath.startsWith(missionPath)) {
+            if (!missionService.isInMissionFolder(document)) {
                 var rootTag = document.getDocumentElement();
                 var range = XMLPositionUtility.createRange(rootTag.getStartTagOpenOffset(), rootTag.getStartTagCloseOffset(), document);
                 var fileType = MissionModel.TryGetFileType(document).get();

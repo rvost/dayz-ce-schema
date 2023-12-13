@@ -30,7 +30,7 @@ public class SpawnableTypesDiagnosticsParticipant implements IDiagnosticsPartici
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (SpawnableTypesModel.isSpawnableTypes(domDocument)) {
+        if (SpawnableTypesModel.isSpawnableTypes(domDocument) && missionService.isInMissionFolder(domDocument)) {
             validateSpawnableTypes(domDocument, list);
         }
     }

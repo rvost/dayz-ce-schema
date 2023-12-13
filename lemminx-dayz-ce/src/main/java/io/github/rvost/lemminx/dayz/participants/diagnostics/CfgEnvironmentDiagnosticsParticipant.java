@@ -48,8 +48,11 @@ public class CfgEnvironmentDiagnosticsParticipant implements IDiagnosticsPartici
 
         var keys = getFileKeys(fileNodes);
 
-        diagnostics.addAll(valifateFiles(fileNodes));
         diagnostics.addAll(validateFileReferences(territoriesNode, keys));
+
+        if(missionService.isInMissionFolder(document)){
+            diagnostics.addAll(valifateFiles(fileNodes));
+        }
     }
 
     private List<Diagnostic> valifateFiles(List<DOMNode> fileNodes) {
