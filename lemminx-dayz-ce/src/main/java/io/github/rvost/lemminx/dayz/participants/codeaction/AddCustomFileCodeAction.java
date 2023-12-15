@@ -87,6 +87,7 @@ public class AddCustomFileCodeAction implements ICodeActionParticipant {
         }
     }
 
+    // TODO: Refactor
     /**
      * This method addresses 3 main situations:
      * 1) Add a file to an existing empty ce section

@@ -1,6 +1,7 @@
 package io.github.rvost.lemminx.dayz;
 
 import io.github.rvost.lemminx.dayz.commands.ComputeRefactorEditHandler;
+import io.github.rvost.lemminx.dayz.commands.CreateNewFileHandler;
 import io.github.rvost.lemminx.dayz.participants.codeaction.AddCustomFileCodeAction;
 import io.github.rvost.lemminx.dayz.participants.codeaction.FixFileTypeCodeAction;
 import io.github.rvost.lemminx.dayz.participants.codeaction.RefactorCustomFilesCodeAction;
@@ -9,7 +10,6 @@ import io.github.rvost.lemminx.dayz.participants.diagnostics.*;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
-import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
@@ -27,7 +27,6 @@ public class DayzCEPlugin implements IXMLExtension {
     private final List<ICompletionParticipant> completionParticipants = new ArrayList<>();
     private final List<IDiagnosticsParticipant> diagnosticsParticipants = new ArrayList<>();
     private final List<ICodeActionParticipant> codeActionParticipants = new ArrayList<>();
-    private IXMLCommandService.IDelegateCommandHandler computeRefactorEditHandler;
     private DayzSchemaURIResolver uriResolver;
 
     @Override
@@ -48,8 +47,10 @@ public class DayzCEPlugin implements IXMLExtension {
             registerCodeActionParticipants(registry, missionService);
 
             var commandService = registry.getCommandService();
-            computeRefactorEditHandler = new ComputeRefactorEditHandler(registry.getDocumentProvider(), missionService);
-            commandService.registerCommand(ComputeRefactorEditHandler.COMMAND, computeRefactorEditHandler);
+            commandService.registerCommand(ComputeRefactorEditHandler.COMMAND,
+                    new ComputeRefactorEditHandler(registry.getDocumentProvider(), missionService));
+            commandService.registerCommand(CreateNewFileHandler.COMMAND,
+                    new CreateNewFileHandler(missionService, registry.getResolverExtensionManager()));
 
             uriResolver = new DayzSchemaURIResolver(registry.getDocumentProvider());
             registry.getResolverExtensionManager().registerResolver(uriResolver);
@@ -70,6 +71,7 @@ public class DayzCEPlugin implements IXMLExtension {
         unregisterCodeActionParticipants(registry);
 
         registry.getCommandService().unregisterCommand(ComputeRefactorEditHandler.COMMAND);
+        registry.getCommandService().unregisterCommand(CreateNewFileHandler.COMMAND);
 
         registry.getResolverExtensionManager().unregisterResolver(uriResolver);
 

@@ -79,7 +79,7 @@ public class RefactorCustomFilesCodeAction implements ICodeActionParticipant {
         move.setCommand(
                 new Command("Apply refactor",
                         ClientCommands.APPLY_CUSTOM_FILES_REFACTOR,
-                        List.of("move", range, options))
+                        List.of("move", range, options, docType.get()))
         );
         move.setDiagnostics(List.of());
         codeActions.add(move);
@@ -89,7 +89,7 @@ public class RefactorCustomFilesCodeAction implements ICodeActionParticipant {
         override.setCommand(
                 new Command("Apply refactor",
                         ClientCommands.APPLY_CUSTOM_FILES_REFACTOR,
-                        List.of("override", range, options))
+                        List.of("override", range, options, docType.get()))
         );
         override.setDiagnostics(List.of());
         codeActions.add(override);
