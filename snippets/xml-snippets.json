@@ -1,0 +1,117 @@
+{
+    "Regular type": {
+		"scope": "xml",
+		"prefix": "typ",
+		"body": [
+		  "<type name=\"$1\">",
+		  "  <nominal>${2:10}</nominal>",
+		  "  <lifetime>14400</lifetime>",
+		  "  <restock>1800</restock>",
+		  "  <min>${3:10}</min>",
+		  "  <quantmin>-1</quantmin>",
+		  "  <quantmax>-1</quantmax>",
+		  "  <cost>100</cost>",
+		  "  <flags count_in_cargo=\"0\" count_in_hoarder=\"0\" count_in_map=\"1\" count_in_player=\"0\" crafted=\"0\" deloot=\"0\"/>",
+		  "  <category name=\"$4\"/>",
+		  "  <usage name=\"$5\"/>",
+		  "  <value name=\"$6\"/>",
+		  "</type>$0"
+		],
+		"description": "Regular type"
+	},
+	"Regular event": {
+		"scope": "xml",
+		"prefix": "evn",
+		"body": [
+		  "<event name=\"$1\">",
+		  "  <nominal>${2:5}</nominal>",
+		  "  <min>${3:5}</min>",
+		  "  <max>${4:5}</max>",
+		  "  <lifetime>${5:1800}</lifetime>",
+		  "  <restock>${6:0}</restock>",
+		  "  <saferadius>${7:200}</saferadius>",
+		  "  <distanceradius>${8:0}</distanceradius>",
+		  "  <cleanupradius>${9:1000}</cleanupradius>",
+		  "  <flags deletable=\"0\" init_random=\"0\" remove_damaged=\"1\"/>",
+		  "  <position>${10:fixed}</position>",
+		  "  <limit>${11:custom}</limit>",
+		  "  <active>1</active>",
+		  "  <children>",
+		  "    <child lootmax=\"0\" lootmin=\"0\" max=\"1\" min=\"1\" type=\"$12\"/>",
+		  "    $0",
+		  "  </children>",
+		  "</event>"
+		],
+		"description": "Regular event"
+	},
+	"Deadline message": {
+		"scope": "xml",
+		"prefix": "msg-d",
+		"body": [
+		  "<message>",
+		  "  <deadline>${1:600}</deadline>",
+		  "  <shutdown>1</shutdown>",
+		  "  <text>${2:#name will shutdown in #tmin minutes.}</text>",
+		  "</message>$0"
+		],
+		"description": "Deadline message"
+	},
+	"Repeat message": {
+		"scope": "xml",
+		"prefix": "msg-r",
+		"body": [
+		  "<message>",
+		  "  <repeat>${1:10}</repeat>",
+		  "  <text>$2</text>",
+		  "</message>$0"
+		],
+		"description": "Repeat message"
+	},
+	"On connect message": {
+		"scope": "xml",
+		"prefix": "msg-c",
+		"body": [
+		  "<message>",
+		  "  <delay>${1:2}</delay>",
+		  "  <onconnect>1</onconnect>",
+		  "  <text>${2:Welcome to my server #name}</text>",
+		  "</message>"
+		],
+		"description": "On connect message"
+	},
+	"Spawnable type attachments": {
+		"scope": "xml",
+		"prefix": "spwn-a",
+		"body": [
+		  "<type name=\"$1\">",
+		  "  <attachments chance=\"${2:1.00}\">",
+		  "    <item name=\"$3\" chance=\"${4:1.00}\" />$5",
+		  "  </attachments>$6",
+		  "</type>$0"
+		],
+		"description": "Spawnable type attachments"
+	},
+	"Spawnable type cargo": {
+		"scope": "xml",
+		"prefix": "spwn-c",
+		"body": [
+		  "<type name=\"$1\">",
+		  "  <cargo chance=\"${2:1.00}\">",
+		  "    <item name=\"$3\" chance=\"${4:1.00}\" />$5",
+		  "  </cargo>$6",
+		  "</type>$0"
+		],
+		"description": "Spawnable type cargo"
+	},
+	"Spawnable type presets": {
+		"scope": "xml",
+		"prefix": "spwn-p",
+		"body": [
+		  "<type name=\"$1\">",
+		  "  <cargo preset=\"$2\" />$3",
+		  "  <attachments preset=\"$4\" />$5",
+		  "</type>$0"
+		],
+		"description": "Spawnable type presets"
+	}
+}

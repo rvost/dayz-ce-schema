@@ -1,0 +1,44 @@
+{
+    "Loadout slot": {
+		"scope": "json",
+		"prefix": "ldt-s",
+		"body": [
+		  "{",
+		  "  \"slotName\": \"${1:Body}\",",
+		  "  \"discreteItemSets\": [",
+		  "    {",
+		  "      \"itemType\": \"$2\",",
+		  "      \"spawnWeight\": {$3:1},",
+		  "      \"attributes\": {",
+		  "        \"healthMin\": ${4:0.9},",
+		  "        \"healthMax\": ${5:0.99},",
+		  "        \"quantityMin\": 1.0,",
+		  "        \"quantityMax\": 1.0",
+		  "      },",
+		  "      \"quickBarSlot\": ${6:-1}",
+		  "    }${7:,}",
+		  "    $0",
+		  "  ]",
+		  "}"
+		],
+		"description": "Loadout slot"
+	},
+	"Loadout item": {
+		"scope": "json",
+		"prefix": "ldt-i",
+		"body": [
+		  "{",
+		  "  \"itemType\": \"$1\",",
+		  "  \"spawnWeight\": ${2:1},",
+		  "  \"attributes\": {",
+		  "    \"healthMin\": ${3:0.9},",
+		  "    \"healthMax\": ${4:0.99},",
+		  "    \"quantityMin\": 1.0,",
+		  "    \"quantityMax\": 1.0",
+		  "  },",
+		  "  \"quickBarSlot\": ${5:-1}",
+		  "}$0"
+		],
+		"description": "Loadout item"
+	}
+}

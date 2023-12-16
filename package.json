@@ -11,6 +11,7 @@
   },
   "categories": [
     "Linters",
+    "Snippets",
     "Other"
   ],
   "keywords": [
@@ -120,7 +121,17 @@
           }
         }
       }
-    }
+    },
+    "snippets":[
+      {
+        "language": "xml",
+        "path": "./snippets/xml-snippets.json"
+      },
+      {
+        "language": "xml",
+        "path": "./snippets/json-snippets.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
