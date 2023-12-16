@@ -5,12 +5,14 @@ import io.github.rvost.lemminx.dayz.commands.ClientCommands;
 import io.github.rvost.lemminx.dayz.model.DayzFileType;
 import io.github.rvost.lemminx.dayz.model.MissionModel;
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.net.URI;
@@ -32,6 +34,21 @@ public class RefactorCustomFilesCodeAction implements ICodeActionParticipant {
     public void doCodeActionUnconditional(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) throws CancellationException {
         var document = request.getDocument();
         var docType = MissionModel.TryGetFileType(document);
+        if (docType.isEmpty()) {
+            return;
+        }
+        var docUri = getUri(document);
+        if (docUri == null) {
+            return;
+        }
+
+        var range = request.getRange();
+        Optional<DOMNode> startNode = getStartNode(document, range);
+        if (startNode.isEmpty()) {
+            return;
+        }
+
+        var options = getOptions(docType.get(), docUri);
 
         var isRegistered = false;
         try {
@@ -41,59 +58,39 @@ public class RefactorCustomFilesCodeAction implements ICodeActionParticipant {
 
         }
 
-        if (docType.isEmpty() || !isRegistered) {
-            return;
+        if (isRegistered) {
+            generateCodeActionsForMissionFile(codeActions, range, options, docType.get());
+        } else {
+            generateActionsForExternalFile(codeActions, range, options, docType.get());
         }
 
-        Optional<DOMNode> startNode = Optional.empty();
-        var range = request.getRange();
+    }
+
+    private static URI getUri(DOMDocument document) {
+        URI docUri;
+        try {
+            docUri = new URI(document.getDocumentURI());
+            // Make URI string representation consistent
+            var p = Path.of(docUri);
+            docUri = p.toUri();
+        } catch (URISyntaxException e) {
+            return null;
+        }
+        return docUri;
+    }
+
+    private static Optional<DOMNode> getStartNode(DOMDocument document, Range range) {
         try {
 
             var startOffset = document.offsetAt(range.getStart());
             var endOffset = document.offsetAt(range.getEnd());
 
-            startNode = document.getDocumentElement().getChildren().stream()
+            return document.getDocumentElement().getChildren().stream()
                     .filter(n -> inRange(n.getStart(), startOffset, endOffset) || inRange(n.getEnd(), startOffset, endOffset))
                     .findAny();
         } catch (BadLocationException ignored) {
-
+            return Optional.empty();
         }
-
-        if (startNode.isEmpty()) {
-            return;
-        }
-
-        // TODO: Refactor
-        URI docUri = null;
-        try {
-            docUri = new URI(document.getDocumentURI());
-            var p = Path.of(docUri);
-            docUri = p.toUri();
-        } catch (URISyntaxException e) {
-            return;
-        }
-        var options = getOptions(docType.get(), docUri);
-
-        var move = new CodeAction(String.format("Move %s to...", docType.get().RootTag));
-        move.setKind(CodeActionKind.Refactor + ".move");
-        move.setCommand(
-                new Command("Apply refactor",
-                        ClientCommands.APPLY_CUSTOM_FILES_REFACTOR,
-                        List.of("move", range, options, docType.get()))
-        );
-        move.setDiagnostics(List.of());
-        codeActions.add(move);
-
-        var override = new CodeAction(String.format("Override %s in...", docType.get().RootTag));
-        override.setKind(CodeActionKind.RefactorRewrite);
-        override.setCommand(
-                new Command("Apply refactor",
-                        ClientCommands.APPLY_CUSTOM_FILES_REFACTOR,
-                        List.of("override", range, options, docType.get()))
-        );
-        override.setDiagnostics(List.of());
-        codeActions.add(override);
-
     }
 
     private List<String> getOptions(DayzFileType docType, URI docUri) {
@@ -107,5 +104,45 @@ public class RefactorCustomFilesCodeAction implements ICodeActionParticipant {
 
     private static boolean inRange(int offset, int startOffset, int endOffset) {
         return offset >= startOffset && offset <= endOffset;
+    }
+
+    private static void generateCodeActionsForMissionFile(List<CodeAction> codeActions,
+                                                          Range range,
+                                                          List<String> options,
+                                                          DayzFileType docType) {
+        var move = new CodeAction(String.format("Move %s to...", docType.RootTag));
+        move.setKind(CodeActionKind.Refactor + ".move");
+        move.setCommand(
+                new Command("Apply refactor",
+                        ClientCommands.APPLY_CUSTOM_FILES_REFACTOR,
+                        List.of("move", range, options, docType))
+        );
+        move.setDiagnostics(List.of());
+        codeActions.add(move);
+
+        var override = new CodeAction(String.format("Override %s in...", docType.RootTag));
+        override.setKind(CodeActionKind.RefactorRewrite);
+        override.setCommand(
+                new Command("Apply refactor",
+                        ClientCommands.APPLY_CUSTOM_FILES_REFACTOR,
+                        List.of("override", range, options, docType))
+        );
+        override.setDiagnostics(List.of());
+        codeActions.add(override);
+    }
+
+    private void generateActionsForExternalFile(List<CodeAction> codeActions,
+                                                Range range,
+                                                List<String> options,
+                                                DayzFileType docType) {
+        var copy = new CodeAction(String.format("Copy %s to...", docType.RootTag));
+        copy.setKind(CodeActionKind.RefactorExtract);
+        copy.setCommand(
+                new Command("Apply refactor",
+                        ClientCommands.APPLY_CUSTOM_FILES_REFACTOR,
+                        List.of("override", range, options, docType))
+        );
+        copy.setDiagnostics(List.of());
+        codeActions.add(copy);
     }
 }

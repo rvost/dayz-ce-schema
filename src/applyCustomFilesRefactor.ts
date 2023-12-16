@@ -23,7 +23,6 @@ export async function applyCustomFilesRefactorHandler(
         //@ts-ignore
         documentItems.push({label: "New", kind: QuickPickItemKind.Separator});
     }
-    console.log(dayzFileType);
     documentItems.push({label: "New File", description: "Create a new file", uri: null});
 
     const selectedDocumentItem = await window.showQuickPick(documentItems, {
