@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [1.0.0]
+
+### Added
+
+- Support for copying elements from external custom files.
+- Snippets for `types.xml`, `events.xml`, `messages.xml`, `cfgspawnabletypes.xml` and spawning gear configuration.
+- Automatic schema resolution for custom files.
+
+### Fixed
+
+- Added support for new files when moving and copying elements of custom files.
+- Disable mission-scoped validation for files outside the mission folder. This reduces error noise.
+
 ## [0.9.0]
 
 ### Added

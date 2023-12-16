@@ -3,27 +3,61 @@
 ](https://marketplace.visualstudio.com/items?itemName=rvost.dayz-ce-schema)
 [![Open VSX Version](https://img.shields.io/open-vsx/v/rvost/dayz-ce-schema?style=for-the-badge&logo=vscodium&color=informational)](https://open-vsx.org/extension/rvost/dayz-ce-schema)
 
-This extension provides a streamlined way to consume the [DayZ Central Economy Schema](https://github.com/rvost/DayZ-Central-Economy-Schema/) and makes editing the XML configuration a little less tedious.
+DayZ Central Economy mission files modding made easy!
 
-The extension automatically configures the [XML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml) for any workspace that resembles a DayZ server mission folder, so you get validation without any action required.
+This extension aims to provide accurate validation that not only detects broken XML (the only type of error that online validators can detect), but also checks for DayZ-specific schema compliance and semantic errors such as referencing non-existent files, spelling errors in flag names and other referenced values, and so on.
+It also provides context sensitive auto-completion to make typing those lengthy classnames faster and less error-prone.
+As you would expect from a modern editor, the extension provides code actions to automate common tasks and encourage good habits (such as file splitting).
+And other useful features such as tooltips and the "Open Documentation" command.
+
+Happy editing!
+
+> If you found this extension helpful, please consider [starring ⭐the repository](https://github.com/rvost/dayz-ce-schema/stargazers) on Github or rating (or reviewing) it on marketplaces ([[1]](https://marketplace.visualstudio.com/items?itemName=rvost.dayz-ce-schema&ssr=false#review-details), [[2]](https://open-vsx.org/extension/rvost/dayz-ce-schema/reviews)).
 
 ## Features
 
-The extension automatically configures schema association for CE files (both XML and JSON), providing the following benefits:
+### Autocompletion
 
-- Autocompletion;
-  ![Autocompletion](./assets/Autocompletion.gif)
-- Validation;
-  ![Validation](./assets/Validation.png)
-- Tooltips on hover (WIP).
-  ![Tooltips](./assets/TooltipsOnHover.gif)
-- If you have questions the extension can provide help on the active file:
-  ![Open Documentation](./assets/OpenDocumentation.gif)
+![Autocompletion](./assets/Autocompletion.gif)
+
+### Validation
+
+![Validation](./assets/Validation.png)
+
+### Code Actions (WIP)
+
+![Code Actions](./assets/CodeActions.gif)
+
+### Tooltips on hover (WIP)
+
+![Tooltips](./assets/TooltipsOnHover.gif)
+
+### Documentation:
+
+![Open Documentation](./assets/OpenDocumentation.gif)
+
+### Snippets
+
+The following snippets are currently available:
+
+- `typ` - type snippet for `types.xml`, including all elements except `tag`;
+- `evn` - event snippet for `events.xml`;
+- `msg-d` - message snippet with a deadline;
+- `msg-r` - repeating message snippet;
+- `msg-c` - on connection message snippet;
+- `spwn-a` - spawnable type with attachment snippet;
+- `spwn-c` - spawnable type with cargo snippet;
+- `spwn-p` - spawnable type with preset snippet;
+- `ldt-s` - loadout slot snippet for spawning gear configuration;
+- `ldt-i` - loadout item snippet for spawning gear configuration.
 
 ### Planed features
 
 - Provide full project validation.
 - Provide quick fixes for common validation errors.
+- More code actions for day-to-day task automation.
+- One-click navigation to symbols (e.g. to the preset referenced in `cfgspawnabletypes.xml`).
+- Classnames auto-completion in JSON files
 
 ## Requirements
 
@@ -35,16 +69,29 @@ It also relies on the [XML extension](https://marketplace.visualstudio.com/items
 
 - Only open files can be validated. You won't get any validation errors until you open the file in the editor.
 
-- Schemas for modded files aren't bound automatically.
-If you added new files in `cfgeconomycore.xml` you need to run `Update modded files associations` command from palette to update schema associations.
-
 - Completion and validation for Object Spawner custom lists currently only works  for json files in the `objectSpawners` folder.
 For example, the `objectSpawners/nwaf.json` file will have completion and validation according to the [Object Spawner](https://community.bistudio.com/wiki?title=DayZ%3AObject_Spawner) rules, but `custom/berezino.json` or `altartrader.json` will not.
 *This is due to limitations of the VS Code JSON Schema API and may be resolved in the future.* 
 
 - Completion and validation for Spawning Gear Configuration currently only works for json files in the `spawnPresets` folder **or** files which name ends with `_loadout` (e.g. `deathmatch_loadout.json`).
 
+- Fragments inserted by code actions may not be formatted correctly. You can easily fix this with auto-formatting (`Shift+Alt+F` by default).
+
+## Related projects
+
+The DayZ CE Schema extension focuses on direct XML (and JSON) file editing. 
+If you prefer a more high-level Excel-like approach, you may be interested in my [DayzServerTools](https://github.com/rvost/DayzServerTools) or Shawminator's [DayZeEditor](https://github.com/Shawminator/DayZeEditor). Both are standalone Windows applications.
+
 ## Release Notes
+
+### 1.0.0
+
+- Stable release of Language server for DayZ mission XML files.
+- Added support for copying elements from external custom files.
+- Added snippets for `types.xml`, `events.xml`, `messages.xml`, `cfgspawnabletypes.xml` and spawning gear configuration.
+- Added automatic schema resolution for custom files.
+- Added support for new files when moving and copying elements of custom files.
+- Fixed noisy errors in external files. Disabled mission-scoped validation for files outside the mission folder.
 
 ### 0.9.0
 
