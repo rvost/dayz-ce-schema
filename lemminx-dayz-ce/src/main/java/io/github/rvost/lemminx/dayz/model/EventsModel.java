@@ -21,9 +21,12 @@ public class EventsModel {
     public static final String EVENTS_TAG = "events";
     public static final String EVENT_TAG = "event";
     public static final String CHILDREN_TAG = "children";
+    public static final String LIFETIME_TAG = "lifetime";
+    public static final String RESTOCK_TAG = "restock";
 
     public static final String NAME_ATTRIBUTE = "name";
     public static final String TYPE_ATTRIBUTE = "type";
+    public static final Set<String> TIME_INTERVAL_TAGS = Set.of(LIFETIME_TAG, RESTOCK_TAG);
 
     // TODO: Move to resources
     public static final List<String> EVENT_NAME_PREFIXES =

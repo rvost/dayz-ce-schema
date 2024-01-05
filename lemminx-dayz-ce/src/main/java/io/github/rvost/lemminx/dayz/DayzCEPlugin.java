@@ -7,6 +7,7 @@ import io.github.rvost.lemminx.dayz.participants.codeaction.FixFileTypeCodeActio
 import io.github.rvost.lemminx.dayz.participants.codeaction.RefactorCustomFilesCodeAction;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
 import io.github.rvost.lemminx.dayz.participants.diagnostics.*;
+import io.github.rvost.lemminx.dayz.participants.hover.EventsHoverParticipant;
 import io.github.rvost.lemminx.dayz.participants.hover.TypesHoverParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
@@ -147,6 +148,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private void registerHoverParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService){
         if(hoverParticipants.isEmpty()){
             hoverParticipants.add(new TypesHoverParticipant(missionService));
+            hoverParticipants.add(new EventsHoverParticipant());
 
             hoverParticipants.forEach(registry::registerHoverParticipant);
         }
