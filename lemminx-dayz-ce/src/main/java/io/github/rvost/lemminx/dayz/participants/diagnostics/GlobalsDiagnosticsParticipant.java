@@ -36,18 +36,18 @@ public class GlobalsDiagnosticsParticipant implements IDiagnosticsParticipant {
                     && node.hasAttribute(GlobalsModel.VALUE_ATTRIBUTE)) {
                 var name = node.getAttribute(GlobalsModel.NAME_ATTRIBUTE);
                 try {
-                    var varibale = GlobalsVariable.valueOf(name);
+                    var variable = GlobalsVariable.valueOf(name);
                     var valueAttr = node.getAttributeNode(GlobalsModel.VALUE_ATTRIBUTE);
                     var value = valueAttr.getValue();
                     var range = XMLPositionUtility.createRange(valueAttr.getNodeAttrValue());
 
-                    varibale.validate(value)
+                    variable.validate(value)
                             .map(err -> toDiagnostic(range, err))
                             .forEach(diagnostics::add);
                     var typeAttr = node.getAttributeNode(GlobalsModel.TYPE_ATTRIBUTE);
-                    if (!varibale.typeCode.equals(typeAttr.getValue())) {
+                    if (!variable.typeCode.equals(typeAttr.getValue())) {
                         var typeRange = XMLPositionUtility.createRange(typeAttr.getNodeAttrValue());
-                        var message = String.format(INVALID_GLOBALS_TYPE_MESSAGE, varibale.typeCode);
+                        var message = String.format(INVALID_GLOBALS_TYPE_MESSAGE, variable.typeCode);
                         diagnostics.add(new Diagnostic(typeRange, message, DiagnosticSeverity.Error, ERROR_SOURCE, INVALID_GLOBALS_TYPE_CODE));
                     }
                 } catch (IllegalArgumentException ignored) {
