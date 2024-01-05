@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Map.entry;
 
@@ -107,8 +104,44 @@ public class LimitsDefinitionsModel {
         }
     }
 
-    private static Set<String> getValues(NodeList nodes) {
-        var result = new HashSet<String>();
+    public static Map<String, Map<String, List<String>>> getUserFlags(Path missionPath) {
+        var path = missionPath.resolve(USER_LIMITS_DEFINITION_FILE);
+
+        try (var input = Files.newInputStream(path)) {
+            return getUserFlags(input);
+        } catch (IOException e) {
+            return Map.of();
+        }
+    }
+
+    public static Map<String, Map<String, List<String>>> getUserFlags(InputStream input) throws IOException {
+        try {
+            var db = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
+            var doc = db.parse(input);
+            if (doc.getDocumentElement() != null) {
+                doc.getDocumentElement().normalize();
+                var usageflagsNode = doc.getElementsByTagName(USAGEFLAGS_TAG).item(0);
+                var valueflagsNode = doc.getElementsByTagName(VALUEFLAGS_TAG).item(0);
+                var result = new HashMap<String, Map<String, List<String>>>();
+                if (usageflagsNode != null) {
+                    var usageflags = getFlagDefinitions(usageflagsNode.getChildNodes());
+                    result.put(USAGE_TAG, usageflags);
+                }
+                if (valueflagsNode != null) {
+                    var valueflags = getFlagDefinitions(valueflagsNode.getChildNodes());
+                    result.put(VALUE_TAG, valueflags);
+                }
+                return result;
+            } else {
+                return Map.of();
+            }
+        } catch (ParserConfigurationException | SAXException e) {
+            return Map.of();
+        }
+    }
+
+    private static List<String> getOrderedValues(NodeList nodes) {
+        var result = new ArrayList<String>();
         for (int i = 0; i < nodes.getLength(); i++) {
             var node = nodes.item(i);
             var attributes = node.getAttributes();
@@ -116,6 +149,27 @@ public class LimitsDefinitionsModel {
                 var nameAttr = attributes.getNamedItem(NAME_ATTRIBUTE);
                 if (nameAttr != null) {
                     result.add(nameAttr.getNodeValue());
+                }
+            }
+        }
+        return result;
+    }
+
+    private static Set<String> getValues(NodeList nodes) {
+        return new HashSet<String>(getOrderedValues(nodes));
+    }
+
+    private static Map<String, List<String>> getFlagDefinitions(NodeList nodes) {
+        var result = new HashMap<String, List<String>>();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            var node = nodes.item(i);
+            var attributes = node.getAttributes();
+            if (attributes != null) {
+                var nameAttr = attributes.getNamedItem(NAME_ATTRIBUTE);
+                if (nameAttr != null) {
+                    var flagName = nameAttr.getNodeValue();
+                    var flagValues = getOrderedValues(node.getChildNodes());
+                    result.put(flagName, flagValues);
                 }
             }
         }

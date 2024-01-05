@@ -7,11 +7,13 @@ import io.github.rvost.lemminx.dayz.participants.codeaction.FixFileTypeCodeActio
 import io.github.rvost.lemminx.dayz.participants.codeaction.RefactorCustomFilesCodeAction;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
 import io.github.rvost.lemminx.dayz.participants.diagnostics.*;
+import io.github.rvost.lemminx.dayz.participants.hover.TypesHoverParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
 import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
+import org.eclipse.lemminx.services.extensions.hover.IHoverParticipant;
 import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 
@@ -27,6 +29,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private final List<ICompletionParticipant> completionParticipants = new ArrayList<>();
     private final List<IDiagnosticsParticipant> diagnosticsParticipants = new ArrayList<>();
     private final List<ICodeActionParticipant> codeActionParticipants = new ArrayList<>();
+    private final List<IHoverParticipant> hoverParticipants = new ArrayList<>();
     private DayzSchemaURIResolver uriResolver;
 
     @Override
@@ -45,6 +48,7 @@ public class DayzCEPlugin implements IXMLExtension {
             registerCompletionParticipants(registry, missionService);
             registerDiagnosticsParticipants(registry, missionService);
             registerCodeActionParticipants(registry, missionService);
+            registerHoverParticipants(registry, missionService);
 
             var commandService = registry.getCommandService();
             commandService.registerCommand(ComputeRefactorEditHandler.COMMAND,
@@ -69,6 +73,7 @@ public class DayzCEPlugin implements IXMLExtension {
         unregisterCompletionParticipants(registry);
         unregisterDiagnosticsParticipants(registry);
         unregisterCodeActionParticipants(registry);
+        unregisterHoverParticipants(registry);
 
         registry.getCommandService().unregisterCommand(ComputeRefactorEditHandler.COMMAND);
         registry.getCommandService().unregisterCommand(CreateNewFileHandler.COMMAND);
@@ -137,5 +142,18 @@ public class DayzCEPlugin implements IXMLExtension {
     private void unregisterCodeActionParticipants(XMLExtensionsRegistry registry) {
         codeActionParticipants.forEach(registry::unregisterCodeActionParticipant);
         codeActionParticipants.clear();
+    }
+
+    private void registerHoverParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService){
+        if(hoverParticipants.isEmpty()){
+            hoverParticipants.add(new TypesHoverParticipant(missionService));
+
+            hoverParticipants.forEach(registry::registerHoverParticipant);
+        }
+    }
+
+    private void unregisterHoverParticipants(XMLExtensionsRegistry registry){
+        hoverParticipants.forEach(registry::unregisterHoverParticipant);
+        hoverParticipants.clear();
     }
 }

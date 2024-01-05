@@ -24,6 +24,7 @@ public class DayzMissionService {
     private volatile Map<Path, DayzFileType> customFiles;
     private volatile Map<String, Set<String>> limitsDefinitions;
     private volatile Map<String, Set<String>> userLimitsDefinitions;
+    private volatile Map<String, Map<String, List<String>>> userFlags;
     private volatile Map<String, Set<String>> randomPresets;
     private volatile Set<String> rootTypes;
     private volatile Set<String> rootEvents;
@@ -38,6 +39,7 @@ public class DayzMissionService {
                                Map<String, Set<String>> missionFolders,
                                Map<Path, DayzFileType> customFiles, Map<String, Set<String>> limitsDefinitions,
                                Map<String, Set<String>> userLimitsDefinitions,
+                               Map<String, Map<String, List<String>>> userFlags,
                                Map<String, Set<String>> randomPresets,
                                Set<String> rootTypes,
                                Set<String> rootEvents,
@@ -48,6 +50,7 @@ public class DayzMissionService {
         this.customFiles = customFiles;
         this.limitsDefinitions = limitsDefinitions;
         this.userLimitsDefinitions = userLimitsDefinitions;
+        this.userFlags = userFlags;
         this.randomPresets = randomPresets;
         this.rootTypes = rootTypes;
         this.rootEvents = rootEvents;
@@ -74,12 +77,13 @@ public class DayzMissionService {
         var customFiles = CfgEconomyCoreModel.getCustomFiles(rootPath);
         var limitsDefinitions = LimitsDefinitionsModel.getLimitsDefinitions(rootPath);
         var userLimitsDefinitions = LimitsDefinitionsModel.getUserLimitsDefinitions(rootPath);
+        var userFlags = LimitsDefinitionsModel.getUserFlags(rootPath);
         var randomPresets = RandomPresetsModel.getRandomPresets(rootPath);
         var rootTypes = TypesModel.getRootTypes(rootPath);
         var rootEvents = EventsModel.getRootEvents(rootPath);
         var mapGroups = MapGroupProtoModel.getGroups(rootPath);
         return new DayzMissionService(rootPath, missionFiles, customFiles, limitsDefinitions,
-                userLimitsDefinitions, randomPresets, rootTypes, rootEvents, mapGroups);
+                userLimitsDefinitions, userFlags, randomPresets, rootTypes, rootEvents, mapGroups);
     }
 
     public void start() {
@@ -272,6 +276,10 @@ public class DayzMissionService {
         return userLimitsDefinitions;
     }
 
+    public Map<String, Map<String, List<String>>> getUserFlags() {
+        return userFlags;
+    }
+
     public Set<String> getRootTypes() {
         return rootTypes;
     }
@@ -306,12 +314,11 @@ public class DayzMissionService {
         return mapGroups;
     }
 
-    public boolean isInMissionFolder(DOMDocument document){
+    public boolean isInMissionFolder(DOMDocument document) {
         try {
             var docPath = Path.of(new URI(document.getDocumentURI())).toAbsolutePath();
             return docPath.startsWith(missionRoot);
-        }
-        catch (URISyntaxException ex){
+        } catch (URISyntaxException ex) {
             return false;
         }
     }

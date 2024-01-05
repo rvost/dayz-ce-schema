@@ -25,4 +25,16 @@ public class LimitsDefinitionsModelTests {
         Assertions.assertTrue(flags.get("value").contains("Tier12"));
         input.close();
     }
+
+    @Test
+    public void testSimpleUserFlagDefinitions() throws Exception {
+        var input = getClass().getClassLoader().getResourceAsStream("cfglimitsdefinitionuser/simple.xml");
+        var flags = LimitsDefinitionsModel.getUserFlags(input);
+
+        Assertions.assertEquals(2, flags.size());
+        Assertions.assertTrue(flags.containsKey("usage"));
+        var usageFlags = flags.get("usage");
+        Assertions.assertTrue(usageFlags.containsKey("TownVillage"));
+        Assertions.assertEquals(2, usageFlags.get("TownVillage").size());
+    }
 }
