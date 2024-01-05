@@ -22,10 +22,13 @@ public class TypesModel {
     public static final String VALUE_TAG = "value";
     public static final String TAG_TAG = "tag";
     public static final String CATEGORY_TAG = "category";
+    public static final String LIFETIME_TAG = "lifetime";
+    public static final String RESTOCK_TAG = "restock";
     public static final String NAME_ATTRIBUTE = "name";
     public static final String USER_ATTRIBUTE = "user";
     public static final Set<String> LIMITS_TAGS = Set.of(USAGE_TAG, VALUE_TAG, TAG_TAG, CATEGORY_TAG);
     public static final Set<String> USER_LIMITS_TAGS = Set.of(USAGE_TAG, VALUE_TAG);
+    public static final Set<String> TIME_INTERVAL_TAGS = Set.of(LIFETIME_TAG, RESTOCK_TAG);
     private static final Path rootPath = Path.of(TypesModel.DB_FOLDER, TypesModel.TYPES_FILE);
 
     public static boolean isTypes(DOMDocument document) {
