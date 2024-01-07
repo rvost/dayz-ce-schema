@@ -27,7 +27,8 @@ public class DayzMissionService {
     private volatile Map<String, Set<String>> userLimitsDefinitions;
     private volatile Map<String, Map<String, List<String>>> userFlags;
     private volatile Map<String, Set<String>> randomPresets;
-    private volatile Map<String, Range> randomPresetsIndex;
+    private Map<String, Range> randomPresetsIndex;
+    private Map<String, Range> userFlagsIndex;
     private volatile Set<String> rootTypes;
     private volatile Set<String> rootEvents;
     private volatile Set<String> mapGroups;
@@ -160,9 +161,11 @@ public class DayzMissionService {
             }
         }
         if (path.getFileName().toString().equals(LimitsDefinitionsModel.USER_LIMITS_DEFINITION_FILE)) {
-            var val = LimitsDefinitionsModel.getUserLimitsDefinitions(missionRoot);
-            if (!val.isEmpty()) {
-                userLimitsDefinitions = val;
+            var definitions = LimitsDefinitionsModel.getUserLimitsDefinitions(missionRoot);
+            var index = LimitsDefinitionsModel.getUserFlagsIndex(missionRoot);
+            if (!definitions.isEmpty()) {
+                userLimitsDefinitions = definitions;
+                userFlagsIndex = index;
             }
         }
         if (path.getFileName().toString().equals(RandomPresetsModel.CFGRANDOMPRESETS_FILE)) {
@@ -385,10 +388,17 @@ public class DayzMissionService {
         return randomPresets;
     }
 
-    public Map<String, Range> getRandomPresetsIndex(){
-        if(randomPresetsIndex == null){
+    public Map<String, Range> getRandomPresetsIndex() {
+        if (randomPresetsIndex == null) {
             randomPresetsIndex = RandomPresetsModel.getRandomPresetsIndex(missionRoot);
         }
         return randomPresetsIndex;
+    }
+
+    public Map<String, Range> getUserFlagsIndex() {
+        if (userFlagsIndex == null) {
+            userFlagsIndex = LimitsDefinitionsModel.getUserFlagsIndex(missionRoot);
+        }
+        return userFlagsIndex;
     }
 }

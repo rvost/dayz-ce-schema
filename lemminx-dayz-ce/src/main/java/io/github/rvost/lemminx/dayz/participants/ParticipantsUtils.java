@@ -1,13 +1,13 @@
 package io.github.rvost.lemminx.dayz.participants;
 
 import com.google.common.primitives.Ints;
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.hover.IHoverRequest;
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Hover;
-import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.MarkupKind;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
+import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
+import java.nio.file.Path;
 import java.util.Optional;
 
 public class ParticipantsUtils {
@@ -43,5 +43,13 @@ public class ParticipantsUtils {
                 .map(ParticipantsUtils::toReadableTime)
                 .map(str -> new Hover(new MarkupContent(MarkupKind.PLAINTEXT, str)))
                 .orElse(null);
+    }
+
+    public static LocationLink toDefinitionLocationLink(Path target, Range targetRange, DOMNode originNode) {
+        if (target == null) {
+            return null;
+        }
+        return new LocationLink(target.toUri().toString(), targetRange, targetRange,
+                XMLPositionUtility.createRange(originNode));
     }
 }

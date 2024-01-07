@@ -6,6 +6,7 @@ import io.github.rvost.lemminx.dayz.participants.codeaction.AddCustomFileCodeAct
 import io.github.rvost.lemminx.dayz.participants.codeaction.FixFileTypeCodeAction;
 import io.github.rvost.lemminx.dayz.participants.codeaction.RefactorCustomFilesCodeAction;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
+import io.github.rvost.lemminx.dayz.participants.definition.FlagsDefinitionParticipant;
 import io.github.rvost.lemminx.dayz.participants.definition.RandomPresetDefinitionParticipant;
 import io.github.rvost.lemminx.dayz.participants.diagnostics.*;
 import io.github.rvost.lemminx.dayz.participants.hover.CfgWeatherHoverParticipant;
@@ -171,6 +172,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private void registerDefinitionParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService){
         if(definitionParticipants.isEmpty()){
             definitionParticipants.add(new RandomPresetDefinitionParticipant(missionService));
+            definitionParticipants.add(new FlagsDefinitionParticipant(missionService));
         }
         definitionParticipants.forEach(registry::registerDefinitionParticipant);
     }
