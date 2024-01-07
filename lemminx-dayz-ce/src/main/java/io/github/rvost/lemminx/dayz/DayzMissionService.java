@@ -163,9 +163,11 @@ public class DayzMissionService {
         if (path.getFileName().toString().equals(LimitsDefinitionsModel.USER_LIMITS_DEFINITION_FILE)) {
             var definitions = LimitsDefinitionsModel.getUserLimitsDefinitions(missionRoot);
             var index = LimitsDefinitionsModel.getUserFlagsIndex(missionRoot);
+            var flags = LimitsDefinitionsModel.getUserFlags(missionRoot);
             if (!definitions.isEmpty()) {
                 userLimitsDefinitions = definitions;
                 userFlagsIndex = index;
+                userFlags = flags;
             }
         }
         if (path.getFileName().toString().equals(RandomPresetsModel.CFGRANDOMPRESETS_FILE)) {
