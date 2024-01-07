@@ -4,6 +4,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 
 public class CfgEventSpawnsModel {
     public static final String CFGEVENTSPAWNS_FILE = "cfgeventspawns.xml";
+    public static final String GROUP_ATTRIBUTE = "group";
     public static final String NAME_ATTRIBUTE = "name";
 
     public static boolean isEventSpawns(DOMDocument document) {

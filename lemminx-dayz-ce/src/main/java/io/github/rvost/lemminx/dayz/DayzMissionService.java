@@ -27,6 +27,7 @@ public class DayzMissionService {
     private volatile Map<String, Set<String>> userLimitsDefinitions;
     private volatile Map<String, Map<String, List<String>>> userFlags;
     private volatile Map<String, Set<String>> randomPresets;
+    private volatile Map<String, Range> eventGroups;
     private Map<String, Range> randomPresetsIndex;
     private Map<String, Range> userFlagsIndex;
     private volatile Set<String> rootTypes;
@@ -44,6 +45,7 @@ public class DayzMissionService {
                                Map<String, Set<String>> userLimitsDefinitions,
                                Map<String, Map<String, List<String>>> userFlags,
                                Map<String, Set<String>> randomPresets,
+                               Map<String, Range> eventGroups,
                                Set<String> rootTypes,
                                Set<String> rootEvents,
                                Set<String> mapGroups) throws Exception {
@@ -55,6 +57,7 @@ public class DayzMissionService {
         this.userLimitsDefinitions = userLimitsDefinitions;
         this.userFlags = userFlags;
         this.randomPresets = randomPresets;
+        this.eventGroups = eventGroups;
         this.rootTypes = rootTypes;
         this.rootEvents = rootEvents;
         this.mapGroups = mapGroups;
@@ -82,11 +85,12 @@ public class DayzMissionService {
         var userLimitsDefinitions = LimitsDefinitionsModel.getUserLimitsDefinitions(rootPath);
         var userFlags = LimitsDefinitionsModel.getUserFlags(rootPath);
         var randomPresets = RandomPresetsModel.getRandomPresets(rootPath);
+        var eventGroups = CfgEventGroupsModel.getCfgEventGroups(rootPath);
         var rootTypes = TypesModel.getRootTypes(rootPath);
         var rootEvents = EventsModel.getRootEvents(rootPath);
         var mapGroups = MapGroupProtoModel.getGroups(rootPath);
         return new DayzMissionService(rootPath, missionFiles, customFiles, limitsDefinitions,
-                userLimitsDefinitions, userFlags, randomPresets, rootTypes, rootEvents, mapGroups);
+                userLimitsDefinitions, userFlags, randomPresets, eventGroups, rootTypes, rootEvents, mapGroups);
     }
 
     public void start() {
@@ -176,6 +180,12 @@ public class DayzMissionService {
             if (!presets.isEmpty()) {
                 randomPresets = presets;
                 randomPresetsIndex = index;
+            }
+        }
+        if (path.getFileName().toString().equals(CfgEventGroupsModel.CFGEVENTGROUPS_FILE)) {
+            var val = CfgEventGroupsModel.getCfgEventGroups(missionRoot);
+            if (!val.isEmpty()) {
+                eventGroups = val;
             }
         }
         if (TypesModel.isRootTypes(missionRoot, path)) {
@@ -402,5 +412,9 @@ public class DayzMissionService {
             userFlagsIndex = LimitsDefinitionsModel.getUserFlagsIndex(missionRoot);
         }
         return userFlagsIndex;
+    }
+
+    public Map<String, Range> getEventGroups(){
+        return eventGroups;
     }
 }
