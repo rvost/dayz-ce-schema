@@ -4,6 +4,7 @@ import io.github.rvost.lemminx.dayz.model.*;
 import io.github.rvost.lemminx.dayz.utils.DirWatch;
 import io.github.rvost.lemminx.dayz.utils.MissionFolderEvent;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.WorkspaceFolder;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ public class DayzMissionService {
     private volatile Map<String, Set<String>> userLimitsDefinitions;
     private volatile Map<String, Map<String, List<String>>> userFlags;
     private volatile Map<String, Set<String>> randomPresets;
+    private volatile Map<String, Range> randomPresetsIndex;
     private volatile Set<String> rootTypes;
     private volatile Set<String> rootEvents;
     private volatile Set<String> mapGroups;
@@ -164,9 +166,11 @@ public class DayzMissionService {
             }
         }
         if (path.getFileName().toString().equals(RandomPresetsModel.CFGRANDOMPRESETS_FILE)) {
-            var val = RandomPresetsModel.getRandomPresets(missionRoot);
-            if (!val.isEmpty()) {
-                randomPresets = val;
+            var presets = RandomPresetsModel.getRandomPresets(missionRoot);
+            var index = RandomPresetsModel.getRandomPresetsIndex(missionRoot);
+            if (!presets.isEmpty()) {
+                randomPresets = presets;
+                randomPresetsIndex = index;
             }
         }
         if (TypesModel.isRootTypes(missionRoot, path)) {
@@ -379,5 +383,12 @@ public class DayzMissionService {
 
     public Map<String, Set<String>> getRandomPresets() {
         return randomPresets;
+    }
+
+    public Map<String, Range> getRandomPresetsIndex(){
+        if(randomPresetsIndex == null){
+            randomPresetsIndex = RandomPresetsModel.getRandomPresetsIndex(missionRoot);
+        }
+        return randomPresetsIndex;
     }
 }
