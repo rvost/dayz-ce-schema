@@ -18,6 +18,8 @@ import static io.github.rvost.lemminx.dayz.participants.diagnostics.DiagnosticsU
 public class CfgEventSpawnsDiagnosticsParticipant implements IDiagnosticsParticipant {
     private static final String INVALID_EVENT_REFERENCE_CODE = "invalid_event_reference";
     private static final String INVALID_EVENT_REFERENCE_MESSAGE = "Event \"%s\" does not exist.";
+    private static final String INVALID_GROUP_REFERENCE_CODE = "invalid_event_group_reference";
+    private static final String INVALID_GROUP_REFERENCE_MESSAGE = "Event group \"%s\" does not exist.";
     private final DayzMissionService missionService;
 
     public CfgEventSpawnsDiagnosticsParticipant(DayzMissionService missionService) {
@@ -27,12 +29,18 @@ public class CfgEventSpawnsDiagnosticsParticipant implements IDiagnosticsPartici
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
         if (CfgEventSpawnsModel.isEventSpawns(domDocument) && missionService.isInMissionFolder(domDocument)) {
-            validateEventSpawns(domDocument, list);
+            validateEventSpawns(domDocument, list, cancelChecker);
         }
     }
 
-    private void validateEventSpawns(DOMDocument document, List<Diagnostic> diagnostics) {
-        document.getDocumentElement().getChildren().stream()
+    private void validateEventSpawns(DOMDocument document, List<Diagnostic> diagnostics, CancelChecker cancelChecker) {
+        diagnostics.addAll(validateEventReferences(document));
+        cancelChecker.checkCanceled();
+        diagnostics.addAll(validateGroupReference(document));
+    }
+
+    private List<Diagnostic> validateEventReferences(DOMDocument document) {
+        return document.getDocumentElement().getChildren().stream()
                 .map(n -> n.getAttributeNode(CfgEventSpawnsModel.NAME_ATTRIBUTE))
                 .filter(Objects::nonNull)
                 .filter(attr -> !missionService.hasEvent(attr.getValue()))
@@ -42,6 +50,22 @@ public class CfgEventSpawnsDiagnosticsParticipant implements IDiagnosticsPartici
                     var message = String.format(INVALID_EVENT_REFERENCE_MESSAGE, attr.getValue());
                     return new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, INVALID_EVENT_REFERENCE_CODE);
                 })
-                .forEach(diagnostics::add);
+                .toList();
+    }
+
+    private List<Diagnostic> validateGroupReference(DOMDocument document) {
+        var groups = missionService.getEventGroups();
+        return document.getDocumentElement().getChildren().stream()
+                .flatMap(n -> n.getChildren().stream())
+                .map(n -> n.getAttributeNode(CfgEventSpawnsModel.GROUP_ATTRIBUTE))
+                .filter(Objects::nonNull)
+                .filter(attr -> !groups.containsKey(attr.getValue()))
+                .map(attr -> {
+                    var attrValueRange = attr.getNodeAttrValue();
+                    var range = XMLPositionUtility.createRange(attrValueRange);
+                    var message = String.format(INVALID_GROUP_REFERENCE_MESSAGE, attr.getValue());
+                    return new Diagnostic(range, message, DiagnosticSeverity.Error, ERROR_SOURCE, INVALID_GROUP_REFERENCE_CODE);
+                })
+                .toList();
     }
 }
