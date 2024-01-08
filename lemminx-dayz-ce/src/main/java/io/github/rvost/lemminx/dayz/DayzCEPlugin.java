@@ -15,6 +15,7 @@ import io.github.rvost.lemminx.dayz.participants.hover.EventsHoverParticipant;
 import io.github.rvost.lemminx.dayz.participants.hover.GlobalsHoverParticipant;
 import io.github.rvost.lemminx.dayz.participants.hover.TypesHoverParticipant;
 import io.github.rvost.lemminx.dayz.participants.link.CfgEconomyCoreDocumentLinkParticipant;
+import io.github.rvost.lemminx.dayz.participants.link.CfgEnvironmentDocumentLinkParticipant;
 import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
 import org.eclipse.lemminx.services.extensions.IXMLExtension;
@@ -192,6 +193,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private void registerLinkParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService) {
         if (linkParticipants.isEmpty()) {
             linkParticipants.add(new CfgEconomyCoreDocumentLinkParticipant(missionService));
+            linkParticipants.add(new CfgEnvironmentDocumentLinkParticipant(missionService));
         }
 
         linkParticipants.forEach(registry::registerDocumentLinkParticipant);
