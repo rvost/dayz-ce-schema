@@ -6,7 +6,7 @@ import io.github.rvost.lemminx.dayz.participants.codeaction.AddCustomFileCodeAct
 import io.github.rvost.lemminx.dayz.participants.codeaction.FixFileTypeCodeAction;
 import io.github.rvost.lemminx.dayz.participants.codeaction.RefactorCustomFilesCodeAction;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
-import io.github.rvost.lemminx.dayz.participants.definition.EventGroupDefinitionParticipant;
+import io.github.rvost.lemminx.dayz.participants.definition.CfgEventSpawnsDefinitionParticipant;
 import io.github.rvost.lemminx.dayz.participants.definition.FlagsDefinitionParticipant;
 import io.github.rvost.lemminx.dayz.participants.definition.RandomPresetDefinitionParticipant;
 import io.github.rvost.lemminx.dayz.participants.diagnostics.*;
@@ -181,7 +181,7 @@ public class DayzCEPlugin implements IXMLExtension {
         if (definitionParticipants.isEmpty()) {
             definitionParticipants.add(new RandomPresetDefinitionParticipant(missionService));
             definitionParticipants.add(new FlagsDefinitionParticipant(missionService));
-            definitionParticipants.add(new EventGroupDefinitionParticipant(missionService));
+            definitionParticipants.add(new CfgEventSpawnsDefinitionParticipant(missionService));
         }
         definitionParticipants.forEach(registry::registerDefinitionParticipant);
     }

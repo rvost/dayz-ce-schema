@@ -1,19 +1,18 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
+import org.eclipse.lsp4j.Range;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class EventsModel {
     public static final String DB_FOLDER = "db";
@@ -33,7 +32,7 @@ public class EventsModel {
             Arrays.asList("Animal", "Ambient", "Infected", "Item", "Loot", "Static", "Trajectory", "Vehicle");
     public static final List<String> EVENT_SPAWNS_PREFIXES =
             Arrays.asList("Item", "Loot", "Static", "Vehicle");
-    private static final Path rootPath = Path.of(DB_FOLDER, EVENTS_FILE);
+    public static final Path rootEventsPath = Path.of(DB_FOLDER, EVENTS_FILE);
 
 
     public static boolean isEvents(DOMDocument document) {
@@ -43,56 +42,38 @@ public class EventsModel {
 
     public static boolean isRootEvents(Path missionRoot, Path file) {
         var relative = missionRoot.relativize(file);
-        return rootPath.equals(relative);
+        return rootEventsPath.equals(relative);
     }
 
-    public static Set<String> getRootEvents(Path missionPath) {
-        var path = missionPath.resolve(rootPath);
-
-        try (var input = Files.newInputStream(path)) {
-            return getEvents(input);
-        } catch (IOException e) {
-            return Set.of();
-        }
-    }
-
-    public static Set<String> getEvents(Path path) {
-        try (var input = Files.newInputStream(path)) {
-            return getEvents(input);
-        } catch (IOException e) {
-            return Set.of();
-        }
-    }
-
-    public static Set<String> getEvents(InputStream input) throws IOException {
+    public static Map<String, Range> getRootEvents(Path missionPath) {
+        var filePath = missionPath.resolve(rootEventsPath);
         try {
-            var db = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
-            var doc = db.parse(input);
-            if (doc.getDocumentElement() != null) {
-                doc.getDocumentElement().normalize();
-                return getEventNames(doc.getElementsByTagName(EVENT_TAG));
-            } else {
-                return Set.of();
-            }
-
-        } catch (ParserConfigurationException | SAXException e) {
-            return Set.of();
+            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(filePath));
+            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, filePath.toString()), null);
+            return getEvents(doc);
+        } catch (IOException e) {
+            return Map.of();
         }
     }
 
-    private static Set<String> getEventNames(NodeList nodes) {
-        var result = new HashSet<String>();
-        for (int i = 0; i < nodes.getLength(); i++) {
-            var node = nodes.item(i);
-            var attributes = node.getAttributes();
-            if (attributes != null) {
-                var nameAttr = attributes.getNamedItem(NAME_ATTRIBUTE);
-                if (nameAttr != null) {
-                    result.add(nameAttr.getNodeValue());
-                }
-            }
+    public static Map<String, Range> getEvents(Path path) {
+        try {
+            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
+            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
+            return getEvents(doc);
+        } catch (IOException e) {
+            return Map.of();
         }
-        return result;
     }
 
+    public static Map<String, Range> getEvents(DOMDocument doc) throws IOException {
+        return doc.getDocumentElement().getChildren().stream()
+                .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
+                .map(n -> n.getAttributeNode(NAME_ATTRIBUTE))
+                .collect(Collectors.toMap(
+                        DOMAttr::getNodeValue,
+                        n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
+                        (oldValue, newValue) -> newValue,
+                        HashMap::new));
+    }
 }

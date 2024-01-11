@@ -32,10 +32,10 @@ public class DayzMissionService {
     private Map<String, Range> randomPresetsIndex;
     private Map<String, Range> userFlagsIndex;
     private volatile Set<String> rootTypes;
-    private volatile Set<String> rootEvents;
+    private volatile Map<String, Range> rootEvents;
     private volatile Set<String> mapGroups;
     private final ConcurrentMap<Path, Set<String>> customTypes = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Path, Set<String>> customEvents = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Path, Map<String, Range>> customEvents = new ConcurrentHashMap<>();
     private final DirWatch watch;
     private final ConcurrentLinkedQueue<MissionFolderEvent> folderChangeEvents;
     private final Map<Path, DayzFileType> rootFilePaths;
@@ -49,7 +49,7 @@ public class DayzMissionService {
                                Map<String, Range> eventSpawns,
                                Map<String, Range> eventGroups,
                                Set<String> rootTypes,
-                               Set<String> rootEvents,
+                               Map<String, Range> rootEvents,
                                Set<String> mapGroups) throws Exception {
         this.missionRoot = missionRoot.toAbsolutePath();
         this.missionFolders = missionFolders;
@@ -328,16 +328,16 @@ public class DayzMissionService {
     }
 
     public Set<String> getRootEvents() {
-        return rootEvents;
+        return rootEvents.keySet();
     }
 
     public Stream<String> getAllEvents() {
-        var custom = customEvents.values().stream().flatMap(Set::stream);
-        return Stream.concat(rootEvents.stream(), custom).distinct();
+        var custom = customEvents.values().stream().flatMap(m -> m.keySet().stream());
+        return Stream.concat(rootEvents.keySet().stream(), custom).distinct();
     }
 
     public boolean hasEvent(String eventName) {
-        return rootEvents.contains(eventName) || customEvents.values().stream().anyMatch(s -> s.contains(eventName));
+        return rootEvents.containsKey(eventName) || customEvents.values().stream().anyMatch(s -> s.containsKey(eventName));
     }
 
     public Set<String> getMapGroups() {
@@ -431,5 +431,22 @@ public class DayzMissionService {
 
     public Map<String, Range> getEventGroups() {
         return eventGroups;
+    }
+
+    public Map<String, List<Map.Entry<Path, Range>>> getEventIndex() {
+        // TODO: Order by cfgeconomycore.xml
+        var rootEntry = new AbstractMap.SimpleEntry<>(missionRoot.resolve(EventsModel.rootEventsPath), rootEvents);
+        return Stream.concat(customEvents.entrySet().stream(), Stream.of(rootEntry))
+                .flatMap(e -> {
+                    var path = e.getKey();
+                    return e.getValue().entrySet().stream()
+                            .map(x -> new AbstractMap.SimpleEntry<>(x.getKey(),
+                                    new AbstractMap.SimpleEntry<>(path, x.getValue()))
+                            );
+                })
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+                ));
     }
 }
