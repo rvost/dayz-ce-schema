@@ -16,10 +16,8 @@ import io.github.rvost.lemminx.dayz.participants.hover.GlobalsHoverParticipant;
 import io.github.rvost.lemminx.dayz.participants.hover.TypesHoverParticipant;
 import io.github.rvost.lemminx.dayz.participants.link.CfgEconomyCoreDocumentLinkParticipant;
 import io.github.rvost.lemminx.dayz.participants.link.CfgEnvironmentDocumentLinkParticipant;
-import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
-import org.eclipse.lemminx.services.extensions.IDocumentLinkParticipant;
-import org.eclipse.lemminx.services.extensions.IXMLExtension;
-import org.eclipse.lemminx.services.extensions.XMLExtensionsRegistry;
+import io.github.rvost.lemminx.dayz.participants.reference.EventsReferenceParticipant;
+import org.eclipse.lemminx.services.extensions.*;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
@@ -42,6 +40,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private final List<IHoverParticipant> hoverParticipants = new ArrayList<>();
     private final List<IDefinitionParticipant> definitionParticipants = new ArrayList<>();
     private final List<IDocumentLinkParticipant> linkParticipants = new ArrayList<>();
+    private final List<IReferenceParticipant> referenceParticipants = new ArrayList<>();
     private DayzSchemaURIResolver uriResolver;
 
     @Override
@@ -63,6 +62,7 @@ public class DayzCEPlugin implements IXMLExtension {
             registerHoverParticipants(registry, missionService);
             registerDefinitionParticipants(registry, missionService);
             registerLinkParticipants(registry, missionService);
+            registerReferenceParticipants(registry, missionService);
 
             var commandService = registry.getCommandService();
             commandService.registerCommand(ComputeRefactorEditHandler.COMMAND,
@@ -90,6 +90,7 @@ public class DayzCEPlugin implements IXMLExtension {
         unregisterHoverParticipants(registry);
         unregisterDefinitionParticipants(registry);
         unregisterLinkParticipants(registry);
+        unregisterReferenceParticipants(registry);
 
         registry.getCommandService().unregisterCommand(ComputeRefactorEditHandler.COMMAND);
         registry.getCommandService().unregisterCommand(CreateNewFileHandler.COMMAND);
@@ -202,5 +203,18 @@ public class DayzCEPlugin implements IXMLExtension {
     private void unregisterLinkParticipants(XMLExtensionsRegistry registry) {
         linkParticipants.forEach(registry::unregisterDocumentLinkParticipant);
         linkParticipants.clear();
+    }
+
+    private void registerReferenceParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService){
+        if(referenceParticipants.isEmpty()){
+            referenceParticipants.add(new EventsReferenceParticipant(missionService));
+        }
+
+        referenceParticipants.forEach(registry::registerReferenceParticipant);
+    }
+
+    private void unregisterReferenceParticipants(XMLExtensionsRegistry registry){
+        referenceParticipants.forEach(registry::unregisterReferenceParticipant);
+        referenceParticipants.clear();
     }
 }
