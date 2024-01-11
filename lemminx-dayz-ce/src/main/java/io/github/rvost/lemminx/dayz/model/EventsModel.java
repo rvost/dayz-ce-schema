@@ -30,7 +30,7 @@ public class EventsModel {
 
     // TODO: Move to resources
     public static final List<String> EVENT_NAME_PREFIXES =
-            Arrays.asList("Loot", "Static", "Item", "Animal", "Infected", "Trajectory", "Vehicle");
+            Arrays.asList("Animal", "Ambient", "Infected", "Item", "Loot", "Static", "Trajectory", "Vehicle");
     public static final List<String> EVENT_SPAWNS_PREFIXES =
             Arrays.asList("Item", "Loot", "Static", "Vehicle");
     private static final Path rootPath = Path.of(DB_FOLDER, EVENTS_FILE);
@@ -41,7 +41,7 @@ public class EventsModel {
         return docElement != null && EVENTS_TAG.equals(docElement.getNodeName());
     }
 
-    public static boolean isRootEvents(Path missionRoot, Path file){
+    public static boolean isRootEvents(Path missionRoot, Path file) {
         var relative = missionRoot.relativize(file);
         return rootPath.equals(relative);
     }
