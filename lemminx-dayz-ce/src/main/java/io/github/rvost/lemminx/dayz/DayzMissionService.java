@@ -434,16 +434,10 @@ public class DayzMissionService {
     }
 
     public Map<String, List<Map.Entry<Path, Range>>> getEventIndex() {
-        // TODO: Order by cfgeconomycore.xml
-        var rootEntry = new AbstractMap.SimpleEntry<>(missionRoot.resolve(EventsModel.rootEventsPath), rootEvents);
+        var rootEntry = Map.entry(missionRoot.resolve(EventsModel.rootEventsPath), rootEvents);
         return Stream.concat(customEvents.entrySet().stream(), Stream.of(rootEntry))
-                .flatMap(e -> {
-                    var path = e.getKey();
-                    return e.getValue().entrySet().stream()
-                            .map(x -> new AbstractMap.SimpleEntry<>(x.getKey(),
-                                    new AbstractMap.SimpleEntry<>(path, x.getValue()))
-                            );
-                })
+                .flatMap(e -> e.getValue().entrySet().stream()
+                        .map(x -> Map.entry(x.getKey(), Map.entry(e.getKey(), x.getValue()))))
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(Map.Entry::getValue, Collectors.toList())
