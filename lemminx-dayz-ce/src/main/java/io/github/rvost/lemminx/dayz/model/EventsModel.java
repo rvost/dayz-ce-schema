@@ -31,6 +31,8 @@ public class EventsModel {
     // TODO: Move to resources
     public static final List<String> EVENT_NAME_PREFIXES =
             Arrays.asList("Loot", "Static", "Item", "Animal", "Infected", "Trajectory", "Vehicle");
+    public static final List<String> EVENT_SPAWNS_PREFIXES =
+            Arrays.asList("Item", "Loot", "Static", "Vehicle");
     private static final Path rootPath = Path.of(DB_FOLDER, EVENTS_FILE);
 
 

@@ -23,6 +23,8 @@ public class EventsDiagnosticsParticipant implements IDiagnosticsParticipant {
             "The event name must begin with the following: " + EventsModel.EVENT_NAME_PREFIXES.stream()
             .map(s -> "\"" + s + "\"")
             .collect(Collectors.joining(", "));
+    private static final String UNUSED_EVENT_CODE = "unused_event";
+    private static final String UNUSED_EVENT_MESSAGE = "Event \"%s\" is not referenced in cfgeventspawns.xml. It won't be spawned in the game.";
 
     public EventsDiagnosticsParticipant(DayzMissionService missionService) {
         this.missionService = missionService;
@@ -32,8 +34,11 @@ public class EventsDiagnosticsParticipant implements IDiagnosticsParticipant {
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
         if (EventsModel.isEvents(domDocument)) {
             validateEventNames(domDocument, list, cancelChecker);
-            if(missionService.isInMissionFolder(domDocument)){
+            cancelChecker.checkCanceled();
+            if (missionService.isInMissionFolder(domDocument)) {
                 validateTypeReferences(domDocument, list, cancelChecker);
+                cancelChecker.checkCanceled();
+                validateSpawnReferences(domDocument, list, cancelChecker);
             }
         }
     }
@@ -54,7 +59,7 @@ public class EventsDiagnosticsParticipant implements IDiagnosticsParticipant {
         }
     }
 
-    private void validateTypeReferences(DOMDocument document, List<Diagnostic> diagnostics, CancelChecker cancelChecker){
+    private void validateTypeReferences(DOMDocument document, List<Diagnostic> diagnostics, CancelChecker cancelChecker) {
         for (var eventNode : document.getDocumentElement().getChildren()) {
             eventNode.getChildren().stream()
                     .filter(n -> EventsModel.CHILDREN_TAG.equals(n.getNodeName()))
@@ -71,5 +76,21 @@ public class EventsDiagnosticsParticipant implements IDiagnosticsParticipant {
                     .forEach(diagnostics::add);
             cancelChecker.checkCanceled();
         }
+    }
+
+    private void validateSpawnReferences(DOMDocument document, List<Diagnostic> diagnostics, CancelChecker cancelChecker) {
+        var spawns = missionService.getEventSpawns();
+        document.getDocumentElement().getChildren().stream()
+                .map(n -> n.getAttributeNode(EventsModel.NAME_ATTRIBUTE))
+                .filter(Objects::nonNull)
+                .filter(attr -> !spawns.containsKey(attr.getValue()))
+                .filter(attr -> EventsModel.EVENT_SPAWNS_PREFIXES.stream().anyMatch(attr.getValue()::startsWith))
+                .map(attr -> {
+                    var attrValueRange = attr.getNodeAttrValue();
+                    var range = XMLPositionUtility.createRange(attrValueRange);
+                    var message = String.format(UNUSED_EVENT_MESSAGE, attr.getValue());
+                    return new Diagnostic(range, message, DiagnosticSeverity.Information, ERROR_SOURCE, UNUSED_EVENT_CODE);
+                })
+                .forEach(diagnostics::add);
     }
 }
