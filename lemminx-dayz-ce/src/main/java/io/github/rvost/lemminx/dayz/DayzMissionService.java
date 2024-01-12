@@ -31,10 +31,10 @@ public class DayzMissionService {
     private volatile Map<String, Range> eventGroups;
     private Map<String, Range> randomPresetsIndex;
     private Map<String, Range> userFlagsIndex;
-    private volatile Set<String> rootTypes;
+    private volatile Map<String, Range> rootTypes;
     private volatile Map<String, Range> rootEvents;
     private volatile Set<String> mapGroups;
-    private final ConcurrentMap<Path, Set<String>> customTypes = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Path, Map<String, Range>> customTypes = new ConcurrentHashMap<>();
     private final ConcurrentMap<Path, Map<String, Range>> customEvents = new ConcurrentHashMap<>();
     private final DirWatch watch;
     private final ConcurrentLinkedQueue<MissionFolderEvent> folderChangeEvents;
@@ -48,7 +48,7 @@ public class DayzMissionService {
                                Map<String, Set<String>> randomPresets,
                                Map<String, Range> eventSpawns,
                                Map<String, Range> eventGroups,
-                               Set<String> rootTypes,
+                               Map<String, Range> rootTypes,
                                Map<String, Range> rootEvents,
                                Set<String> mapGroups) throws Exception {
         this.missionRoot = missionRoot.toAbsolutePath();
@@ -311,12 +311,12 @@ public class DayzMissionService {
     }
 
     public Set<String> getRootTypes() {
-        return rootTypes;
+        return rootTypes.keySet();
     }
 
     public Stream<String> getAllTypes() {
-        var custom = customTypes.values().stream().flatMap(Set::stream);
-        return Stream.concat(rootTypes.stream(), custom).distinct();
+        var custom = customTypes.values().stream().flatMap(m -> m.keySet().stream());
+        return Stream.concat(rootTypes.keySet().stream(), custom).distinct();
     }
 
     public Set<String> getEnvFiles() {
@@ -324,7 +324,7 @@ public class DayzMissionService {
     }
 
     public boolean hasType(String className) {
-        return rootTypes.contains(className) || customTypes.values().stream().anyMatch(s -> s.contains(className));
+        return rootTypes.containsKey(className) || customTypes.values().stream().anyMatch(s -> s.containsKey(className));
     }
 
     public Set<String> getRootEvents() {
@@ -431,6 +431,17 @@ public class DayzMissionService {
 
     public Map<String, Range> getEventGroups() {
         return eventGroups;
+    }
+
+    public Map<String, List<Map.Entry<Path, Range>>> getTypesIndex() {
+        var rootEntry = Map.entry(missionRoot.resolve(TypesModel.rootTypesPath), rootTypes);
+        return Stream.concat(customTypes.entrySet().stream(), Stream.of(rootEntry))
+                .flatMap(e -> e.getValue().entrySet().stream()
+                        .map(x -> Map.entry(x.getKey(), Map.entry(e.getKey(), x.getValue()))))
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+                ));
     }
 
     public Map<String, List<Map.Entry<Path, Range>>> getEventIndex() {
