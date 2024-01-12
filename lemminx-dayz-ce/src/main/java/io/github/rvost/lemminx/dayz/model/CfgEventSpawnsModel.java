@@ -44,4 +44,23 @@ public class CfgEventSpawnsModel {
             return Map.of();
         }
     }
+
+    public static Map<String, Range> getCfgEventSpawnsGroupReferences(Path missionPath) {
+        var filePath = missionPath.resolve(CFGEVENTSPAWNS_FILE);
+        try {
+            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(filePath));
+            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, filePath.toString()), null);
+            return doc.getDocumentElement().getChildren().stream()
+                    .flatMap(n -> n.getChildren().stream())
+                    .filter(n -> n.hasAttribute(GROUP_ATTRIBUTE))
+                    .map(n -> n.getAttributeNode(GROUP_ATTRIBUTE))
+                    .collect(Collectors.toMap(
+                            DOMAttr::getNodeValue,
+                            n -> XMLPositionUtility.selectWholeTag(n.getStart()+1, doc),
+                            (oldValue, newValue) -> oldValue,
+                            HashMap::new));
+        } catch (IOException e) {
+            return Map.of();
+        }
+    }
 }
