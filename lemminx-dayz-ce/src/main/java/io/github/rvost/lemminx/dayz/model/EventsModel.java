@@ -47,13 +47,7 @@ public class EventsModel {
 
     public static Map<String, Range> getRootEvents(Path missionPath) {
         var filePath = missionPath.resolve(rootEventsPath);
-        try {
-            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(filePath));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, filePath.toString()), null);
-            return getEvents(doc);
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return getEvents(filePath);
     }
 
     public static Map<String, Range> getEvents(Path path) {
