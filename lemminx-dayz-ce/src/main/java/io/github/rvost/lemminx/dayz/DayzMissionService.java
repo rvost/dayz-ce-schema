@@ -454,4 +454,25 @@ public class DayzMissionService {
                         Collectors.mapping(Map.Entry::getValue, Collectors.toList())
                 ));
     }
+
+    public Map<String, List<Map.Entry<Path, Range>>> getRandomPresetsReferences() {
+        var rootSpawnableTypes = missionRoot.resolve(SpawnableTypesModel.SPAWNABLETYPES_FILE);
+        var customSpawnableTypes = customFiles.entrySet().stream()
+                .filter(p -> p.getValue().equals(DayzFileType.SPAWNABLETYPES))
+                .map(Map.Entry::getKey);
+
+        return Stream.concat(Stream.of(rootSpawnableTypes), customSpawnableTypes)
+                .map(path -> Map.entry(path, SpawnableTypesModel.getPresetsIndex(path)))
+                .flatMap(e -> e.getValue().entrySet().stream()
+                        .flatMap(x -> x.getValue().stream()
+                                .map(r -> Map.entry(x.getKey(), Map.entry(e.getKey(), r))
+                                )
+                        )
+                )
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+                ));
+
+    }
 }
