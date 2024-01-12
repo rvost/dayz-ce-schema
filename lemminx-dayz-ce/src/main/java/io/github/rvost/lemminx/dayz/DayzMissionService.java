@@ -475,4 +475,20 @@ public class DayzMissionService {
                 ));
 
     }
+
+    public Map<String, List<Map.Entry<Path, Range>>> getSpawnableTypesIndex() {
+        var rootSpawnableTypes = missionRoot.resolve(SpawnableTypesModel.SPAWNABLETYPES_FILE);
+        var customSpawnableTypes = customFiles.entrySet().stream()
+                .filter(p -> p.getValue().equals(DayzFileType.SPAWNABLETYPES))
+                .map(Map.Entry::getKey);
+
+        return Stream.concat(Stream.of(rootSpawnableTypes), customSpawnableTypes)
+                .map(path -> Map.entry(path, SpawnableTypesModel.getSpawnableTypes(path)))
+                .flatMap(e -> e.getValue().entrySet().stream()
+                        .map(x -> Map.entry(x.getKey(), Map.entry(e.getKey(), x.getValue()))))
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+                ));
+    }
 }

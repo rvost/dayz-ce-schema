@@ -36,7 +36,19 @@ public class TypesReferenceParticipant extends AbstractReferenceParticipant {
             if (attr != null && TypesModel.NAME_ATTRIBUTE.equals(attr.getName())) {
                 var type = attr.getValue();
                 provideOtherFileReferences(type, node.getOwnerDocument(), locations);
+                cancelChecker.checkCanceled();
+                provideSpawnableTypesReferences(type, locations);
             }
+        }
+    }
+
+    private void provideSpawnableTypesReferences(String type, List<Location> locations) {
+        var index = missionService.getSpawnableTypesIndex();
+        if(index.containsKey(type)){
+            var options = index.get(type);
+            options.stream()
+                    .map(e -> new Location(e.getKey().toUri().toString(), e.getValue()))
+                    .forEach(locations::add);
         }
     }
 
