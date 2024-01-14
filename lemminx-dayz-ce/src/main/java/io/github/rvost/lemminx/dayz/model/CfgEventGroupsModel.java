@@ -18,6 +18,7 @@ public class CfgEventGroupsModel {
     public static final String CFGEVENTGROUPS_FILE="cfgeventgroups.xml";
     public static final String GROUP_TAG="group";
     public static final String NAME_ATTRIBUTE = "name";
+    public static final String TYPE_ATTRIBUTE = "type";
 
     public static boolean isCfgEventGroups(DOMDocument document) {
         if (document == null) {

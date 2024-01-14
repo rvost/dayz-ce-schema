@@ -33,7 +33,7 @@ public class DayzMissionService {
     private Map<String, Range> userFlagsIndex;
     private volatile Map<String, Range> rootTypes;
     private volatile Map<String, Range> rootEvents;
-    private volatile Set<String> mapGroups;
+    private volatile Map<String, Range> mapGroups;
     private final ConcurrentMap<Path, Map<String, Range>> customTypes = new ConcurrentHashMap<>();
     private final ConcurrentMap<Path, Map<String, Range>> customEvents = new ConcurrentHashMap<>();
     private final DirWatch watch;
@@ -50,7 +50,7 @@ public class DayzMissionService {
                                Map<String, Range> eventGroups,
                                Map<String, Range> rootTypes,
                                Map<String, Range> rootEvents,
-                               Set<String> mapGroups) throws Exception {
+                               Map<String, Range> mapGroups) throws Exception {
         this.missionRoot = missionRoot.toAbsolutePath();
         this.missionFolders = missionFolders;
         this.envFiles = getEnvFiles(missionRoot); // TODO: remove
@@ -341,6 +341,10 @@ public class DayzMissionService {
     }
 
     public Set<String> getMapGroups() {
+        return mapGroups.keySet();
+    }
+
+    public Map<String, Range> getMapGroupIndex() {
         return mapGroups;
     }
 

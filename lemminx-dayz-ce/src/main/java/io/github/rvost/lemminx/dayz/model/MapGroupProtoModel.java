@@ -1,6 +1,11 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
+import org.eclipse.lsp4j.Range;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -10,8 +15,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MapGroupProtoModel {
     public static final String MAPGROUPPROTO_FILE = "mapgroupproto.xml";
@@ -31,44 +39,25 @@ public class MapGroupProtoModel {
         return uri != null && uri.toLowerCase().endsWith(MAPGROUPPROTO_FILE);
     }
 
-    public static Set<String> getGroups(Path missionPath) {
+    public static Map<String, Range> getGroups(Path missionPath) {
         var path = missionPath.resolve(MAPGROUPPROTO_FILE);
-
-        try (var input = Files.newInputStream(path)) {
-            return getGroups(input);
-        } catch (IOException e) {
-            return Set.of();
-        }
-    }
-
-    private static Set<String> getGroups(InputStream input) throws IOException {
         try {
-            var db = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
-            var doc = db.parse(input);
-            if (doc.getDocumentElement() != null) {
-                doc.getDocumentElement().normalize();
-                return getGroupNames(doc.getElementsByTagName(GROUP_TAG));
-            } else {
-                return Set.of();
-            }
-
-        } catch (ParserConfigurationException | SAXException e) {
-            return Set.of();
+            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
+            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
+            return getGroups(doc);
+        } catch (IOException e) {
+            return Map.of();
         }
     }
 
-    private static Set<String> getGroupNames(NodeList nodes) {
-        var result = new HashSet<String>();
-        for (int i = 0; i < nodes.getLength(); i++) {
-            var node = nodes.item(i);
-            var attributes = node.getAttributes();
-            if (attributes != null) {
-                var nameAttr = attributes.getNamedItem(NAME_ATTRIBUTE);
-                if (nameAttr != null) {
-                    result.add(nameAttr.getNodeValue());
-                }
-            }
-        }
-        return result;
+    private static Map<String, Range> getGroups(DOMDocument doc) throws IOException {
+        return doc.getDocumentElement().getChildren().stream()
+                .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
+                .map(n -> n.getAttributeNode(NAME_ATTRIBUTE))
+                .collect(Collectors.toMap(
+                        DOMAttr::getNodeValue,
+                        n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
+                        (oldValue, newValue) -> newValue,
+                        HashMap::new));
     }
 }
