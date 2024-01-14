@@ -110,6 +110,7 @@ public class DayzCEPlugin implements IXMLExtension {
             completionParticipants.add(new CfgRandomPresetsCompletionParticipant(missionService));
             completionParticipants.add(new EventsCompletionParticipant(missionService));
             completionParticipants.add(new CfgEventSpawnsCompletionParticipant(missionService));
+            completionParticipants.add(new CfgEventGroupsCompletionParticipant(missionService));
             completionParticipants.add(new CfgEnvironmentCompletionParticipant(missionService));
             completionParticipants.add(new MapGroupProtoCompletionParticipant(missionService));
             completionParticipants.add(new MapGroupPosCompletionParticipant(missionService));
