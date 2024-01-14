@@ -2,6 +2,39 @@
 
 ## [Unreleased]
 
+## [1.1.0]
+
+### Added
+
+- Hover with flag content tooltips for user-defined flags in `types.xml`(and custom files).
+- Hover tooltips with human-readable time format for time values in following files:
+    - `types.xml` (and custom files);
+    - `events.xml` (and custom files);
+    - `globals.xml` (and custom files);
+    - `cfgweather.xml`.
+- Link navigation for:
+    - files in `cfgeconomycore.xml`;
+    - files in `cfgenvironment.xml`.
+- `Go To Declaration` implementation for:
+    - Random presets in `cfgspawnabletypes.xml`;
+    - User-defined flags in `types.xml`;
+    - Event groups in `cfgeventspawns.xml`;
+    - Map group prototypes in `cfgeventgroups.xml`.
+- `Find Reference`/`Find All References` implementation for:
+    - Types in `types.xml`: lists references from other types files and `cfgspawnabletypes.xml` (including custom files);
+    - Events in `events.xml`: lists references from other events files and `cfgeventspawns.xml`;
+    - Random presets: list references from `cfgspawnabletypes.xml` (including custom files);
+    - Event groups: lists references from `cfgeventspawns.xml`;
+    - Map group prototypes: lists references from `cfgeventgroups.xml`.
+- Diagnostics for events that not referenced in `cfgeventspawns.xml`.
+- Diagnostics for group references in `cfgeventspawns.xml`.
+- Diagnostics for map group references in `cfgeventgroups.xml`.
+- Autocompletion for map group names in `cfgeventgroups.xml`.
+
+### Fixed
+
+- Added `Ambient` to the list of valid event prefixes.
+
 ## [1.0.0]
 
 ### Added

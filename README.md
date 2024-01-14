@@ -84,6 +84,19 @@ If you prefer a more high-level Excel-like approach, you may be interested in my
 
 ## Release Notes
 
+### 1.1.0
+
+- Fixed `Ambient` event category validation.
+- Added hover tooltips for user-defined flags in `types.xml`(and custom files).
+- Added hover tooltips with human-readable time format for time values. See [CHANGELOG](CHANGELOG.md#110) for more details.
+- Added link navigation for file references.
+- Added `Go To Declaration` support.  See [CHANGELOG](CHANGELOG.md#110) for more details.
+- Added Find Reference`/`Find All References` support. See [CHANGELOG](CHANGELOG.md#110) for more details.
+- Added diagnostics for events that not referenced in `cfgeventspawns.xml`.
+- Added diagnostics for group references in `cfgeventspawns.xml`.
+- Added diagnostics for map group references in `cfgeventgroups.xml`.
+- Added autocompletion for map group names in `cfgeventgroups.xml`.
+
 ### 1.0.0
 
 - Stable release of Language server for DayZ mission XML files.
