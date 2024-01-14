@@ -11,12 +11,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CfgEventGroupsModel {
-    public static final String CFGEVENTGROUPS_FILE="cfgeventgroups.xml";
-    public static final String GROUP_TAG="group";
+    public static final String CFGEVENTGROUPS_FILE = "cfgeventgroups.xml";
+    public static final String GROUP_TAG = "group";
     public static final String NAME_ATTRIBUTE = "name";
     public static final String TYPE_ATTRIBUTE = "type";
 
@@ -41,6 +42,26 @@ public class CfgEventGroupsModel {
                             n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
                             (oldValue, newValue) -> oldValue,
                             HashMap::new));
+        } catch (IOException e) {
+            return Map.of();
+        }
+    }
+
+    public static Map<String, List<Range>> getChildTypesIndex(Path missionPath) {
+        var filePath = missionPath.resolve(CFGEVENTGROUPS_FILE);
+        try {
+            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(filePath));
+            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, filePath.toString()), null);
+            return doc.getDocumentElement().getChildren().stream()
+                    .flatMap(n -> n.getChildren().stream())
+                    .filter(n -> n.hasAttribute(TYPE_ATTRIBUTE))
+                    .map(n -> n.getAttributeNode(TYPE_ATTRIBUTE))
+                    .collect(Collectors.groupingBy(
+                            DOMAttr::getNodeValue,
+                            Collectors.mapping(
+                                    n -> XMLPositionUtility.selectWholeTag(n.getStart() + 1, doc),
+                                    Collectors.toList()))
+                    );
         } catch (IOException e) {
             return Map.of();
         }
