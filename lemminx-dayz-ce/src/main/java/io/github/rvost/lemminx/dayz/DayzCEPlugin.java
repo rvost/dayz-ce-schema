@@ -133,6 +133,7 @@ public class DayzCEPlugin implements IXMLExtension {
             diagnosticsParticipants.add(new CfgRandomPresetsDiagnosticsParticipant(missionService));
             diagnosticsParticipants.add(new EventsDiagnosticsParticipant(missionService));
             diagnosticsParticipants.add(new CfgEventSpawnsDiagnosticsParticipant(missionService));
+            diagnosticsParticipants.add(new CfgEventGroupsDiagnosticsParticipant(missionService));
             diagnosticsParticipants.add(new GlobalsDiagnosticsParticipant());
             diagnosticsParticipants.add(new CfgEnvironmentDiagnosticsParticipant(missionService));
             diagnosticsParticipants.add(new MapGroupProtoDiagnosticsParticipant(missionService));

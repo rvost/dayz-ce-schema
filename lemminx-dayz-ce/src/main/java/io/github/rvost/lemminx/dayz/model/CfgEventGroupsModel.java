@@ -20,6 +20,7 @@ public class CfgEventGroupsModel {
     public static final String GROUP_TAG = "group";
     public static final String NAME_ATTRIBUTE = "name";
     public static final String TYPE_ATTRIBUTE = "type";
+    public static final String SPAWNSECONDARY_ATTRIBUTE = "spawnsecondary";
 
     public static boolean isCfgEventGroups(DOMDocument document) {
         if (document == null) {
