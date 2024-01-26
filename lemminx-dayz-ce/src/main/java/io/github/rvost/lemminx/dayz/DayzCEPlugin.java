@@ -1,8 +1,10 @@
 package io.github.rvost.lemminx.dayz;
 
+import io.github.rvost.lemminx.dayz.commands.ComputeEventsSpawnsCopyHandler;
 import io.github.rvost.lemminx.dayz.commands.ComputeRefactorEditHandler;
 import io.github.rvost.lemminx.dayz.commands.CreateNewFileHandler;
 import io.github.rvost.lemminx.dayz.participants.codeaction.AddCustomFileCodeAction;
+import io.github.rvost.lemminx.dayz.participants.codeaction.CopyCfgEventSpawnsCodeAction;
 import io.github.rvost.lemminx.dayz.participants.codeaction.FixFileTypeCodeAction;
 import io.github.rvost.lemminx.dayz.participants.codeaction.RefactorCustomFilesCodeAction;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
@@ -70,6 +72,8 @@ public class DayzCEPlugin implements IXMLExtension {
                     new ComputeRefactorEditHandler(registry.getDocumentProvider(), missionService));
             commandService.registerCommand(CreateNewFileHandler.COMMAND,
                     new CreateNewFileHandler(missionService, registry.getResolverExtensionManager()));
+            commandService.registerCommand(ComputeEventsSpawnsCopyHandler.COMMAND,
+                    new ComputeEventsSpawnsCopyHandler(registry.getDocumentProvider(), missionService));
 
             uriResolver = new DayzSchemaURIResolver(registry.getDocumentProvider());
             registry.getResolverExtensionManager().registerResolver(uriResolver);
@@ -154,6 +158,7 @@ public class DayzCEPlugin implements IXMLExtension {
             codeActionParticipants.add(new AddCustomFileCodeAction(missionService));
             codeActionParticipants.add(new FixFileTypeCodeAction(missionService));
             codeActionParticipants.add(new RefactorCustomFilesCodeAction(missionService));
+            codeActionParticipants.add(new CopyCfgEventSpawnsCodeAction(missionService));
 
             codeActionParticipants.forEach(registry::registerCodeActionParticipant);
         }

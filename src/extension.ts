@@ -7,6 +7,7 @@ import {makeGlobPattern, mergePatterns, readFileAsText} from "./utils";
 import {documentationCommand, documentationHandler} from "./documentation/documentationProvider";
 import {XMLExtensionApi} from "./xml/xmlExtensionApi";
 import {applyCustomFilesRefactorCommand, applyCustomFilesRefactorHandler} from "./applyCustomFilesRefactor";
+import { applyEventSpawnsCopyCommand, applyEventSpawnsCopyHandler } from "./applyEventSpawnsCopy";
 
 const defaultSchemaAssociations = _defaultAssociations as SchemaAssociation[];
 
@@ -79,6 +80,9 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand(documentationCommand, documentationHandler));
     context.subscriptions.push(
         vscode.commands.registerCommand(applyCustomFilesRefactorCommand, applyCustomFilesRefactorHandler)
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand(applyEventSpawnsCopyCommand, applyEventSpawnsCopyHandler)
     );
 
     const fileAssociations = await getAssociations();
