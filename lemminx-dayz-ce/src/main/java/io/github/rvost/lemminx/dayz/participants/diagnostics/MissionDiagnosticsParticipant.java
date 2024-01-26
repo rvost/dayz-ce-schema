@@ -1,6 +1,7 @@
 package io.github.rvost.lemminx.dayz.participants.diagnostics;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
+import io.github.rvost.lemminx.dayz.model.CfgEventSpawnsModel;
 import io.github.rvost.lemminx.dayz.model.MissionModel;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
@@ -28,6 +29,10 @@ public class MissionDiagnosticsParticipant implements IDiagnosticsParticipant {
     private static final String FILE_OUT_OF_FOLDER_MESSAGE = "File \"%1$s\" is not a part of the mission folder.\n"
             + "\"%1$s\" can be registered as a custom \"%2$s\" file, but located outside the currently open mission folder.";
 
+    public static final String EXTERNAL_EVENTSPAWNS_CODE = "cfgeventspawns_out_of_folder";
+    private static final String EXTERNAL_EVENTSPAWNS_MESSAGE = "File \"%s\" is not a part of the mission folder.\n"
+            + "The event spawn configuration can be copied to the mission's cfgeventspawns.xml file.";
+
     public static final String FILE_TYPE_MISMATCH_CODE = "custom_file_type_mismatch";
     private static final String FILE_TYPE_MISMATCH_MESSAGE = "Incorrect file type registered in cfgeconomycore.xml.\n"
             + "File is registered as \"%s\", but actual type appears to be \"%s\".";
@@ -40,9 +45,7 @@ public class MissionDiagnosticsParticipant implements IDiagnosticsParticipant {
 
     @Override
     public void doDiagnostics(DOMDocument document, List<Diagnostic> diagnostics, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        var docMatch = MissionModel.IsCustomFile(document);
-
-        if (docMatch) {
+        if (MissionModel.IsCustomFile(document)) {
             var inFolderDiagnostics = validateFileInMissionFolder(document);
 
             if (inFolderDiagnostics.isPresent()) {
@@ -52,6 +55,24 @@ public class MissionDiagnosticsParticipant implements IDiagnosticsParticipant {
                 validateCustomFileType(document).ifPresent(diagnostics::add);
             }
         }
+        if (CfgEventSpawnsModel.isEventSpawns(document)) {
+            validateExternalEventSpawns(document).ifPresent(diagnostics::add);
+        }
+    }
+
+    private Optional<Diagnostic> validateExternalEventSpawns(DOMDocument document) {
+        try {
+            var docPath = Path.of(new URI(document.getDocumentURI())).toAbsolutePath();
+            if (!missionService.isInMissionFolder(document)) {
+                var rootTag = document.getDocumentElement();
+                var range = XMLPositionUtility.createRange(rootTag.getStartTagOpenOffset(),
+                        rootTag.getStartTagCloseOffset(), document);
+                var message = String.format(EXTERNAL_EVENTSPAWNS_MESSAGE, docPath.toString());
+                return Optional.of(new Diagnostic(range, message, DiagnosticSeverity.Information, ERROR_SOURCE, EXTERNAL_EVENTSPAWNS_CODE));
+            }
+        } catch (URISyntaxException ignored) {
+        }
+        return Optional.empty();
     }
 
     private Optional<Diagnostic> validateFileInMissionFolder(DOMDocument document) {
