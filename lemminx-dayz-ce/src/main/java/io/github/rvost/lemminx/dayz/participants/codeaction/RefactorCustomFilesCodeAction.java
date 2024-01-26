@@ -4,7 +4,7 @@ import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.commands.ClientCommands;
 import io.github.rvost.lemminx.dayz.model.DayzFileType;
 import io.github.rvost.lemminx.dayz.model.MissionModel;
-import org.eclipse.lemminx.commons.BadLocationException;
+import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
@@ -43,7 +43,7 @@ public class RefactorCustomFilesCodeAction implements ICodeActionParticipant {
         }
 
         var range = request.getRange();
-        Optional<DOMNode> startNode = getStartNode(document, range);
+        Optional<DOMNode> startNode = ParticipantsUtils.tryGetStartNode(document, range);
         if (startNode.isEmpty()) {
             return;
         }
@@ -79,20 +79,6 @@ public class RefactorCustomFilesCodeAction implements ICodeActionParticipant {
         return docUri;
     }
 
-    private static Optional<DOMNode> getStartNode(DOMDocument document, Range range) {
-        try {
-
-            var startOffset = document.offsetAt(range.getStart());
-            var endOffset = document.offsetAt(range.getEnd());
-
-            return document.getDocumentElement().getChildren().stream()
-                    .filter(n -> inRange(n.getStart(), startOffset, endOffset) || inRange(n.getEnd(), startOffset, endOffset))
-                    .findAny();
-        } catch (BadLocationException ignored) {
-            return Optional.empty();
-        }
-    }
-
     private List<String> getOptions(DayzFileType docType, URI docUri) {
         return missionService.getRegisteredFiles(docType)
                 .map(Path::toUri)
@@ -100,10 +86,6 @@ public class RefactorCustomFilesCodeAction implements ICodeActionParticipant {
                 .filter(s -> !s.equals(docUri.normalize()))
                 .map(URI::toString)
                 .toList();
-    }
-
-    private static boolean inRange(int offset, int startOffset, int endOffset) {
-        return offset >= startOffset && offset <= endOffset;
     }
 
     private static void generateCodeActionsForMissionFile(List<CodeAction> codeActions,

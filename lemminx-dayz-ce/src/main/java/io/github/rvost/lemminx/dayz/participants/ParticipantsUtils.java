@@ -1,6 +1,8 @@
 package io.github.rvost.lemminx.dayz.participants;
 
 import com.google.common.primitives.Ints;
+import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.hover.IHoverRequest;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
@@ -51,5 +53,23 @@ public class ParticipantsUtils {
         }
         return new LocationLink(target.toUri().toString(), targetRange, targetRange,
                 XMLPositionUtility.createRange(originNode));
+    }
+
+    public static Optional<DOMNode> tryGetStartNode(DOMDocument document, Range range) {
+        try {
+
+            var startOffset = document.offsetAt(range.getStart());
+            var endOffset = document.offsetAt(range.getEnd());
+
+            return document.getDocumentElement().getChildren().stream()
+                    .filter(n -> inRange(n.getStart(), startOffset, endOffset) || inRange(n.getEnd(), startOffset, endOffset))
+                    .findAny();
+        } catch (BadLocationException ignored) {
+            return Optional.empty();
+        }
+    }
+
+    public static boolean inRange(int offset, int startOffset, int endOffset) {
+        return offset >= startOffset && offset <= endOffset;
     }
 }

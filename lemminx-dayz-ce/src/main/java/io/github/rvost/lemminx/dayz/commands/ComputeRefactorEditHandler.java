@@ -1,7 +1,7 @@
 package io.github.rvost.lemminx.dayz.commands;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
-import io.github.rvost.lemminx.dayz.participants.IndentUtils;
+import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
@@ -48,7 +48,9 @@ public class ComputeRefactorEditHandler extends AbstractDOMDocumentCommandHandle
             var endOffset = document.offsetAt(selectedRange.getEnd());
 
             selectedNodes = document.getDocumentElement().getChildren().stream()
-                    .filter(n -> inRange(n.getStart(), startOffset, endOffset) || inRange(n.getEnd(), startOffset, endOffset))
+                    .filter(n -> ParticipantsUtils.inRange(n.getStart(), startOffset, endOffset) ||
+                            ParticipantsUtils.inRange(n.getEnd(), startOffset, endOffset)
+                    )
                     .toList();
         } catch (BadLocationException ignored) {
         }
@@ -115,7 +117,4 @@ public class ComputeRefactorEditHandler extends AbstractDOMDocumentCommandHandle
         return TextEditUtils.creatTextDocumentEdit(document, List.of(te));
     }
 
-    private static boolean inRange(int offset, int startOffset, int endOffset) {
-        return offset >= startOffset && offset <= endOffset;
-    }
 }
