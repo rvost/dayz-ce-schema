@@ -1,6 +1,5 @@
 package io.github.rvost.lemminx.dayz.commands;
 
-import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -18,14 +17,12 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComputeRefactorEditHandler extends AbstractDOMDocumentCommandHandler {
-    public static final String COMMAND = "dayz-ce-schema.computeRefactorEdit";
+public class ComputeCustomFileRefactorHandler extends AbstractDOMDocumentCommandHandler {
+    public static final String COMMAND = "dayz-ce-schema.computeCustomFileRefactor";
 
-    private final DayzMissionService missionService;
 
-    public ComputeRefactorEditHandler(IXMLDocumentProvider documentProvider, DayzMissionService missionService) {
+    public ComputeCustomFileRefactorHandler(IXMLDocumentProvider documentProvider) {
         super(documentProvider);
-        this.missionService = missionService;
     }
 
     @Override

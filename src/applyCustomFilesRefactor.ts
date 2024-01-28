@@ -76,7 +76,7 @@ export async function applyCustomFilesRefactorHandler(
 
     const lsEdit: WorkspaceEdit | null = await commands.executeCommand(
         "xml.workspace.executeCommand",
-        "dayz-ce-schema.computeRefactorEdit",
+        "dayz-ce-schema.computeCustomFileRefactor",
         identifier,
         targetUri.toString(),
         kind,

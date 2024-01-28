@@ -2,7 +2,7 @@ package io.github.rvost.lemminx.dayz;
 
 import io.github.rvost.lemminx.dayz.commands.ComputeEventsSpawnsCopyHandler;
 import io.github.rvost.lemminx.dayz.commands.ComputeExtractRandomPreset;
-import io.github.rvost.lemminx.dayz.commands.ComputeRefactorEditHandler;
+import io.github.rvost.lemminx.dayz.commands.ComputeCustomFileRefactorHandler;
 import io.github.rvost.lemminx.dayz.commands.CreateNewFileHandler;
 import io.github.rvost.lemminx.dayz.participants.codeaction.*;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
@@ -66,8 +66,8 @@ public class DayzCEPlugin implements IXMLExtension {
             registerReferenceParticipants(registry, missionService);
 
             var commandService = registry.getCommandService();
-            commandService.registerCommand(ComputeRefactorEditHandler.COMMAND,
-                    new ComputeRefactorEditHandler(registry.getDocumentProvider(), missionService));
+            commandService.registerCommand(ComputeCustomFileRefactorHandler.COMMAND,
+                    new ComputeCustomFileRefactorHandler(registry.getDocumentProvider()));
             commandService.registerCommand(CreateNewFileHandler.COMMAND,
                     new CreateNewFileHandler(missionService, registry.getResolverExtensionManager()));
             commandService.registerCommand(ComputeEventsSpawnsCopyHandler.COMMAND,
@@ -97,7 +97,7 @@ public class DayzCEPlugin implements IXMLExtension {
         unregisterLinkParticipants(registry);
         unregisterReferenceParticipants(registry);
 
-        registry.getCommandService().unregisterCommand(ComputeRefactorEditHandler.COMMAND);
+        registry.getCommandService().unregisterCommand(ComputeCustomFileRefactorHandler.COMMAND);
         registry.getCommandService().unregisterCommand(CreateNewFileHandler.COMMAND);
 
         registry.getResolverExtensionManager().unregisterResolver(uriResolver);
