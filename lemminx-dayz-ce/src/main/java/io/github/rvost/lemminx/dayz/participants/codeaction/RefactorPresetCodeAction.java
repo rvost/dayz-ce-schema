@@ -2,12 +2,15 @@ package io.github.rvost.lemminx.dayz.participants.codeaction;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.commands.ClientCommands;
+import io.github.rvost.lemminx.dayz.model.RandomPresetsModel;
 import io.github.rvost.lemminx.dayz.model.SpawnableTypesModel;
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionRequest;
+import org.eclipse.lemminx.utils.DOMUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -40,12 +43,18 @@ public class RefactorPresetCodeAction implements ICodeActionParticipant {
     }
 
     private void computeCodeActions(DOMNode node, DOMDocument document, List<CodeAction> codeActions, CancelChecker cancelChecker) {
-        if (nodeMatch(node) && !node.hasAttribute(SpawnableTypesModel.PRESET_ATTRIBUTE)) {
+        if (!nodeMatch(node)) {
+            return;
+        }
+        if (!node.hasAttribute(SpawnableTypesModel.PRESET_ATTRIBUTE)) {
             var range = XMLPositionUtility.createRange(node.getStart(), node.getEnd(), document);
             var ca = new CodeAction("Extract random preset");
             ca.setKind(CodeActionKind.RefactorExtract);
             ca.setCommand(new Command("Extract random preset", ClientCommands.APPLY_EXTRACT_RANDOM_PRESET, List.of(range)));
             codeActions.add(ca);
+        } else {
+            var inlineCa = computeInlineRandomPresetAction(document, node);
+            inlineCa.ifPresent(codeActions::add);
         }
     }
 
@@ -54,11 +63,37 @@ public class RefactorPresetCodeAction implements ICodeActionParticipant {
         return SpawnableTypesModel.ATTACHMENTS_TAG.equals(name) || SpawnableTypesModel.CARGO_TAG.equals(name);
     }
 
-    private static Optional<DOMNode> tryGetNodeAtSelection(DOMDocument document, Range range){
+    private static Optional<DOMNode> tryGetNodeAtSelection(DOMDocument document, Range range) {
         try {
-            return  Optional.ofNullable(document.findNodeAt(document.offsetAt(range.getStart())));
+            return Optional.ofNullable(document.findNodeAt(document.offsetAt(range.getStart())));
         } catch (BadLocationException e) {
             return Optional.empty();
         }
+    }
+
+    private Optional<CodeAction> computeInlineRandomPresetAction(DOMDocument document, DOMNode targetNode) {
+        var presetsUri = missionService.missionRoot.resolve(RandomPresetsModel.CFGRANDOMPRESETS_FILE).toUri();
+        var presetsDocument = DOMUtils.loadDocument(presetsUri.toString(), document.getResolverExtensionManager());
+
+        var presetName = targetNode.getAttribute(SpawnableTypesModel.PRESET_ATTRIBUTE);
+        var presetNode = presetsDocument.getDocumentElement().getChildren().stream()
+                .filter(n -> presetName.equals(n.getAttribute(RandomPresetsModel.NAME_ATTRIBUTE)))
+                .findFirst();
+
+        if (presetNode.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var node = presetNode.get();
+        var insertText = presetsDocument.getTextDocument().getText().substring(node.getStart(), node.getEnd());
+        insertText = insertText.replaceFirst("name=\"\\w*\"", "");
+        var insertRange = XMLPositionUtility.createRange(targetNode.getStart(), targetNode.getEnd(), document);
+
+        var we = CodeActionFactory.getReplaceWorkspaceEdit(insertText, insertRange, document.getTextDocument());
+        var ca = new CodeAction("Inline random preset");
+        ca.setKind(CodeActionKind.RefactorInline);
+        ca.setEdit(we);
+
+        return Optional.of(ca);
     }
 }
