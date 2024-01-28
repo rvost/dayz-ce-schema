@@ -7,7 +7,8 @@ import {makeGlobPattern, mergePatterns, readFileAsText} from "./utils";
 import {documentationCommand, documentationHandler} from "./documentation/documentationProvider";
 import {XMLExtensionApi} from "./xml/xmlExtensionApi";
 import {applyCustomFilesRefactorCommand, applyCustomFilesRefactorHandler} from "./applyCustomFilesRefactor";
-import { applyEventSpawnsCopyCommand, applyEventSpawnsCopyHandler } from "./applyEventSpawnsCopy";
+import {applyEventSpawnsCopyCommand, applyEventSpawnsCopyHandler} from "./applyEventSpawnsCopy";
+import {applyExtractRandomPresetCommand, applyExtractRandomPresetHandler} from "./applyExtractRandomPreset";
 
 const defaultSchemaAssociations = _defaultAssociations as SchemaAssociation[];
 
@@ -83,6 +84,9 @@ export async function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(applyEventSpawnsCopyCommand, applyEventSpawnsCopyHandler)
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand(applyExtractRandomPresetCommand, applyExtractRandomPresetHandler)
     );
 
     const fileAssociations = await getAssociations();

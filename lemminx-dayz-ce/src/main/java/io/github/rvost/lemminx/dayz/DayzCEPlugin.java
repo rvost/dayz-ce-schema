@@ -1,12 +1,10 @@
 package io.github.rvost.lemminx.dayz;
 
 import io.github.rvost.lemminx.dayz.commands.ComputeEventsSpawnsCopyHandler;
+import io.github.rvost.lemminx.dayz.commands.ComputeExtractRandomPreset;
 import io.github.rvost.lemminx.dayz.commands.ComputeRefactorEditHandler;
 import io.github.rvost.lemminx.dayz.commands.CreateNewFileHandler;
-import io.github.rvost.lemminx.dayz.participants.codeaction.AddCustomFileCodeAction;
-import io.github.rvost.lemminx.dayz.participants.codeaction.CopyCfgEventSpawnsCodeAction;
-import io.github.rvost.lemminx.dayz.participants.codeaction.FixFileTypeCodeAction;
-import io.github.rvost.lemminx.dayz.participants.codeaction.RefactorCustomFilesCodeAction;
+import io.github.rvost.lemminx.dayz.participants.codeaction.*;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
 import io.github.rvost.lemminx.dayz.participants.definition.CfgEventSpawnsDefinitionParticipant;
 import io.github.rvost.lemminx.dayz.participants.definition.FlagsDefinitionParticipant;
@@ -74,6 +72,8 @@ public class DayzCEPlugin implements IXMLExtension {
                     new CreateNewFileHandler(missionService, registry.getResolverExtensionManager()));
             commandService.registerCommand(ComputeEventsSpawnsCopyHandler.COMMAND,
                     new ComputeEventsSpawnsCopyHandler(registry.getDocumentProvider(), missionService));
+            commandService.registerCommand(ComputeExtractRandomPreset.COMMAND,
+                    new ComputeExtractRandomPreset(registry.getDocumentProvider(), missionService));
 
             uriResolver = new DayzSchemaURIResolver(registry.getDocumentProvider());
             registry.getResolverExtensionManager().registerResolver(uriResolver);
@@ -159,6 +159,7 @@ public class DayzCEPlugin implements IXMLExtension {
             codeActionParticipants.add(new FixFileTypeCodeAction(missionService));
             codeActionParticipants.add(new RefactorCustomFilesCodeAction(missionService));
             codeActionParticipants.add(new CopyCfgEventSpawnsCodeAction(missionService));
+            codeActionParticipants.add(new RefactorPresetCodeAction(missionService));
 
             codeActionParticipants.forEach(registry::registerCodeActionParticipant);
         }
@@ -214,8 +215,8 @@ public class DayzCEPlugin implements IXMLExtension {
         linkParticipants.clear();
     }
 
-    private void registerReferenceParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService){
-        if(referenceParticipants.isEmpty()){
+    private void registerReferenceParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService) {
+        if (referenceParticipants.isEmpty()) {
             referenceParticipants.add(new EventsReferenceParticipant(missionService));
             referenceParticipants.add(new TypesReferenceParticipant(missionService));
             referenceParticipants.add(new RandomPresetReferenceParticipant(missionService));
@@ -226,7 +227,7 @@ public class DayzCEPlugin implements IXMLExtension {
         referenceParticipants.forEach(registry::registerReferenceParticipant);
     }
 
-    private void unregisterReferenceParticipants(XMLExtensionsRegistry registry){
+    private void unregisterReferenceParticipants(XMLExtensionsRegistry registry) {
         referenceParticipants.forEach(registry::unregisterReferenceParticipant);
         referenceParticipants.clear();
     }

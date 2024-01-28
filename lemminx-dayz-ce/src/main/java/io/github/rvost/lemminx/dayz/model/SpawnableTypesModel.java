@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SpawnableTypesModel {
+    public static final String ATTACHMENTS_TAG = "attachments";
+    public static final String CARGO_TAG = "cargo";
     public static final String SPAWNABLETYPES_TAG = "spawnabletypes";
     public static final String PRESET_ATTRIBUTE = "preset";
     public static final String NAME_ATTRIBUTE = "name";
