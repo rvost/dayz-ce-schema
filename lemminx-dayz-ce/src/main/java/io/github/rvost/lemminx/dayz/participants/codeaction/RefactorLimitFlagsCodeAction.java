@@ -1,12 +1,12 @@
 package io.github.rvost.lemminx.dayz.participants.codeaction;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.BiMap;
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
 import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import io.github.rvost.lemminx.dayz.participants.diagnostics.TypesDiagnosticsParticipant;
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
@@ -17,6 +17,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.*;
+import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
 public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
@@ -44,6 +45,20 @@ public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
         }
     }
 
+    @Override
+    public void doCodeActionUnconditional(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) throws CancellationException {
+        var document = request.getDocument();
+        if (!TypesModel.isTypes(document) || !missionService.isInMissionFolder(document)) {
+            return;
+        }
+        var range = request.getRange();
+        var node = ParticipantsUtils.tryGetNodeAtSelection(document, range);
+        if (node.isEmpty()) {
+            return;
+        }
+        tryGetInlineUserFlag(document, node.get()).ifPresent(codeActions::add);
+    }
+
     private Optional<CodeAction> tryGetRefactorForFlags(DOMDocument document,
                                                         DOMNode parent,
                                                         String flagType,
@@ -52,17 +67,36 @@ public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
         var flags = getFlagValues(fLagNodes);
         if (userFlags.containsKey(flags)) {
             var userFlag = userFlags.get(flags);
-            var ca = computeCodeAction(document, fLagNodes, flagType, userFlag);
+            var ca = computeReplaceCodeAction(document, fLagNodes, flagType, userFlag);
             return Optional.of(ca);
         }
 
         return Optional.empty();
     }
 
-    private static CodeAction computeCodeAction(DOMDocument document,
-                                         List<DOMNode> toRepalce,
-                                         String flagType,
-                                         String userFlag) {
+    private Optional<CodeAction> tryGetInlineUserFlag(DOMDocument document,
+                                                      DOMNode node) {
+        if (node.hasAttribute(TypesModel.USER_ATTRIBUTE)) {
+            var userFlags = missionService.getUserFlags();
+            var flags = userFlags.get(node.getAttribute(TypesModel.USER_ATTRIBUTE));
+            var flagType = node.getLocalName();
+            var insertText = flags.stream()
+                    .map(flag -> String.format("<%s %s=\"%s\"/>", flagType, TypesModel.NAME_ATTRIBUTE, flag))
+                    .collect(Collectors.joining("\n\t\t"));
+            var range = selectNode(node, document);
+            var we = CodeActionFactory.getReplaceWorkspaceEdit(insertText, range, document.getTextDocument());
+            var ca = new CodeAction("Inline user flag");
+            ca.setKind(CodeActionKind.RefactorInline);
+            ca.setEdit(we);
+            return Optional.of(ca);
+        }
+        return Optional.empty();
+    }
+
+    private static CodeAction computeReplaceCodeAction(DOMDocument document,
+                                                       List<DOMNode> toRepalce,
+                                                       String flagType,
+                                                       String userFlag) {
         var insertText = String.format("<%s %s=\"%s\"/>", flagType, TypesModel.USER_ATTRIBUTE, userFlag);
 
         var edits = new ArrayList<TextEdit>();
