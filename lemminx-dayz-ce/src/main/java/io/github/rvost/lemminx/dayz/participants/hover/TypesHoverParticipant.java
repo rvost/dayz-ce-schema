@@ -10,8 +10,8 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class TypesHoverParticipant extends HoverParticipantAdapter {
 
@@ -26,12 +26,10 @@ public class TypesHoverParticipant extends HoverParticipantAdapter {
         var document = request.getXMLDocument();
         if (TypesModel.isTypes(document) && missionService.isInMissionFolder(document)) {
             var userLimitsDefinitions = missionService.getUserFlags();
-            var parent = document.findNodeAt(request.getOffset());
-            var nodeName = parent.getNodeName();
             var attrName = request.getCurrentAttributeName();
 
-            if (TypesModel.USER_ATTRIBUTE.equals(attrName) && userLimitsDefinitions.containsKey(nodeName)) {
-                return hoverForUserFlag(request, userLimitsDefinitions.get(nodeName), cancelChecker);
+            if (TypesModel.USER_ATTRIBUTE.equals(attrName)) {
+                return hoverForUserFlag(request, userLimitsDefinitions, cancelChecker);
             }
         }
         return null;
@@ -49,7 +47,7 @@ public class TypesHoverParticipant extends HoverParticipantAdapter {
         return null;
     }
 
-    private Hover hoverForUserFlag(IHoverRequest request, Map<String, List<String>> userFlags, CancelChecker cancelChecker) {
+    private Hover hoverForUserFlag(IHoverRequest request, Map<String, Set<String>> userFlags, CancelChecker cancelChecker) {
         var supportsMarkdown = request.canSupportMarkupKind(MarkupKind.MARKDOWN);
         var attrValue = request.getCurrentAttribute().getValue();
 

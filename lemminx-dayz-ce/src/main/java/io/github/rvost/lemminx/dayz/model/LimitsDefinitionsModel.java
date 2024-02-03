@@ -1,5 +1,8 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableBiMap;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -110,17 +113,17 @@ public class LimitsDefinitionsModel {
         }
     }
 
-    public static Map<String, Map<String, List<String>>> getUserFlags(Path missionPath) {
+    public static BiMap<String, Set<String>> getUserFlags(Path missionPath) {
         var path = missionPath.resolve(USER_LIMITS_DEFINITION_FILE);
 
         try (var input = Files.newInputStream(path)) {
             return getUserFlags(input);
         } catch (IOException e) {
-            return Map.of();
+            return ImmutableBiMap.of();
         }
     }
 
-    public static Map<String, Map<String, List<String>>> getUserFlags(InputStream input) throws IOException {
+    public static BiMap<String, Set<String>> getUserFlags(InputStream input) throws IOException {
         try {
             var db = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
             var doc = db.parse(input);
@@ -128,21 +131,21 @@ public class LimitsDefinitionsModel {
                 doc.getDocumentElement().normalize();
                 var usageflagsNode = doc.getElementsByTagName(USAGEFLAGS_TAG).item(0);
                 var valueflagsNode = doc.getElementsByTagName(VALUEFLAGS_TAG).item(0);
-                var result = new HashMap<String, Map<String, List<String>>>();
+                BiMap<String, Set<String>> result = HashBiMap.create();
                 if (usageflagsNode != null) {
                     var usageflags = getFlagDefinitions(usageflagsNode.getChildNodes());
-                    result.put(USAGE_TAG, usageflags);
+                    result.putAll(usageflags);
                 }
                 if (valueflagsNode != null) {
                     var valueflags = getFlagDefinitions(valueflagsNode.getChildNodes());
-                    result.put(VALUE_TAG, valueflags);
+                    result.putAll(valueflags);
                 }
                 return result;
             } else {
-                return Map.of();
+                return ImmutableBiMap.of();
             }
         } catch (ParserConfigurationException | SAXException e) {
-            return Map.of();
+            return ImmutableBiMap.of();
         }
     }
 
@@ -184,8 +187,8 @@ public class LimitsDefinitionsModel {
         return new HashSet<String>(getOrderedValues(nodes));
     }
 
-    private static Map<String, List<String>> getFlagDefinitions(NodeList nodes) {
-        var result = new HashMap<String, List<String>>();
+    private static Map<String, Set<String>> getFlagDefinitions(NodeList nodes) {
+        var result = new HashMap<String, Set<String>>();
         for (int i = 0; i < nodes.getLength(); i++) {
             var node = nodes.item(i);
             var attributes = node.getAttributes();
@@ -193,7 +196,7 @@ public class LimitsDefinitionsModel {
                 var nameAttr = attributes.getNamedItem(NAME_ATTRIBUTE);
                 if (nameAttr != null) {
                     var flagName = nameAttr.getNodeValue();
-                    var flagValues = getOrderedValues(node.getChildNodes());
+                    var flagValues = new TreeSet<>(getOrderedValues(node.getChildNodes()));
                     result.put(flagName, flagValues);
                 }
             }

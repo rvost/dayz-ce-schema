@@ -32,9 +32,7 @@ public class LimitsDefinitionsModelTests {
         var flags = LimitsDefinitionsModel.getUserFlags(input);
 
         Assertions.assertEquals(2, flags.size());
-        Assertions.assertTrue(flags.containsKey("usage"));
-        var usageFlags = flags.get("usage");
-        Assertions.assertTrue(usageFlags.containsKey("TownVillage"));
-        Assertions.assertEquals(2, usageFlags.get("TownVillage").size());
+        Assertions.assertTrue(flags.containsKey("TownVillage"));
+        Assertions.assertEquals(2, flags.get("TownVillage").size());
     }
 }

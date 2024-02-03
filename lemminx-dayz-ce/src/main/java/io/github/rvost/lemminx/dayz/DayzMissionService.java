@@ -1,5 +1,6 @@
 package io.github.rvost.lemminx.dayz;
 
+import com.google.common.collect.BiMap;
 import io.github.rvost.lemminx.dayz.model.*;
 import io.github.rvost.lemminx.dayz.utils.DirWatch;
 import io.github.rvost.lemminx.dayz.utils.MissionFolderEvent;
@@ -25,7 +26,7 @@ public class DayzMissionService {
     private volatile Map<Path, DayzFileType> customFiles;
     private volatile Map<String, Set<String>> limitsDefinitions;
     private volatile Map<String, Set<String>> userLimitsDefinitions;
-    private volatile Map<String, Map<String, List<String>>> userFlags;
+    private volatile BiMap<String, Set<String>> userFlags;
     private volatile Map<String, Set<String>> randomPresets;
     private volatile Map<String, Range> eventSpawns;
     private volatile Map<String, Range> eventGroups;
@@ -44,7 +45,7 @@ public class DayzMissionService {
                                Map<String, Set<String>> missionFolders,
                                Map<Path, DayzFileType> customFiles, Map<String, Set<String>> limitsDefinitions,
                                Map<String, Set<String>> userLimitsDefinitions,
-                               Map<String, Map<String, List<String>>> userFlags,
+                               BiMap<String, Set<String>> userFlags,
                                Map<String, Set<String>> randomPresets,
                                Map<String, Range> eventSpawns,
                                Map<String, Range> eventGroups,
@@ -306,7 +307,7 @@ public class DayzMissionService {
         return userLimitsDefinitions;
     }
 
-    public Map<String, Map<String, List<String>>> getUserFlags() {
+    public BiMap<String, Set<String>> getUserFlags() {
         return userFlags;
     }
 
