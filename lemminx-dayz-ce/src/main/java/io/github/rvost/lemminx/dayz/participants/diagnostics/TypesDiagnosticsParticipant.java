@@ -1,5 +1,6 @@
 package io.github.rvost.lemminx.dayz.participants.diagnostics;
 
+import com.google.common.collect.BiMap;
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -13,7 +14,10 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.github.rvost.lemminx.dayz.participants.diagnostics.DiagnosticsUtils.ERROR_SOURCE;
 
@@ -26,6 +30,8 @@ public class TypesDiagnosticsParticipant implements IDiagnosticsParticipant {
     private static final String NAME_ATTRIBUTE_NOT_ALLOWED_MESSAGE = "\"name\" attribute is not allowed when \"user\" attribute is specified";
     private static final String MULTIPLE_CATEGORY_NOT_ALLOWED_CODE = "multiple_category_not_allowed";
     private static final String MULTIPLE_CATEGORY_NOT_ALLOWED_MESSAGE = "Multiple categories is not allowed.";
+    public static final String LIMITS_CAN_BE_SIMPLIFIED_CODE = "limit_flags_can_be_simplified";
+    private static final String LIMITS_CAN_BE_SIMPLIFIED_MESSAGE = "%s flags can be simplified.\nFlags %s can be replaced by user flag \"%s\".";
 
     private final DayzMissionService missionService;
 
@@ -43,6 +49,7 @@ public class TypesDiagnosticsParticipant implements IDiagnosticsParticipant {
     private void validateTypes(DOMDocument document, List<Diagnostic> diagnostics, CancelChecker cancelChecker) {
         var limitsDefinitions = missionService.getLimitsDefinitions();
         var userLimitsDefinitions = missionService.getUserLimitsDefinitions();
+        var userFlags = missionService.getUserFlags();
 
         for (var typeNode : document.getDocumentElement().getChildren()) {
             for (var node : typeNode.getChildren()) {
@@ -58,6 +65,9 @@ public class TypesDiagnosticsParticipant implements IDiagnosticsParticipant {
             cancelChecker.checkCanceled();
             validateCategory(diagnostics, typeNode);
             cancelChecker.checkCanceled();
+            checkForUserLimits(diagnostics, typeNode, TypesModel.USAGE_TAG, userFlags);
+            cancelChecker.checkCanceled();
+            checkForUserLimits(diagnostics, typeNode, TypesModel.VALUE_TAG, userFlags);
         }
     }
 
@@ -99,5 +109,35 @@ public class TypesDiagnosticsParticipant implements IDiagnosticsParticipant {
             var range = XMLPositionUtility.createRange(nameAttr);
             diagnostics.add(new Diagnostic(range, NAME_ATTRIBUTE_NOT_ALLOWED_MESSAGE, DiagnosticSeverity.Error, ERROR_SOURCE, NAME_ATTRIBUTE_NOT_ALLOWED_CODE));
         }
+    }
+
+    private static void checkForUserLimits(List<Diagnostic> diagnostics,
+                                           DOMNode node,
+                                           String flagType,
+                                           BiMap<String, Set<String>> availableDefinitions) {
+        var flags = node.getChildren().stream()
+                .filter(n -> flagType.equals(n.getLocalName()))
+                .map(n -> n.getAttribute(TypesModel.NAME_ATTRIBUTE))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (availableDefinitions.inverse().containsKey(flags)) {
+            var first = node.getChildren().stream()
+                    .filter(n -> flagType.equals(n.getLocalName()))
+                    .filter(n -> n.hasAttribute(TypesModel.NAME_ATTRIBUTE))
+                    .findFirst();
+            var targetNode = first.orElseThrow();
+            var userFlag = availableDefinitions.inverse().get(flags);
+            var range = XMLPositionUtility.createRange(targetNode);
+            var message = formatHint(flagType, flags.stream(), userFlag);
+            diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Hint, ERROR_SOURCE, LIMITS_CAN_BE_SIMPLIFIED_CODE));
+        }
+    }
+
+    private static String formatHint(String flagType, Stream<String> flags, String userFlag) {
+        var currentFlags = flags
+                .map(s -> "\"" + s + "\"")
+                .collect(Collectors.joining(", "));
+        return String.format(LIMITS_CAN_BE_SIMPLIFIED_MESSAGE, flagType, currentFlags, userFlag);
     }
 }
