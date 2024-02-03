@@ -4,7 +4,7 @@ import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.commands.ClientCommands;
 import io.github.rvost.lemminx.dayz.model.RandomPresetsModel;
 import io.github.rvost.lemminx.dayz.model.SpawnableTypesModel;
-import org.eclipse.lemminx.commons.BadLocationException;
+import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import org.eclipse.lemminx.commons.CodeActionFactory;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
@@ -15,7 +15,6 @@ import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.List;
@@ -38,7 +37,7 @@ public class RefactorPresetCodeAction implements ICodeActionParticipant {
         }
 
         var selectedRange = request.getRange();
-        var startNode = tryGetNodeAtSelection(document, selectedRange);
+        var startNode = ParticipantsUtils.tryGetNodeAtSelection(document, selectedRange);
         startNode.ifPresent(node -> computeCodeActions(node, document, codeActions, cancelChecker));
     }
 
@@ -61,14 +60,6 @@ public class RefactorPresetCodeAction implements ICodeActionParticipant {
     private static boolean nodeMatch(DOMNode node) {
         var name = node.getLocalName();
         return SpawnableTypesModel.ATTACHMENTS_TAG.equals(name) || SpawnableTypesModel.CARGO_TAG.equals(name);
-    }
-
-    private static Optional<DOMNode> tryGetNodeAtSelection(DOMDocument document, Range range) {
-        try {
-            return Optional.ofNullable(document.findNodeAt(document.offsetAt(range.getStart())));
-        } catch (BadLocationException e) {
-            return Optional.empty();
-        }
     }
 
     private Optional<CodeAction> computeInlineRandomPresetAction(DOMDocument document, DOMNode targetNode) {

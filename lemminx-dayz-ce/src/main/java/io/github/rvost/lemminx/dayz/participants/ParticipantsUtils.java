@@ -72,4 +72,12 @@ public class ParticipantsUtils {
     public static boolean inRange(int offset, int startOffset, int endOffset) {
         return offset >= startOffset && offset <= endOffset;
     }
+
+    public static Optional<DOMNode> tryGetNodeAtSelection(DOMDocument document, Range range) {
+        try {
+            return Optional.ofNullable(document.findNodeAt(document.offsetAt(range.getStart())));
+        } catch (BadLocationException e) {
+            return Optional.empty();
+        }
+    }
 }

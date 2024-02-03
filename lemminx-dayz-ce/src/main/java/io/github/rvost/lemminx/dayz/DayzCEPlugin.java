@@ -160,6 +160,7 @@ public class DayzCEPlugin implements IXMLExtension {
             codeActionParticipants.add(new RefactorCustomFilesCodeAction(missionService));
             codeActionParticipants.add(new CopyCfgEventSpawnsCodeAction(missionService));
             codeActionParticipants.add(new RefactorPresetCodeAction(missionService));
+            codeActionParticipants.add(new RefactorLimitFlagsCodeAction(missionService));
 
             codeActionParticipants.forEach(registry::registerCodeActionParticipant);
         }
