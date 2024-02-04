@@ -6,10 +6,10 @@ import {FILENAME_PATTERN, getCustomDefinitions, parseFile} from "./xml/cfgeconom
 import {makeGlobPattern, mergePatterns, readFileAsText} from "./utils";
 import {documentationCommand, documentationHandler} from "./documentation/documentationProvider";
 import {XMLExtensionApi} from "./xml/xmlExtensionApi";
-import {applyCustomFilesRefactorCommand, applyCustomFilesRefactorHandler} from "./applyCustomFilesRefactor";
-import {applyEventSpawnsCopyCommand, applyEventSpawnsCopyHandler} from "./applyEventSpawnsCopy";
-import {applyExtractRandomPresetCommand, applyExtractRandomPresetHandler} from "./applyExtractRandomPreset";
-import {applyExtractUserFlagCommand, applyExtractUserFlagHandler} from "./applyExtractUserFlag";
+import {applyCustomFilesRefactorCommand, applyCustomFilesRefactorHandler} from "./commands/applyCustomFilesRefactor";
+import {applyEventSpawnsCopyCommand, applyEventSpawnsCopyHandler} from "./commands/applyEventSpawnsCopy";
+import {applyExtractRandomPresetCommand, applyExtractRandomPresetHandler} from "./commands/applyExtractRandomPreset";
+import {applyExtractUserFlagCommand, applyExtractUserFlagHandler} from "./commands/applyExtractUserFlag";
 
 const defaultSchemaAssociations = _defaultAssociations as SchemaAssociation[];
 
