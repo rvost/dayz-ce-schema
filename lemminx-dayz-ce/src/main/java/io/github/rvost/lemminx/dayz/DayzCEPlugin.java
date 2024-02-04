@@ -1,9 +1,6 @@
 package io.github.rvost.lemminx.dayz;
 
-import io.github.rvost.lemminx.dayz.commands.ComputeEventsSpawnsCopyHandler;
-import io.github.rvost.lemminx.dayz.commands.ComputeExtractRandomPreset;
-import io.github.rvost.lemminx.dayz.commands.ComputeCustomFileRefactorHandler;
-import io.github.rvost.lemminx.dayz.commands.CreateNewFileHandler;
+import io.github.rvost.lemminx.dayz.commands.*;
 import io.github.rvost.lemminx.dayz.participants.codeaction.*;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
 import io.github.rvost.lemminx.dayz.participants.definition.CfgEventSpawnsDefinitionParticipant;
@@ -74,6 +71,8 @@ public class DayzCEPlugin implements IXMLExtension {
                     new ComputeEventsSpawnsCopyHandler(registry.getDocumentProvider(), missionService));
             commandService.registerCommand(ComputeExtractRandomPreset.COMMAND,
                     new ComputeExtractRandomPreset(registry.getDocumentProvider(), missionService));
+            commandService.registerCommand(ComputeExtractUserFlag.COMMAND,
+                    new ComputeExtractUserFlag(registry.getDocumentProvider(), missionService));
 
             uriResolver = new DayzSchemaURIResolver(registry.getDocumentProvider());
             registry.getResolverExtensionManager().registerResolver(uriResolver);

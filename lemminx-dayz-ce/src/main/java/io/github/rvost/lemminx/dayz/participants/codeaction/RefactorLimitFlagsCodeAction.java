@@ -2,7 +2,9 @@ package io.github.rvost.lemminx.dayz.participants.codeaction;
 
 import com.google.common.base.Strings;
 import io.github.rvost.lemminx.dayz.DayzMissionService;
+import io.github.rvost.lemminx.dayz.commands.ClientCommands;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
+import io.github.rvost.lemminx.dayz.participants.DOMUtils;
 import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import io.github.rvost.lemminx.dayz.participants.diagnostics.TypesDiagnosticsParticipant;
 import org.eclipse.lemminx.commons.BadLocationException;
@@ -57,6 +59,7 @@ public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
             return;
         }
         tryGetInlineUserFlag(document, node.get()).ifPresent(codeActions::add);
+        tryGetExtractUserFlag(document, node.get(), range).ifPresent(codeActions::add);
     }
 
     private Optional<CodeAction> tryGetRefactorForFlags(DOMDocument document,
@@ -67,7 +70,11 @@ public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
         var flags = getFlagValues(fLagNodes);
         if (userFlags.containsKey(flags)) {
             var userFlag = userFlags.get(flags);
-            var ca = computeReplaceCodeAction(document, fLagNodes, flagType, userFlag);
+            var edit = computeReplaceEdit(document, fLagNodes, flagType, userFlag);
+            var we = new WorkspaceEdit(List.of(Either.forLeft(edit)));
+            var ca = new CodeAction(String.format("Replace with \"%s\" user flag", userFlag));
+            ca.setKind(CodeActionKind.QuickFix);
+            ca.setEdit(we);
             return Optional.of(ca);
         }
 
@@ -93,10 +100,44 @@ public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
         return Optional.empty();
     }
 
-    private static CodeAction computeReplaceCodeAction(DOMDocument document,
-                                                       List<DOMNode> toRepalce,
-                                                       String flagType,
-                                                       String userFlag) {
+    private Optional<CodeAction> tryGetExtractUserFlag(DOMDocument document, DOMNode node, Range selectedRange) {
+        var nodeTag = node.getLocalName();
+        if (TypesModel.VALUE_TAG.equals(nodeTag) || TypesModel.USAGE_TAG.equals(nodeTag)) {
+            var selectedNodes = DOMUtils.getSiblingsInRange(node, nodeTag, document, selectedRange);
+            if (selectedNodes.isEmpty()) {
+                return Optional.empty();
+            }
+            selectedNodes.add(0, node);
+
+            var areValid = selectedNodes.stream().allMatch(n -> n.hasAttribute(TypesModel.NAME_ATTRIBUTE));
+            if (!areValid) {
+                return Optional.empty();
+            }
+
+            var flags = selectedNodes.stream()
+                    .map(n -> n.getAttribute(TypesModel.NAME_ATTRIBUTE))
+                    .collect(Collectors.toCollection(TreeSet::new));
+
+            var userFlags = missionService.getUserFlags().inverse();
+            if (userFlags.containsKey(flags)) {
+                return Optional.empty();
+            }
+            var ca = new CodeAction("Extract user flag");
+            ca.setKind(CodeActionKind.RefactorExtract);
+            ca.setCommand(new Command("Extract user flag",
+                    ClientCommands.APPLY_EXTRACT_USER_FLAG,
+                    List.of(nodeTag, flags.stream().toList(), selectedRange))
+            );
+            return Optional.of(ca);
+        }
+        return Optional.empty();
+    }
+
+
+    public static TextDocumentEdit computeReplaceEdit(DOMDocument document,
+                                                      List<DOMNode> toRepalce,
+                                                      String flagType,
+                                                      String userFlag) {
         var insertText = String.format("<%s %s=\"%s\"/>", flagType, TypesModel.USER_ATTRIBUTE, userFlag);
 
         var edits = new ArrayList<TextEdit>();
@@ -107,13 +148,7 @@ public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
                 .skip(1)
                 .map(n -> new TextEdit(selectNode(n, document), ""))
                 .forEach(edits::add);
-        var docEdit = TextEditUtils.creatTextDocumentEdit(document, edits);
-
-        var we = new WorkspaceEdit(List.of(Either.forLeft(docEdit)));
-        var ca = new CodeAction(String.format("Replace with \"%s\" user flag", userFlag));
-        ca.setKind(CodeActionKind.QuickFix);
-        ca.setEdit(we);
-        return ca;
+        return TextEditUtils.creatTextDocumentEdit(document, edits);
     }
 
 
