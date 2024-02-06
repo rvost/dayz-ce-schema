@@ -1,6 +1,5 @@
 package io.github.rvost.lemminx.dayz.participants.codeaction;
 
-import com.google.common.base.Strings;
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.commands.ClientCommands;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
@@ -35,15 +34,8 @@ public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
         var document = request.getDocument();
         if (TypesModel.isTypes(document) &&
                 ParticipantsUtils.match(diagnostic, TypesDiagnosticsParticipant.LIMITS_CAN_BE_SIMPLIFIED_CODE)) {
-            var range = diagnostic.getRange();
-            var parent = ParticipantsUtils.tryGetNodeAtSelection(document, range);
-            if (parent.isPresent()) {
-                var node = parent.get();
-                var userFlags = missionService.getUserFlags().inverse();
-                tryGetRefactorForFlags(document, node, TypesModel.VALUE_TAG, userFlags).ifPresent(codeActions::add);
-                cancelChecker.checkCanceled();
-                tryGetRefactorForFlags(document, node, TypesModel.USAGE_TAG, userFlags).ifPresent(codeActions::add);
-            }
+            var userFlags = missionService.getUserFlags().inverse();
+            tryGetRefactorForFlags(diagnostic, document, userFlags).ifPresent(codeActions::add);
         }
     }
 
@@ -62,17 +54,19 @@ public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
         tryGetExtractUserFlag(document, node.get(), range).ifPresent(codeActions::add);
     }
 
-    private Optional<CodeAction> tryGetRefactorForFlags(DOMDocument document,
-                                                        DOMNode parent,
-                                                        String flagType,
+    private Optional<CodeAction> tryGetRefactorForFlags(Diagnostic diagnostic,
+                                                        DOMDocument document,
                                                         Map<Set<String>, String> userFlags) {
-        var fLagNodes = getFLagNodes(parent, flagType);
-        var flags = getFlagValues(fLagNodes);
+        var infos = diagnostic.getRelatedInformation();
+        var flagNodes = getFLagNodes(infos, document);
+        var flags = getFlagValues(flagNodes);
         if (userFlags.containsKey(flags)) {
             var userFlag = userFlags.get(flags);
-            var edit = computeReplaceEdit(document, fLagNodes, flagType, userFlag);
+            var flagType = flagNodes.get(0).getLocalName();
+            var edit = computeReplaceEdit(document, flagNodes, flagType, userFlag);
             var we = new WorkspaceEdit(List.of(Either.forLeft(edit)));
             var ca = new CodeAction(String.format("Replace with \"%s\" user flag", userFlag));
+            ca.setDiagnostics(List.of(diagnostic));
             ca.setKind(CodeActionKind.QuickFix);
             ca.setEdit(we);
             return Optional.of(ca);
@@ -151,11 +145,19 @@ public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
         return TextEditUtils.creatTextDocumentEdit(document, edits);
     }
 
-
-    private static List<DOMNode> getFLagNodes(DOMNode parent, String flagType) {
-        return parent.getChildren().stream()
-                .filter(n -> flagType.equals(n.getLocalName()))
-                .filter(n -> !Strings.isNullOrEmpty(n.getAttribute(TypesModel.NAME_ATTRIBUTE)))
+    private static List<DOMNode> getFLagNodes(List<DiagnosticRelatedInformation> infos, DOMDocument document) {
+        return infos.stream()
+                .map(DiagnosticRelatedInformation::getLocation)
+                .map(Location::getRange)
+                .map(r -> {
+                    try {
+                        return document.offsetAt(r.getStart()) + 1;
+                    } catch (BadLocationException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .map(document::findNodeAt)
+                .filter(Objects::nonNull)
                 .toList();
     }
 

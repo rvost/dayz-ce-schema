@@ -9,12 +9,13 @@ import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSetting
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,9 +66,9 @@ public class TypesDiagnosticsParticipant implements IDiagnosticsParticipant {
             cancelChecker.checkCanceled();
             validateCategory(diagnostics, typeNode);
             cancelChecker.checkCanceled();
-            checkForUserLimits(diagnostics, typeNode, TypesModel.USAGE_TAG, userFlags);
+            checkForUserLimits(diagnostics, document, typeNode, TypesModel.USAGE_TAG, userFlags);
             cancelChecker.checkCanceled();
-            checkForUserLimits(diagnostics, typeNode, TypesModel.VALUE_TAG, userFlags);
+            checkForUserLimits(diagnostics, document, typeNode, TypesModel.VALUE_TAG, userFlags);
         }
     }
 
@@ -112,13 +113,16 @@ public class TypesDiagnosticsParticipant implements IDiagnosticsParticipant {
     }
 
     private static void checkForUserLimits(List<Diagnostic> diagnostics,
-                                           DOMNode node,
+                                           DOMDocument document, DOMNode node,
                                            String flagType,
                                            BiMap<String, Set<String>> availableDefinitions) {
-        var flags = node.getChildren().stream()
+        var flagNodes = node.getChildren().stream()
                 .filter(n -> flagType.equals(n.getLocalName()))
+                .filter(n -> n.hasAttribute(TypesModel.NAME_ATTRIBUTE))
+                .toList();
+
+        var flags = flagNodes.stream()
                 .map(n -> n.getAttribute(TypesModel.NAME_ATTRIBUTE))
-                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
         if (availableDefinitions.inverse().containsKey(flags)) {
@@ -130,7 +134,15 @@ public class TypesDiagnosticsParticipant implements IDiagnosticsParticipant {
             var userFlag = availableDefinitions.inverse().get(flags);
             var range = XMLPositionUtility.createRange(targetNode);
             var message = formatHint(flagType, flags.stream(), userFlag);
-            diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Hint, ERROR_SOURCE, LIMITS_CAN_BE_SIMPLIFIED_CODE));
+
+            var info = flagNodes.stream()
+                    .map(n -> new Location(document.getDocumentURI(), XMLPositionUtility.createRange(n)))
+                    .map(loc -> new DiagnosticRelatedInformation(loc, "Flag can be simplified"))
+                    .toList();
+
+            var diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Hint, ERROR_SOURCE, LIMITS_CAN_BE_SIMPLIFIED_CODE);
+            diagnostic.setRelatedInformation(info);
+            diagnostics.add(diagnostic);
         }
     }
 
