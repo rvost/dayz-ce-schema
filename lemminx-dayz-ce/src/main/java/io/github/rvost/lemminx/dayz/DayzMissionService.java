@@ -496,4 +496,10 @@ public class DayzMissionService {
                         Collectors.mapping(Map.Entry::getValue, Collectors.toList())
                 ));
     }
+
+    public List<Path> getTypesFiles() {
+        var result = new ArrayList<>(customTypes.keySet());
+        result.add(0, missionRoot.resolve(TypesModel.rootTypesPath));
+        return result;
+    }
 }
