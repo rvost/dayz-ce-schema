@@ -461,12 +461,7 @@ public class DayzMissionService {
     }
 
     public Map<String, List<Map.Entry<Path, Range>>> getRandomPresetsReferences() {
-        var rootSpawnableTypes = missionRoot.resolve(SpawnableTypesModel.SPAWNABLETYPES_FILE);
-        var customSpawnableTypes = customFiles.entrySet().stream()
-                .filter(p -> p.getValue().equals(DayzFileType.SPAWNABLETYPES))
-                .map(Map.Entry::getKey);
-
-        return Stream.concat(Stream.of(rootSpawnableTypes), customSpawnableTypes)
+        return getSpawnableTypesFiles().stream()
                 .map(path -> Map.entry(path, SpawnableTypesModel.getPresetsIndex(path)))
                 .flatMap(e -> e.getValue().entrySet().stream()
                         .flatMap(x -> x.getValue().stream()
@@ -482,12 +477,7 @@ public class DayzMissionService {
     }
 
     public Map<String, List<Map.Entry<Path, Range>>> getSpawnableTypesIndex() {
-        var rootSpawnableTypes = missionRoot.resolve(SpawnableTypesModel.SPAWNABLETYPES_FILE);
-        var customSpawnableTypes = customFiles.entrySet().stream()
-                .filter(p -> p.getValue().equals(DayzFileType.SPAWNABLETYPES))
-                .map(Map.Entry::getKey);
-
-        return Stream.concat(Stream.of(rootSpawnableTypes), customSpawnableTypes)
+        return getSpawnableTypesFiles().stream()
                 .map(path -> Map.entry(path, SpawnableTypesModel.getSpawnableTypes(path)))
                 .flatMap(e -> e.getValue().entrySet().stream()
                         .map(x -> Map.entry(x.getKey(), Map.entry(e.getKey(), x.getValue()))))
@@ -500,6 +490,15 @@ public class DayzMissionService {
     public List<Path> getTypesFiles() {
         var result = new ArrayList<>(customTypes.keySet());
         result.add(0, missionRoot.resolve(TypesModel.rootTypesPath));
+        return result;
+    }
+
+    public List<Path> getSpawnableTypesFiles() {
+        var result = customFiles.entrySet().stream()
+                .filter(p -> p.getValue().equals(DayzFileType.SPAWNABLETYPES))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toCollection(ArrayList::new));
+        result.add(0, missionRoot.resolve(SpawnableTypesModel.SPAWNABLETYPES_FILE));
         return result;
     }
 }

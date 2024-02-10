@@ -1,8 +1,8 @@
 package io.github.rvost.lemminx.dayz.participants.rename;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
-import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
-import io.github.rvost.lemminx.dayz.model.TypesModel;
+import io.github.rvost.lemminx.dayz.model.RandomPresetsModel;
+import io.github.rvost.lemminx.dayz.model.SpawnableTypesModel;
 import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.rename.IPrepareRenameRequest;
@@ -25,17 +25,17 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
-public class UserFlagRenameParticipant implements IRenameParticipant {
+public class RandomPresetRenameParticipant implements IRenameParticipant {
     private final DayzMissionService missionService;
 
-    public UserFlagRenameParticipant(DayzMissionService missionService) {
+    public RandomPresetRenameParticipant(DayzMissionService missionService) {
         this.missionService = missionService;
     }
 
     @Override
     public Either<Range, PrepareRenameResult> prepareRename(IPrepareRenameRequest request, CancelChecker cancelChecker) throws CancellationException {
         var document = request.getXMLDocument();
-        if (!LimitsDefinitionsModel.isUserLimitsDefinitions(document)) {
+        if (!RandomPresetsModel.isRandomPresets(document)) {
             return null;
         }
         var node = document.findNodeAt(request.getOffset());
@@ -43,8 +43,9 @@ public class UserFlagRenameParticipant implements IRenameParticipant {
         if (attr == null || node == null) {
             return null;
         }
-        if (!LimitsDefinitionsModel.USER_TAG.equals(node.getLocalName())
-                || !LimitsDefinitionsModel.NAME_ATTRIBUTE.equals(attr.getName())) {
+        if (!RandomPresetsModel.CARGO_TAG.equals(node.getLocalName())
+                && !RandomPresetsModel.ATTACHMENTS_TAG.equals(node.getLocalName())
+                || !RandomPresetsModel.NAME_ATTRIBUTE.equals(attr.getName())) {
             return null;
         }
         var range = XMLPositionUtility.selectAttributeValue(attr, true);
@@ -81,26 +82,25 @@ public class UserFlagRenameParticipant implements IRenameParticipant {
         return result;
     }
 
-    private Map<DOMDocument, List<Range>> getIndex(DOMDocument document, String flag) {
-        return missionService.getTypesFiles().stream()
+    private Map<DOMDocument, List<Range>> getIndex(DOMDocument document, String preset) {
+        return missionService.getSpawnableTypesFiles().stream()
                 .map(path -> path.toUri().toString())
                 .map(uri -> DOMUtils.loadDocument(uri, document.getResolverExtensionManager()))
                 .map(doc -> {
-                    var ranges = findReferencedFlagRanges(doc, flag);
+                    var ranges = findReferencedPresetRanges(doc, preset);
                     return Map.entry(doc, ranges);
                 })
                 .filter(e -> !e.getValue().isEmpty())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private static List<Range> findReferencedFlagRanges(DOMDocument document, String flag) {
+    private List<Range> findReferencedPresetRanges(DOMDocument document, String preset) {
         return document.getDocumentElement().getChildren().stream()
                 .flatMap(n -> n.getChildren().stream())
-                .filter(n -> n.hasAttribute(TypesModel.USER_ATTRIBUTE))
-                .map(n -> n.getAttributeNode(TypesModel.USER_ATTRIBUTE))
-                .filter(attr -> flag.equals(attr.getValue()))
+                .filter(n -> n.hasAttribute(SpawnableTypesModel.PRESET_ATTRIBUTE))
+                .map(n -> n.getAttributeNode(SpawnableTypesModel.PRESET_ATTRIBUTE))
+                .filter(attr -> preset.equals(attr.getValue()))
                 .map(attr -> XMLPositionUtility.selectAttributeValue(attr, true))
                 .toList();
     }
-
 }

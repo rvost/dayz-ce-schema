@@ -15,6 +15,7 @@ import io.github.rvost.lemminx.dayz.participants.hover.TypesHoverParticipant;
 import io.github.rvost.lemminx.dayz.participants.link.CfgEconomyCoreDocumentLinkParticipant;
 import io.github.rvost.lemminx.dayz.participants.link.CfgEnvironmentDocumentLinkParticipant;
 import io.github.rvost.lemminx.dayz.participants.reference.*;
+import io.github.rvost.lemminx.dayz.participants.rename.RandomPresetRenameParticipant;
 import io.github.rvost.lemminx.dayz.participants.rename.UserFlagRenameParticipant;
 import org.eclipse.lemminx.services.extensions.*;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
@@ -240,6 +241,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private void registerRenameParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService){
         if(renameParticipants.isEmpty()){
             renameParticipants.add(new UserFlagRenameParticipant(missionService));
+            renameParticipants.add(new RandomPresetRenameParticipant(missionService));
 
             renameParticipants.forEach(registry::registerRenameParticipant);
         }

@@ -10,6 +10,7 @@ import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 public class ParticipantsUtils {
@@ -79,5 +80,11 @@ public class ParticipantsUtils {
         } catch (BadLocationException e) {
             return Optional.empty();
         }
+    }
+
+    public static List<TextEdit> toReplaceEdits(String value, List<Range> ranges) {
+        return ranges.stream()
+                .map(r -> new TextEdit(r, value))
+                .toList();
     }
 }
