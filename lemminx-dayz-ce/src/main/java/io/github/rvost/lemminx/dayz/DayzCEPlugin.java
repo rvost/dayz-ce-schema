@@ -15,6 +15,7 @@ import io.github.rvost.lemminx.dayz.participants.hover.TypesHoverParticipant;
 import io.github.rvost.lemminx.dayz.participants.link.CfgEconomyCoreDocumentLinkParticipant;
 import io.github.rvost.lemminx.dayz.participants.link.CfgEnvironmentDocumentLinkParticipant;
 import io.github.rvost.lemminx.dayz.participants.reference.*;
+import io.github.rvost.lemminx.dayz.participants.rename.EventGroupRenameParticipant;
 import io.github.rvost.lemminx.dayz.participants.rename.RandomPresetRenameParticipant;
 import io.github.rvost.lemminx.dayz.participants.rename.UserFlagRenameParticipant;
 import org.eclipse.lemminx.services.extensions.*;
@@ -238,16 +239,17 @@ public class DayzCEPlugin implements IXMLExtension {
         referenceParticipants.clear();
     }
 
-    private void registerRenameParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService){
-        if(renameParticipants.isEmpty()){
+    private void registerRenameParticipants(XMLExtensionsRegistry registry, DayzMissionService missionService) {
+        if (renameParticipants.isEmpty()) {
             renameParticipants.add(new UserFlagRenameParticipant(missionService));
             renameParticipants.add(new RandomPresetRenameParticipant(missionService));
+            renameParticipants.add(new EventGroupRenameParticipant(missionService));
 
             renameParticipants.forEach(registry::registerRenameParticipant);
         }
     }
 
-    private void unregisterRenameParticipants(XMLExtensionsRegistry registry){
+    private void unregisterRenameParticipants(XMLExtensionsRegistry registry) {
         renameParticipants.forEach(registry::unregisterRenameParticipant);
         renameParticipants.clear();
     }
