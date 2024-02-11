@@ -5,6 +5,7 @@ import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
 import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.services.extensions.IPositionRequest;
 import org.eclipse.lemminx.services.extensions.rename.IPrepareRenameRequest;
 import org.eclipse.lemminx.services.extensions.rename.IRenameParticipant;
 import org.eclipse.lemminx.services.extensions.rename.IRenameRequest;
@@ -34,25 +35,19 @@ public class UserFlagRenameParticipant implements IRenameParticipant {
 
     @Override
     public Either<Range, PrepareRenameResult> prepareRename(IPrepareRenameRequest request, CancelChecker cancelChecker) throws CancellationException {
-        var document = request.getXMLDocument();
-        if (!LimitsDefinitionsModel.isUserLimitsDefinitions(document)) {
+        if(!isMatchingRequest(request)){
             return null;
         }
-        var node = document.findNodeAt(request.getOffset());
         var attr = request.getCurrentAttribute();
-        if (attr == null || node == null) {
-            return null;
-        }
-        if (!LimitsDefinitionsModel.USER_TAG.equals(node.getLocalName())
-                || !LimitsDefinitionsModel.NAME_ATTRIBUTE.equals(attr.getName())) {
-            return null;
-        }
         var range = XMLPositionUtility.selectAttributeValue(attr, true);
         return Either.forLeft(range);
     }
 
     @Override
     public void doRename(IRenameRequest request, IRenameResponse response, CancelChecker cancelChecker) throws CancellationException {
+        if(!isMatchingRequest(request)){
+            return;
+        }
         var edits = getRenameDocumentEdits(request, cancelChecker);
         cancelChecker.checkCanceled();
         edits.forEach(response::addTextDocumentEdit);
@@ -103,4 +98,18 @@ public class UserFlagRenameParticipant implements IRenameParticipant {
                 .toList();
     }
 
+    private static boolean isMatchingRequest(IPositionRequest request){
+        var document = request.getXMLDocument();
+        if (!LimitsDefinitionsModel.isUserLimitsDefinitions(document)) {
+            return false;
+        }
+        var node = document.findNodeAt(request.getOffset());
+        var attr = request.getCurrentAttribute();
+        if (attr == null || node == null) {
+            return false;
+        }
+
+        return LimitsDefinitionsModel.USER_TAG.equals(node.getLocalName())
+                && LimitsDefinitionsModel.NAME_ATTRIBUTE.equals(attr.getName());
+    }
 }
