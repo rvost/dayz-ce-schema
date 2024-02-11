@@ -501,4 +501,10 @@ public class DayzMissionService {
         result.add(0, missionRoot.resolve(SpawnableTypesModel.SPAWNABLETYPES_FILE));
         return result;
     }
+
+    public List<Path> getEventsFiles() {
+        var result = new ArrayList<>(customEvents.keySet());
+        result.add(0, missionRoot.resolve(EventsModel.rootEventsPath));
+        return result;
+    }
 }
