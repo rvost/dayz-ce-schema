@@ -2,6 +2,7 @@ package io.github.rvost.lemminx.dayz;
 
 import io.github.rvost.lemminx.dayz.commands.*;
 import io.github.rvost.lemminx.dayz.participants.codeaction.*;
+import io.github.rvost.lemminx.dayz.participants.codelens.RandomPresetsCodeLensParticipant;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
 import io.github.rvost.lemminx.dayz.participants.definition.CfgEventSpawnsDefinitionParticipant;
 import io.github.rvost.lemminx.dayz.participants.definition.FlagsDefinitionParticipant;
@@ -21,6 +22,7 @@ import io.github.rvost.lemminx.dayz.participants.rename.RandomPresetRenamePartic
 import io.github.rvost.lemminx.dayz.participants.rename.UserFlagRenameParticipant;
 import org.eclipse.lemminx.services.extensions.*;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
+import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.hover.IHoverParticipant;
@@ -45,6 +47,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private final List<IDocumentLinkParticipant> linkParticipants = new ArrayList<>();
     private final List<IReferenceParticipant> referenceParticipants = new ArrayList<>();
     private final List<IRenameParticipant> renameParticipants = new ArrayList<>();
+    private final List<ICodeLensParticipant> codeLensParticipants = new ArrayList<>();
     private DayzSchemaURIResolver uriResolver;
 
     @Override
@@ -68,6 +71,7 @@ public class DayzCEPlugin implements IXMLExtension {
             registerLinkParticipants(registry, missionService);
             registerReferenceParticipants(registry, missionService);
             registerRenameParticipants(registry, missionService);
+            registerCodeLensParticipant(registry, missionService);
 
             var commandService = registry.getCommandService();
             commandService.registerCommand(ComputeCustomFileRefactorHandler.COMMAND,
@@ -103,6 +107,7 @@ public class DayzCEPlugin implements IXMLExtension {
         unregisterLinkParticipants(registry);
         unregisterReferenceParticipants(registry);
         unregisterRenameParticipants(registry);
+        unregisterCodeLensParticipant(registry);
 
         registry.getCommandService().unregisterCommand(ComputeCustomFileRefactorHandler.COMMAND);
         registry.getCommandService().unregisterCommand(CreateNewFileHandler.COMMAND);
@@ -254,5 +259,18 @@ public class DayzCEPlugin implements IXMLExtension {
     private void unregisterRenameParticipants(XMLExtensionsRegistry registry) {
         renameParticipants.forEach(registry::unregisterRenameParticipant);
         renameParticipants.clear();
+    }
+
+    private void registerCodeLensParticipant(XMLExtensionsRegistry registry, DayzMissionService missionService) {
+        if (codeLensParticipants.isEmpty()) {
+            codeLensParticipants.add(new RandomPresetsCodeLensParticipant(missionService));
+
+            codeLensParticipants.forEach(registry::registerCodeLensParticipant);
+        }
+    }
+
+    private void unregisterCodeLensParticipant(XMLExtensionsRegistry registry) {
+        codeLensParticipants.forEach(registry::unregisterCodeLensParticipant);
+        codeLensParticipants.clear();
     }
 }
