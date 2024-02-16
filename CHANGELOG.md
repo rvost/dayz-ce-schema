@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+## [1.2.0]
+
+### Added
+
+- Support for copying external event spawns configurations.
+- Extract/inline functionality for random presets in `cfgspawnabletypes.xml` files.
+- Diagnostics for value and usage flags in `types.xml` files that can be replaced with user flags.
+- Quick fix for flags that can be replaced with user flags.
+- Extract/inline functionality for value and usage flags in `types.xml` files.
+- Support for renaming:
+    - events;
+    - user-defined flags;
+    - random presets;
+    - event groups.
+- `Find Reference`/`Find All References` implementation for:
+    - Flags: lists references from `types.xml` (including custom files);
+    - User-defined flags: lists references from `types.xml` (including custom files).
+- References Code Lens for:
+    - random presets;
+    - flags;
+    - user-defined flags. 
+
 ## [1.1.0]
 
 ### Added

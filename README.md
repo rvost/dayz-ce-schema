@@ -56,7 +56,6 @@ The following snippets are currently available:
 - Provide full project validation.
 - Provide quick fixes for common validation errors.
 - More code actions for day-to-day task automation.
-- One-click navigation to symbols (e.g. to the preset referenced in `cfgspawnabletypes.xml`).
 - Classnames auto-completion in JSON files
 
 ## Requirements
@@ -84,6 +83,17 @@ If you prefer a more high-level Excel-like approach, you may be interested in my
 
 ## Release Notes
 
+### 1.2.0
+
+- Added support for copying external event spawns configurations.
+- Added extract/inline functionality for random presets in `cfgspawnabletypes.xml` files.
+- Added diagnostics for value and usage flags in `types.xml` files that can be replaced with user flags.
+- Added quick fix for flags that can be replaced with user flags.
+- Added extract/inline functionality for value and usage flags in `types.xml` files.
+- Added support for renaming symbols. See [CHANGELOG](CHANGELOG.md#120) for more details.
+- Added more `Find Reference`/`Find All References` support. See [CHANGELOG](CHANGELOG.md#120) for more details.
+- Added code lens for references. See [CHANGELOG](CHANGELOG.md#120) for more details.
+
 ### 1.1.0
 
 - Fixed `Ambient` event category validation.
@@ -91,7 +101,7 @@ If you prefer a more high-level Excel-like approach, you may be interested in my
 - Added hover tooltips with human-readable time format for time values. See [CHANGELOG](CHANGELOG.md#110) for more details.
 - Added link navigation for file references.
 - Added `Go To Declaration` support.  See [CHANGELOG](CHANGELOG.md#110) for more details.
-- Added Find Reference`/`Find All References` support. See [CHANGELOG](CHANGELOG.md#110) for more details.
+- Added `Find Reference`/`Find All References` support. See [CHANGELOG](CHANGELOG.md#110) for more details.
 - Added diagnostics for events that not referenced in `cfgeventspawns.xml`.
 - Added diagnostics for group references in `cfgeventspawns.xml`.
 - Added diagnostics for map group references in `cfgeventgroups.xml`.
