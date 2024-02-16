@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -67,5 +68,28 @@ public class TypesModel {
                         n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
                         (oldValue, newValue) -> newValue,
                         HashMap::new));
+    }
+
+    public static Map<String, List<Range>> getUserFlagIndex(Path path) {
+        try {
+            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
+            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
+            return getUserFlagIndex(doc);
+        } catch (IOException e) {
+            return Map.of();
+        }
+    }
+
+    public static Map<String, List<Range>> getUserFlagIndex(DOMDocument document) {
+        return document.getDocumentElement().getChildren().stream()
+                .flatMap(x -> x.getChildren().stream())
+                .filter(x -> x.hasAttribute(USER_ATTRIBUTE))
+                .collect(Collectors.groupingBy(
+                        x -> x.getAttribute(USER_ATTRIBUTE),
+                        Collectors.mapping(
+                                x -> XMLPositionUtility.selectWholeTag(x.getStart() + 1, document),
+                                Collectors.toList()
+                        ))
+                );
     }
 }
