@@ -2,6 +2,7 @@ package io.github.rvost.lemminx.dayz;
 
 import io.github.rvost.lemminx.dayz.commands.*;
 import io.github.rvost.lemminx.dayz.participants.codeaction.*;
+import io.github.rvost.lemminx.dayz.participants.codelens.FlagsCodeLensParticipant;
 import io.github.rvost.lemminx.dayz.participants.codelens.RandomPresetsCodeLensParticipant;
 import io.github.rvost.lemminx.dayz.participants.codelens.UserFlagsCodeLensParticipant;
 import io.github.rvost.lemminx.dayz.participants.completion.*;
@@ -267,6 +268,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private void registerCodeLensParticipant(XMLExtensionsRegistry registry, DayzMissionService missionService) {
         if (codeLensParticipants.isEmpty()) {
             codeLensParticipants.add(new RandomPresetsCodeLensParticipant(missionService));
+            codeLensParticipants.add(new FlagsCodeLensParticipant(missionService));
             codeLensParticipants.add(new UserFlagsCodeLensParticipant(missionService));
 
             codeLensParticipants.forEach(registry::registerCodeLensParticipant);
