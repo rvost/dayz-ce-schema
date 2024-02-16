@@ -70,6 +70,30 @@ public class TypesModel {
                         HashMap::new));
     }
 
+    public static Map<String, List<Range>> getFlagIndex(Path path) {
+        try {
+            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
+            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
+            return getFlagIndex(doc);
+        } catch (IOException e) {
+            return Map.of();
+        }
+    }
+
+    public static Map<String, List<Range>> getFlagIndex(DOMDocument document) {
+        return document.getDocumentElement().getChildren().stream()
+                .flatMap(x -> x.getChildren().stream())
+                .filter(n -> LIMITS_TAGS.stream().anyMatch(tag -> tag.equals(n.getLocalName())))
+                .filter(x -> x.hasAttribute(NAME_ATTRIBUTE))
+                .collect(Collectors.groupingBy(
+                        x -> x.getAttribute(NAME_ATTRIBUTE),
+                        Collectors.mapping(
+                                x -> XMLPositionUtility.selectWholeTag(x.getStart() + 1, document),
+                                Collectors.toList()
+                        ))
+                );
+    }
+
     public static Map<String, List<Range>> getUserFlagIndex(Path path) {
         try {
             var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));

@@ -35,6 +35,14 @@ public class LimitsDefinitionsModel {
     public static final String USER_TAG = "user";
     public static final String NAME_ATTRIBUTE = "name";
 
+    public static boolean isLimitsDefinitions(DOMDocument document) {
+        if (document == null) {
+            return false;
+        }
+        var uri = document.getDocumentURI();
+        return uri != null && uri.toLowerCase().endsWith(LIMITS_DEFINITION_FILE);
+    }
+
     public static boolean isUserLimitsDefinitions(DOMDocument document) {
         if (document == null) {
             return false;

@@ -236,6 +236,7 @@ public class DayzCEPlugin implements IXMLExtension {
             referenceParticipants.add(new RandomPresetReferenceParticipant(missionService));
             referenceParticipants.add(new CfgEventGroupsReferenceParticipant(missionService));
             referenceParticipants.add(new MapGroupProtoReferenceParticipant(missionService));
+            referenceParticipants.add(new FlagReferenceParticipant(missionService));
             referenceParticipants.add(new UserFlagReferenceParticipant(missionService));
         }
 
