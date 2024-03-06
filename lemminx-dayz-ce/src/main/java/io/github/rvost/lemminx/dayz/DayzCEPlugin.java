@@ -25,6 +25,7 @@ import io.github.rvost.lemminx.dayz.participants.rename.UserFlagRenameParticipan
 import org.eclipse.lemminx.services.extensions.*;
 import org.eclipse.lemminx.services.extensions.codeaction.ICodeActionParticipant;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
+import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionParticipant;
 import org.eclipse.lemminx.services.extensions.diagnostics.IDiagnosticsParticipant;
 import org.eclipse.lemminx.services.extensions.hover.IHoverParticipant;
@@ -33,7 +34,9 @@ import org.eclipse.lemminx.services.extensions.save.ISaveContext;
 import org.eclipse.lsp4j.InitializeParams;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,6 +53,7 @@ public class DayzCEPlugin implements IXMLExtension {
     private final List<IReferenceParticipant> referenceParticipants = new ArrayList<>();
     private final List<IRenameParticipant> renameParticipants = new ArrayList<>();
     private final List<ICodeLensParticipant> codeLensParticipants = new ArrayList<>();
+    private final Map<String, IXMLCommandService.IDelegateCommandHandler> serverCommands = new HashMap<>();
     private DayzSchemaURIResolver uriResolver;
 
     @Override
@@ -75,17 +79,7 @@ public class DayzCEPlugin implements IXMLExtension {
             registerRenameParticipants(registry, missionService);
             registerCodeLensParticipant(registry, missionService);
 
-            var commandService = registry.getCommandService();
-            commandService.registerCommand(ComputeCustomFileRefactorHandler.COMMAND,
-                    new ComputeCustomFileRefactorHandler(registry.getDocumentProvider()));
-            commandService.registerCommand(CreateNewFileHandler.COMMAND,
-                    new CreateNewFileHandler(missionService, registry.getResolverExtensionManager()));
-            commandService.registerCommand(ComputeEventsSpawnsCopyHandler.COMMAND,
-                    new ComputeEventsSpawnsCopyHandler(registry.getDocumentProvider(), missionService));
-            commandService.registerCommand(ComputeExtractRandomPreset.COMMAND,
-                    new ComputeExtractRandomPreset(registry.getDocumentProvider(), missionService));
-            commandService.registerCommand(ComputeExtractUserFlag.COMMAND,
-                    new ComputeExtractUserFlag(registry.getDocumentProvider(), missionService));
+            registerServerCommands(registry, missionService);
 
             uriResolver = new DayzSchemaURIResolver(registry.getDocumentProvider());
             registry.getResolverExtensionManager().registerResolver(uriResolver);
@@ -111,8 +105,7 @@ public class DayzCEPlugin implements IXMLExtension {
         unregisterRenameParticipants(registry);
         unregisterCodeLensParticipant(registry);
 
-        registry.getCommandService().unregisterCommand(ComputeCustomFileRefactorHandler.COMMAND);
-        registry.getCommandService().unregisterCommand(CreateNewFileHandler.COMMAND);
+        unregisterServerCommands(registry);
 
         registry.getResolverExtensionManager().unregisterResolver(uriResolver);
 
@@ -207,8 +200,9 @@ public class DayzCEPlugin implements IXMLExtension {
             definitionParticipants.add(new FlagsDefinitionParticipant(missionService));
             definitionParticipants.add(new CfgEventSpawnsDefinitionParticipant(missionService));
             definitionParticipants.add(new MapGroupDefinitionParticipant(missionService));
+
+            definitionParticipants.forEach(registry::registerDefinitionParticipant);
         }
-        definitionParticipants.forEach(registry::registerDefinitionParticipant);
     }
 
     private void unregisterDefinitionParticipants(XMLExtensionsRegistry registry) {
@@ -220,9 +214,9 @@ public class DayzCEPlugin implements IXMLExtension {
         if (linkParticipants.isEmpty()) {
             linkParticipants.add(new CfgEconomyCoreDocumentLinkParticipant(missionService));
             linkParticipants.add(new CfgEnvironmentDocumentLinkParticipant(missionService));
-        }
 
-        linkParticipants.forEach(registry::registerDocumentLinkParticipant);
+            linkParticipants.forEach(registry::registerDocumentLinkParticipant);
+        }
     }
 
     private void unregisterLinkParticipants(XMLExtensionsRegistry registry) {
@@ -239,9 +233,9 @@ public class DayzCEPlugin implements IXMLExtension {
             referenceParticipants.add(new MapGroupProtoReferenceParticipant(missionService));
             referenceParticipants.add(new FlagReferenceParticipant(missionService));
             referenceParticipants.add(new UserFlagReferenceParticipant(missionService));
-        }
 
-        referenceParticipants.forEach(registry::registerReferenceParticipant);
+            referenceParticipants.forEach(registry::registerReferenceParticipant);
+        }
     }
 
     private void unregisterReferenceParticipants(XMLExtensionsRegistry registry) {
@@ -278,5 +272,28 @@ public class DayzCEPlugin implements IXMLExtension {
     private void unregisterCodeLensParticipant(XMLExtensionsRegistry registry) {
         codeLensParticipants.forEach(registry::unregisterCodeLensParticipant);
         codeLensParticipants.clear();
+    }
+
+    private void registerServerCommands(XMLExtensionsRegistry registry, DayzMissionService missionService) {
+        if (serverCommands.isEmpty()) {
+            serverCommands.put(ComputeCustomFileRefactorHandler.COMMAND,
+                    new ComputeCustomFileRefactorHandler(registry.getDocumentProvider()));
+            serverCommands.put(CreateNewFileHandler.COMMAND,
+                    new CreateNewFileHandler(missionService, registry.getResolverExtensionManager()));
+            serverCommands.put(ComputeEventsSpawnsCopyHandler.COMMAND,
+                    new ComputeEventsSpawnsCopyHandler(registry.getDocumentProvider(), missionService));
+            serverCommands.put(ComputeExtractRandomPreset.COMMAND,
+                    new ComputeExtractRandomPreset(registry.getDocumentProvider(), missionService));
+            serverCommands.put(ComputeExtractUserFlag.COMMAND,
+                    new ComputeExtractUserFlag(registry.getDocumentProvider(), missionService));
+
+            serverCommands.forEach(registry.getCommandService()::registerCommand);
+        }
+    }
+
+    private void unregisterServerCommands(XMLExtensionsRegistry registry) {
+        var commandService = registry.getCommandService();
+        serverCommands.keySet().forEach(commandService::unregisterCommand);
+        serverCommands.clear();
     }
 }
