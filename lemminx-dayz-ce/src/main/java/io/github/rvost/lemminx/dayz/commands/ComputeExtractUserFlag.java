@@ -1,6 +1,7 @@
 package io.github.rvost.lemminx.dayz.commands;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionUserModel;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
 import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
@@ -40,7 +41,7 @@ public class ComputeExtractUserFlag extends AbstractDOMDocumentCommandHandler {
         var range = ArgumentsUtils.getArgAt(params, 4, Range.class);
 
         var limitsDoc = resolveUserLimitsDefinitionDocument(document);
-        var parentNodeName = (TypesModel.VALUE_TAG.equals(flagType)) ? LimitsDefinitionsModel.VALUEFLAGS_TAG : LimitsDefinitionsModel.USAGEFLAGS_TAG;
+        var parentNodeName = (TypesModel.VALUE_TAG.equals(flagType)) ? LimitsDefinitionUserModel.VALUEFLAGS_TAG : LimitsDefinitionUserModel.USAGEFLAGS_TAG;
         var searchResult = limitsDoc.getDocumentElement().getChildren().stream()
                 .filter(n -> parentNodeName.equals(n.getLocalName()))
                 .findFirst();
@@ -66,7 +67,7 @@ public class ComputeExtractUserFlag extends AbstractDOMDocumentCommandHandler {
     }
 
     private DOMDocument resolveUserLimitsDefinitionDocument(DOMDocument document) {
-        var targetUri = missionService.missionRoot.resolve(LimitsDefinitionsModel.USER_LIMITS_DEFINITION_FILE).toUri();
+        var targetUri = missionService.missionRoot.resolve(LimitsDefinitionUserModel.USER_LIMITS_DEFINITION_FILE).toUri();
         return DOMUtils.loadDocument(
                 targetUri.toString(),
                 document.getResolverExtensionManager()
@@ -85,7 +86,7 @@ public class ComputeExtractUserFlag extends AbstractDOMDocumentCommandHandler {
     private static String formatFlagDefinition(String flagType, String flagName, String[] flags) {
         var body = formatDefinitionBody(flagType, flags);
         return String.format("\n\t\t<%1$s %2$s=\"%3$s\">\n\t\t\t%4$s\n\t\t</%1$s>",
-                LimitsDefinitionsModel.USER_TAG,
+                LimitsDefinitionUserModel.USER_TAG,
                 LimitsDefinitionsModel.NAME_ATTRIBUTE,
                 flagName,
                 body);

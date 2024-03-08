@@ -86,8 +86,8 @@ public class DayzMissionService {
         var missionFiles = getMissionFiles(rootPath);
         var customFiles = CfgEconomyCoreModel.getCustomFiles(rootPath);
         var limitsDefinitions = LimitsDefinitionsModel.getLimitsDefinitions(rootPath);
-        var userLimitsDefinitions = LimitsDefinitionsModel.getUserLimitsDefinitions(rootPath);
-        var userFlags = LimitsDefinitionsModel.getUserFlags(rootPath);
+        var userLimitsDefinitions = LimitsDefinitionUserModel.getUserLimitsDefinitions(rootPath);
+        var userFlags = LimitsDefinitionUserModel.getUserFlags(rootPath);
         var randomPresets = RandomPresetsModel.getRandomPresets(rootPath);
         var eventSpawns = CfgEventSpawnsModel.getCfgEventSpawns(rootPath);
         var eventGroups = CfgEventGroupsModel.getCfgEventGroups(rootPath);
@@ -170,10 +170,10 @@ public class DayzMissionService {
                 limitsDefinitions = val;
             }
         }
-        if (path.getFileName().toString().equals(LimitsDefinitionsModel.USER_LIMITS_DEFINITION_FILE)) {
-            var definitions = LimitsDefinitionsModel.getUserLimitsDefinitions(missionRoot);
-            var index = LimitsDefinitionsModel.getUserFlagsIndex(missionRoot);
-            var flags = LimitsDefinitionsModel.getUserFlags(missionRoot);
+        if (path.getFileName().toString().equals(LimitsDefinitionUserModel.USER_LIMITS_DEFINITION_FILE)) {
+            var definitions = LimitsDefinitionUserModel.getUserLimitsDefinitions(missionRoot);
+            var index = LimitsDefinitionUserModel.getUserFlagsIndex(missionRoot);
+            var flags = LimitsDefinitionUserModel.getUserFlags(missionRoot);
             if (!definitions.isEmpty()) {
                 userLimitsDefinitions = definitions;
                 userFlagsIndex = index;
@@ -425,7 +425,7 @@ public class DayzMissionService {
 
     public Map<String, Range> getUserFlagsIndex() {
         if (userFlagsIndex == null) {
-            userFlagsIndex = LimitsDefinitionsModel.getUserFlagsIndex(missionRoot);
+            userFlagsIndex = LimitsDefinitionUserModel.getUserFlagsIndex(missionRoot);
         }
         return userFlagsIndex;
     }

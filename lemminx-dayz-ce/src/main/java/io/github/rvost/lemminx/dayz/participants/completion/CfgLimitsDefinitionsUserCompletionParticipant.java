@@ -1,5 +1,6 @@
 package io.github.rvost.lemminx.dayz.participants.completion;
 
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionUserModel;
 import io.github.rvost.lemminx.dayz.participants.DOMUtils;
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
@@ -24,7 +25,7 @@ public class CfgLimitsDefinitionsUserCompletionParticipant extends CompletionPar
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
 
-        if (LimitsDefinitionsModel.isUserLimitsDefinitions(doc)) {
+        if (LimitsDefinitionUserModel.isUserLimitsDefinitions(doc)) {
             computeUserLimitsDefinitionsCompletion(request, response, doc);
         }
 

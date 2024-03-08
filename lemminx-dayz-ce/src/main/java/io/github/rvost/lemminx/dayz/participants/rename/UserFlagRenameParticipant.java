@@ -1,6 +1,7 @@
 package io.github.rvost.lemminx.dayz.participants.rename;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionUserModel;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
 import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
@@ -100,7 +101,7 @@ public class UserFlagRenameParticipant implements IRenameParticipant {
 
     private static boolean isMatchingRequest(IPositionRequest request){
         var document = request.getXMLDocument();
-        if (!LimitsDefinitionsModel.isUserLimitsDefinitions(document)) {
+        if (!LimitsDefinitionUserModel.isUserLimitsDefinitions(document)) {
             return false;
         }
         var node = document.findNodeAt(request.getOffset());
@@ -109,7 +110,7 @@ public class UserFlagRenameParticipant implements IRenameParticipant {
             return false;
         }
 
-        return LimitsDefinitionsModel.USER_TAG.equals(node.getLocalName())
+        return LimitsDefinitionUserModel.USER_TAG.equals(node.getLocalName())
                 && LimitsDefinitionsModel.NAME_ATTRIBUTE.equals(attr.getName());
     }
 }

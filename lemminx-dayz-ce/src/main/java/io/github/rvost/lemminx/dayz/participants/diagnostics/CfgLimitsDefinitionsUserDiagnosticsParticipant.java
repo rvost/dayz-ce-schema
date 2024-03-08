@@ -1,6 +1,7 @@
 package io.github.rvost.lemminx.dayz.participants.diagnostics;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionUserModel;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
@@ -32,7 +33,7 @@ public class CfgLimitsDefinitionsUserDiagnosticsParticipant implements IDiagnost
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (LimitsDefinitionsModel.isUserLimitsDefinitions(domDocument) && missionService.isInMissionFolder(domDocument)) {
+        if (LimitsDefinitionUserModel.isUserLimitsDefinitions(domDocument) && missionService.isInMissionFolder(domDocument)) {
             validateUserLimitsDefinitions(domDocument, list);
         }
     }
@@ -43,10 +44,10 @@ public class CfgLimitsDefinitionsUserDiagnosticsParticipant implements IDiagnost
             var nodeName = node.getNodeName();
             if (node.hasChildNodes()) {
                 switch (nodeName) {
-                    case LimitsDefinitionsModel.USAGEFLAGS_TAG -> {
+                    case LimitsDefinitionUserModel.USAGEFLAGS_TAG -> {
                         validateUserNodes(node.getChildren(), limitsDefinitions.get(LimitsDefinitionsModel.USAGE_TAG), diagnostics);
                     }
-                    case LimitsDefinitionsModel.VALUEFLAGS_TAG -> {
+                    case LimitsDefinitionUserModel.VALUEFLAGS_TAG -> {
                         validateUserNodes(node.getChildren(), limitsDefinitions.get(LimitsDefinitionsModel.VALUE_TAG), diagnostics);
                     }
                     default -> {
@@ -58,7 +59,7 @@ public class CfgLimitsDefinitionsUserDiagnosticsParticipant implements IDiagnost
 
     private static void validateUserNodes(List<DOMNode> nodes, Set<String> availableValues, List<Diagnostic> diagnostics) {
         for (var node : nodes) {
-            if (LimitsDefinitionsModel.USER_TAG.equals(node.getNodeName())) {
+            if (LimitsDefinitionUserModel.USER_TAG.equals(node.getNodeName())) {
                 if (node.hasChildNodes()) {
                     var visited = new HashSet<String>();
                     for (var limitNode : node.getChildren()) {

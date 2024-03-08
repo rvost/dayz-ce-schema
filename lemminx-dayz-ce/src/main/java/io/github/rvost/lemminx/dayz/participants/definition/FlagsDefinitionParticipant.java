@@ -1,7 +1,7 @@
 package io.github.rvost.lemminx.dayz.participants.definition;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
-import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionUserModel;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
 import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
@@ -27,7 +27,7 @@ public class FlagsDefinitionParticipant implements IDefinitionParticipant {
             var flag = node.getNodeValue();
             var index = missionService.getUserFlagsIndex();
             if (index.containsKey(flag)) {
-                var file = missionService.missionRoot.resolve(LimitsDefinitionsModel.USER_LIMITS_DEFINITION_FILE);
+                var file = missionService.missionRoot.resolve(LimitsDefinitionUserModel.USER_LIMITS_DEFINITION_FILE);
                 var range = index.get(flag);
                 locations.add(ParticipantsUtils.toDefinitionLocationLink(file, range, node));
             }

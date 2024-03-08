@@ -1,6 +1,7 @@
 package io.github.rvost.lemminx.dayz.participants.codelens;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionUserModel;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
 import org.eclipse.lemminx.client.ClientCommands;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
@@ -24,7 +25,7 @@ public class UserFlagsCodeLensParticipant implements ICodeLensParticipant {
     @Override
     public void doCodeLens(ICodeLensRequest request, List<CodeLens> codeLens, CancelChecker cancelChecker) {
         var document = request.getDocument();
-        if (!LimitsDefinitionsModel.isUserLimitsDefinitions(document)) {
+        if (!LimitsDefinitionUserModel.isUserLimitsDefinitions(document)) {
             return;
         }
         var references = missionService.getUserFlagReferences();
