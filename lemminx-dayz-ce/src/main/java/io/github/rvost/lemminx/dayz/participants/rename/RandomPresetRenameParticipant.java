@@ -100,7 +100,7 @@ public class RandomPresetRenameParticipant implements IRenameParticipant {
 
     private static boolean isMatchingRequest(IPositionRequest request) {
         var document = request.getXMLDocument();
-        if (!RandomPresetsModel.isRandomPresets(document)) {
+        if (!RandomPresetsModel.match(document)) {
             return false;
         }
         var node = document.findNodeAt(request.getOffset());

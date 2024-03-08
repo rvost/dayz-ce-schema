@@ -30,7 +30,7 @@ public class CfgEventGroupsDiagnosticsParticipant implements IDiagnosticsPartici
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (CfgEventGroupsModel.isCfgEventGroups(domDocument)) {
+        if (CfgEventGroupsModel.match(domDocument)) {
             validateMapGroupReferences(domDocument, list, cancelChecker);
         }
     }

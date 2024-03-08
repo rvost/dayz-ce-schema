@@ -23,7 +23,7 @@ public class CfgEconomyCoreDocumentLinkParticipant implements IDocumentLinkParti
 
     @Override
     public void findDocumentLinks(DOMDocument document, List<DocumentLink> links) {
-        if (CfgEconomyCoreModel.isCfgEconomyCore(document)) {
+        if (CfgEconomyCoreModel.match(document)) {
             document.getDocumentElement().getChildren().stream()
                     .filter(n -> CfgEconomyCoreModel.CE_TAG.equals(n.getLocalName()))
                     .filter(n -> n.hasAttribute(CfgEconomyCoreModel.FOLDER_ATTRIBUTE))

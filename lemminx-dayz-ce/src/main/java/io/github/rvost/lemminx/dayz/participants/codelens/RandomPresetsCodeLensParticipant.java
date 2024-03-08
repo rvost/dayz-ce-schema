@@ -24,7 +24,7 @@ public class RandomPresetsCodeLensParticipant implements ICodeLensParticipant {
     @Override
     public void doCodeLens(ICodeLensRequest request, List<CodeLens> codeLens, CancelChecker cancelChecker) {
         var document = request.getDocument();
-        if (!RandomPresetsModel.isRandomPresets(document)) {
+        if (!RandomPresetsModel.match(document)) {
             return;
         }
         var references = missionService.getRandomPresetsReferences();

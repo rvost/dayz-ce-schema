@@ -24,7 +24,7 @@ public class CfgEventGroupsReferenceParticipant extends AbstractReferencePartici
 
     @Override
     protected boolean match(DOMDocument document) {
-        return CfgEventGroupsModel.isCfgEventGroups(document);
+        return CfgEventGroupsModel.match(document);
     }
 
     @Override

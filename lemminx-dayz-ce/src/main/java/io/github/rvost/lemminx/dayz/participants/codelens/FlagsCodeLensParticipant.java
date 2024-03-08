@@ -24,7 +24,7 @@ public class FlagsCodeLensParticipant implements ICodeLensParticipant {
     @Override
     public void doCodeLens(ICodeLensRequest request, List<CodeLens> codeLens, CancelChecker cancelChecker) {
         var document = request.getDocument();
-        if (!LimitsDefinitionsModel.isLimitsDefinitions(document)) {
+        if (!LimitsDefinitionsModel.match(document)) {
             return;
         }
         var references = missionService.getFlagReferences();

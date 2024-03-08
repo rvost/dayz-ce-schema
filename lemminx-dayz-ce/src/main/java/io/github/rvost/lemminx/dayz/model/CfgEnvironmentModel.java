@@ -1,5 +1,6 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import org.eclipse.lemminx.dom.DOMDocument;
 
 import java.util.Optional;
@@ -12,12 +13,8 @@ public class CfgEnvironmentModel {
     public static final String USABLE_ATTRIBUTE = "usable";
 
 
-    public static boolean isCfgEnvironment(DOMDocument document) {
-        if (document == null) {
-            return false;
-        }
-        var uri = document.getDocumentURI();
-        return uri != null && uri.toLowerCase().endsWith(CFGENVIRONMENT_FILE);
+    public static boolean match(DOMDocument document) {
+        return DocumentUtils.filenameMatch(document, CFGENVIRONMENT_FILE);
     }
 
     public static Optional<String> getUsableKeyFromPath(String path) {

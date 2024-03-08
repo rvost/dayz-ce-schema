@@ -33,7 +33,7 @@ public class CfgLimitsDefinitionsUserDiagnosticsParticipant implements IDiagnost
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (LimitsDefinitionUserModel.isUserLimitsDefinitions(domDocument) && missionService.isInMissionFolder(domDocument)) {
+        if (LimitsDefinitionUserModel.match(domDocument) && missionService.isInMissionFolder(domDocument)) {
             validateUserLimitsDefinitions(domDocument, list);
         }
     }

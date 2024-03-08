@@ -25,7 +25,7 @@ public class CfgLimitsDefinitionsUserCompletionParticipant extends CompletionPar
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
 
-        if (LimitsDefinitionUserModel.isUserLimitsDefinitions(doc)) {
+        if (LimitsDefinitionUserModel.match(doc)) {
             computeUserLimitsDefinitionsCompletion(request, response, doc);
         }
 

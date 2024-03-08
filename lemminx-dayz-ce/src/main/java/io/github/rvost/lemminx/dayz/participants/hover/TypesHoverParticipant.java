@@ -24,7 +24,7 @@ public class TypesHoverParticipant extends HoverParticipantAdapter {
     @Override
     public Hover onAttributeValue(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
         var document = request.getXMLDocument();
-        if (TypesModel.isTypes(document) && missionService.isInMissionFolder(document)) {
+        if (TypesModel.match(document) && missionService.isInMissionFolder(document)) {
             var userLimitsDefinitions = missionService.getUserFlags();
             var attrName = request.getCurrentAttributeName();
 
@@ -38,7 +38,7 @@ public class TypesHoverParticipant extends HoverParticipantAdapter {
     @Override
     public Hover onText(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
         var document = request.getXMLDocument();
-        if (TypesModel.isTypes(document)) {
+        if (TypesModel.match(document)) {
             var parent = request.getParentElement();
             if (TypesModel.TIME_INTERVAL_TAGS.contains(parent.getNodeName())) {
                 return ParticipantsUtils.hoverForTimeInterval(request, cancelChecker);

@@ -1,5 +1,6 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -23,9 +24,8 @@ public class SpawnableTypesModel {
     public static final String NAME_ATTRIBUTE = "name";
     public static final String SPAWNABLETYPES_FILE = "cfgspawnabletypes.xml";
 
-    public static boolean isSpawnableTypes(DOMDocument document) {
-        var docElement = document.getDocumentElement();
-        return docElement != null && SPAWNABLETYPES_TAG.equals(docElement.getNodeName());
+    public static boolean match(DOMDocument document) {
+        return DocumentUtils.documentTagMatch(document, SPAWNABLETYPES_TAG);
     }
 
     public static Map<String, Range> getSpawnableTypes(Path path) {

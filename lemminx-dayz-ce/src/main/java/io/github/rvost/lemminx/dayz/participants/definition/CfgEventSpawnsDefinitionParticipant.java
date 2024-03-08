@@ -24,7 +24,7 @@ public class CfgEventSpawnsDefinitionParticipant implements IDefinitionParticipa
     public void findDefinition(IDefinitionRequest request, List<LocationLink> locations, CancelChecker cancelChecker) {
         var document = request.getXMLDocument();
         var node = request.getNode();
-        if (CfgEventSpawnsModel.isEventSpawns(document)) {
+        if (CfgEventSpawnsModel.match(document)) {
             switch (node.getLocalName()) {
                 case CfgEventSpawnsModel.NAME_ATTRIBUTE -> provideEventDefinitions(node, locations);
                 case CfgEventSpawnsModel.GROUP_ATTRIBUTE -> provideGroupDefinitions(node, locations);

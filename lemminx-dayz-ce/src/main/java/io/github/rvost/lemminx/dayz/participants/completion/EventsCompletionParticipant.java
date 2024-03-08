@@ -21,7 +21,7 @@ public class EventsCompletionParticipant extends CompletionParticipantAdapter {
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
 
-        if (EventsModel.isEvents(doc)) {
+        if (EventsModel.match(doc)) {
             computeEventsCompletion(request, response, doc);
         }
     }

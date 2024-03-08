@@ -22,7 +22,7 @@ public class FlagReferenceParticipant extends AbstractReferenceParticipant {
 
     @Override
     protected boolean match(DOMDocument document) {
-        return LimitsDefinitionsModel.isLimitsDefinitions(document);
+        return LimitsDefinitionsModel.match(document);
     }
 
     @Override

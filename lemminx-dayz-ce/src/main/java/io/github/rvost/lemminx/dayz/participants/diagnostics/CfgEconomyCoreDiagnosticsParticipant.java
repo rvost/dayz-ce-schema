@@ -29,7 +29,7 @@ public class CfgEconomyCoreDiagnosticsParticipant implements IDiagnosticsPartici
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (CfgEconomyCoreModel.isCfgEconomyCore(domDocument) && missionService.isInMissionFolder(domDocument)) {
+        if (CfgEconomyCoreModel.match(domDocument) && missionService.isInMissionFolder(domDocument)) {
             validateCEFolders(domDocument, list);
         }
     }

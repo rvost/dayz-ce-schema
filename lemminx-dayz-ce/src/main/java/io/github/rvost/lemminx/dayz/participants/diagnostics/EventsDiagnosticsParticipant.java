@@ -32,7 +32,7 @@ public class EventsDiagnosticsParticipant implements IDiagnosticsParticipant {
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (EventsModel.isEvents(domDocument)) {
+        if (EventsModel.match(domDocument)) {
             validateEventNames(domDocument, list, cancelChecker);
             cancelChecker.checkCanceled();
             if (missionService.isInMissionFolder(domDocument)) {

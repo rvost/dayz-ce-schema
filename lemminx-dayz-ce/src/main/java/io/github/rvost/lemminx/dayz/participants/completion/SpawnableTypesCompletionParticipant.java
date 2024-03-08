@@ -2,7 +2,6 @@ package io.github.rvost.lemminx.dayz.participants.completion;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.SpawnableTypesModel;
-import io.github.rvost.lemminx.dayz.model.TypesModel;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
@@ -23,7 +22,7 @@ public class SpawnableTypesCompletionParticipant extends CompletionParticipantAd
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
 
-        if (SpawnableTypesModel.isSpawnableTypes(doc)) {
+        if (SpawnableTypesModel.match(doc)) {
             computeSpawnableTypesCompletion(request, response, doc);
         }
     }

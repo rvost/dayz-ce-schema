@@ -21,7 +21,7 @@ public class CfgEventSpawnsCompletionParticipant extends CompletionParticipantAd
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
 
-        if (CfgEventSpawnsModel.isEventSpawns(doc)) {
+        if (CfgEventSpawnsModel.match(doc)) {
             computeEventSpawnsCompletion(request, response, doc);
         }
     }

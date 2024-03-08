@@ -35,7 +35,7 @@ public class CfgEnvironmentDiagnosticsParticipant implements IDiagnosticsPartici
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (CfgEnvironmentModel.isCfgEnvironment(domDocument)) {
+        if (CfgEnvironmentModel.match(domDocument)) {
             validateCfgEnvironment(domDocument, list);
         }
     }

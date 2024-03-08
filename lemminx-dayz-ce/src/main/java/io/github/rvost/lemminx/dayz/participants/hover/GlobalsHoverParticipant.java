@@ -13,7 +13,7 @@ public class GlobalsHoverParticipant extends HoverParticipantAdapter {
     @Override
     public Hover onAttributeValue(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
         var document = request.getXMLDocument();
-        if (GlobalsModel.isGlobals(document)) {
+        if (GlobalsModel.match(document)) {
             var parent = document.findNodeAt(request.getOffset());
             var attrName = request.getCurrentAttributeName();
             if (GlobalsModel.VALUE_ATTRIBUTE.equals(attrName)) {

@@ -21,7 +21,7 @@ public class CfgRandomPresetsCompletionParticipant extends CompletionParticipant
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
 
-        if (RandomPresetsModel.isRandomPresets(doc)) {
+        if (RandomPresetsModel.match(doc)) {
             computeTypesCompletion(request, response, doc);
         }
     }

@@ -61,7 +61,7 @@ public class CopyCfgEventSpawnsCodeAction implements ICodeActionParticipant {
     }
 
     private boolean documentMatch(DOMDocument document) {
-        var isEventSpawns = CfgEventSpawnsModel.isEventSpawns(document);
+        var isEventSpawns = CfgEventSpawnsModel.match(document);
         var isExternal = !missionService.isInMissionFolder(document);
         return isEventSpawns && isExternal;
     }

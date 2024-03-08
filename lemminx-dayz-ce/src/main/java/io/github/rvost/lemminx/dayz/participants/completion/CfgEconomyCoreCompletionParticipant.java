@@ -21,7 +21,7 @@ public class CfgEconomyCoreCompletionParticipant extends CompletionParticipantAd
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
 
-        if (CfgEconomyCoreModel.isCfgEconomyCore(doc)) {
+        if (CfgEconomyCoreModel.match(doc)) {
             computeCfgEconomyCoreCompletion(request, response, doc);
         }
     }

@@ -25,7 +25,7 @@ public class UserFlagsCodeLensParticipant implements ICodeLensParticipant {
     @Override
     public void doCodeLens(ICodeLensRequest request, List<CodeLens> codeLens, CancelChecker cancelChecker) {
         var document = request.getDocument();
-        if (!LimitsDefinitionUserModel.isUserLimitsDefinitions(document)) {
+        if (!LimitsDefinitionUserModel.match(document)) {
             return;
         }
         var references = missionService.getUserFlagReferences();

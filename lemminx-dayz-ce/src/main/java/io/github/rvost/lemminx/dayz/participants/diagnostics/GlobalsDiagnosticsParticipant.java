@@ -24,7 +24,7 @@ public class GlobalsDiagnosticsParticipant implements IDiagnosticsParticipant {
 
     @Override
     public void doDiagnostics(DOMDocument domDocument, List<Diagnostic> list, XMLValidationSettings xmlValidationSettings, CancelChecker cancelChecker) {
-        if (GlobalsModel.isGlobals(domDocument)) {
+        if (GlobalsModel.match(domDocument)) {
             validateGlobals(domDocument, list);
         }
     }

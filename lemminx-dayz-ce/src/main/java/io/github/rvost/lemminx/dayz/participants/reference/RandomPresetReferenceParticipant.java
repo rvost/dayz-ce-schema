@@ -23,7 +23,7 @@ public class RandomPresetReferenceParticipant extends AbstractReferenceParticipa
 
     @Override
     protected boolean match(DOMDocument document) {
-        return RandomPresetsModel.isRandomPresets(document);
+        return RandomPresetsModel.match(document);
     }
 
     @Override

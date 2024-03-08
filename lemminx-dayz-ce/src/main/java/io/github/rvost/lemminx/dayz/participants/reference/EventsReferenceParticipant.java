@@ -15,7 +15,6 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.AbstractMap;
 import java.util.List;
 
 public class EventsReferenceParticipant extends AbstractReferenceParticipant {
@@ -28,7 +27,7 @@ public class EventsReferenceParticipant extends AbstractReferenceParticipant {
 
     @Override
     protected boolean match(DOMDocument document) {
-        return EventsModel.isEvents(document);
+        return EventsModel.match(document);
     }
 
     @Override

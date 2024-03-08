@@ -1,24 +1,18 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MapGroupProtoModel {
@@ -31,12 +25,8 @@ public class MapGroupProtoModel {
     public static final String USER_ATTRIBUTE = "user";
     public static final String DE_ATTRIBUTE = "de";
 
-    public static boolean isMapGroupProto(DOMDocument document) {
-        if (document == null) {
-            return false;
-        }
-        var uri = document.getDocumentURI();
-        return uri != null && uri.toLowerCase().endsWith(MAPGROUPPROTO_FILE);
+    public static boolean match(DOMDocument document) {
+        return DocumentUtils.filenameMatch(document, MAPGROUPPROTO_FILE);
     }
 
     public static Map<String, Range> getGroups(Path missionPath) {

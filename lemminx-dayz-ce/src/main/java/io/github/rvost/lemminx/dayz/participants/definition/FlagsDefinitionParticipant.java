@@ -23,7 +23,7 @@ public class FlagsDefinitionParticipant implements IDefinitionParticipant {
     public void findDefinition(IDefinitionRequest request, List<LocationLink> locations, CancelChecker cancelChecker) {
         var document = request.getXMLDocument();
         var node = request.getNode();
-        if (TypesModel.isTypes(document) && TypesModel.USER_ATTRIBUTE.equals(node.getLocalName())) {
+        if (TypesModel.match(document) && TypesModel.USER_ATTRIBUTE.equals(node.getLocalName())) {
             var flag = node.getNodeValue();
             var index = missionService.getUserFlagsIndex();
             if (index.containsKey(flag)) {

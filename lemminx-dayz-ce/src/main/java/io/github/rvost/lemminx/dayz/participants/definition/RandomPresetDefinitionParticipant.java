@@ -23,7 +23,7 @@ public class RandomPresetDefinitionParticipant implements IDefinitionParticipant
     public void findDefinition(IDefinitionRequest request, List<LocationLink> locations, CancelChecker cancelChecker) {
         var document = request.getXMLDocument();
         var node = request.getNode();
-        if (SpawnableTypesModel.isSpawnableTypes(document) &&
+        if (SpawnableTypesModel.match(document) &&
                 SpawnableTypesModel.PRESET_ATTRIBUTE.equals(node.getLocalName())) {
             var preset = node.getNodeValue();
             var index = missionService.getRandomPresetsIndex();

@@ -102,7 +102,7 @@ public class EventGroupRenameParticipant implements IRenameParticipant {
 
     private static boolean isMatchingRequest(IPositionRequest request) {
         var document = request.getXMLDocument();
-        if (!CfgEventGroupsModel.isCfgEventGroups(document)) {
+        if (!CfgEventGroupsModel.match(document)) {
             return false;
         }
         var node = document.findNodeAt(request.getOffset());

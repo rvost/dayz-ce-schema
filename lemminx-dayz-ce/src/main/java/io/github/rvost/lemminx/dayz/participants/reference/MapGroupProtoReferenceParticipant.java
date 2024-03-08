@@ -23,7 +23,7 @@ public class MapGroupProtoReferenceParticipant extends AbstractReferenceParticip
 
     @Override
     protected boolean match(DOMDocument document) {
-        return MapGroupProtoModel.isMapGroupProto(document);
+        return MapGroupProtoModel.match(document);
     }
 
     @Override

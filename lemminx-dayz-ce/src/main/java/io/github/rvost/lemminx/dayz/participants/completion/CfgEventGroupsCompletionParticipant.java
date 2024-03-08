@@ -20,7 +20,7 @@ public class CfgEventGroupsCompletionParticipant extends CompletionParticipantAd
     @Override
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
-        if (CfgEventGroupsModel.isCfgEventGroups(doc)) {
+        if (CfgEventGroupsModel.match(doc)) {
             computeMapGroupCompletion(request, response, doc);
         }
     }

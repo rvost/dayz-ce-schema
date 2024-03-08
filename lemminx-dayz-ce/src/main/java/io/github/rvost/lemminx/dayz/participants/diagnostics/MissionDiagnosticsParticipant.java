@@ -55,7 +55,7 @@ public class MissionDiagnosticsParticipant implements IDiagnosticsParticipant {
                 validateCustomFileType(document).ifPresent(diagnostics::add);
             }
         }
-        if (CfgEventSpawnsModel.isEventSpawns(document)) {
+        if (CfgEventSpawnsModel.match(document)) {
             validateExternalEventSpawns(document).ifPresent(diagnostics::add);
         }
     }

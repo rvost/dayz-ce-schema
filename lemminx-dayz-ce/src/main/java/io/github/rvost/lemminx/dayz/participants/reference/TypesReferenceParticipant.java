@@ -25,7 +25,7 @@ public class TypesReferenceParticipant extends AbstractReferenceParticipant {
 
     @Override
     protected boolean match(DOMDocument document) {
-        return TypesModel.isTypes(document);
+        return TypesModel.match(document);
     }
 
     @Override

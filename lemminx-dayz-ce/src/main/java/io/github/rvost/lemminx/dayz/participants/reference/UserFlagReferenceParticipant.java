@@ -23,7 +23,7 @@ public class UserFlagReferenceParticipant extends AbstractReferenceParticipant {
 
     @Override
     protected boolean match(DOMDocument document) {
-        return LimitsDefinitionUserModel.isUserLimitsDefinitions(document);
+        return LimitsDefinitionUserModel.match(document);
     }
 
     @Override

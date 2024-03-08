@@ -101,7 +101,7 @@ public class UserFlagRenameParticipant implements IRenameParticipant {
 
     private static boolean isMatchingRequest(IPositionRequest request){
         var document = request.getXMLDocument();
-        if (!LimitsDefinitionUserModel.isUserLimitsDefinitions(document)) {
+        if (!LimitsDefinitionUserModel.match(document)) {
             return false;
         }
         var node = document.findNodeAt(request.getOffset());

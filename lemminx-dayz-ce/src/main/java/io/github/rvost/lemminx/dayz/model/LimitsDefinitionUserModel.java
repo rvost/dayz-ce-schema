@@ -3,6 +3,7 @@ package io.github.rvost.lemminx.dayz.model;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableBiMap;
+import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -28,12 +29,8 @@ public class LimitsDefinitionUserModel {
     public static final String NAME_ATTRIBUTE = "name";
     public static final String USER_TAG = "user";
 
-    public static boolean isUserLimitsDefinitions(DOMDocument document) {
-        if (document == null) {
-            return false;
-        }
-        var uri = document.getDocumentURI();
-        return uri != null && uri.toLowerCase().endsWith(USER_LIMITS_DEFINITION_FILE);
+    public static boolean match(DOMDocument document) {
+        return DocumentUtils.filenameMatch(document, USER_LIMITS_DEFINITION_FILE);
     }
 
     public static Map<String, Set<String>> getUserLimitsDefinitions(Path missionPath) {

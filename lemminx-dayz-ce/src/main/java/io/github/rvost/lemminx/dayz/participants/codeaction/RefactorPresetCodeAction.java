@@ -32,7 +32,7 @@ public class RefactorPresetCodeAction implements ICodeActionParticipant {
     public void doCodeActionUnconditional(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) throws CancellationException {
         var document = request.getDocument();
 
-        if (!SpawnableTypesModel.isSpawnableTypes(document) || !missionService.isInMissionFolder(document)) {
+        if (!SpawnableTypesModel.match(document) || !missionService.isInMissionFolder(document)) {
             return;
         }
 

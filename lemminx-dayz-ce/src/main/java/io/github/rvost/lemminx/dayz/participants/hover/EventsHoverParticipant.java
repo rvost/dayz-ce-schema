@@ -12,7 +12,7 @@ public class EventsHoverParticipant extends HoverParticipantAdapter {
     @Override
     public Hover onText(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
         var document = request.getXMLDocument();
-        if (EventsModel.isEvents(document)) {
+        if (EventsModel.match(document)) {
             var parent = request.getParentElement();
             if (EventsModel.TIME_INTERVAL_TAGS.contains(parent.getNodeName())) {
                 return ParticipantsUtils.hoverForTimeInterval(request, cancelChecker);

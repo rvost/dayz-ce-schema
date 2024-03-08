@@ -27,7 +27,7 @@ public class TypesCompletionParticipant extends CompletionParticipantAdapter {
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
 
-        if (TypesModel.isTypes(doc)) {
+        if (TypesModel.match(doc)) {
             computeTypesCompletion(request, response, doc);
         }
     }

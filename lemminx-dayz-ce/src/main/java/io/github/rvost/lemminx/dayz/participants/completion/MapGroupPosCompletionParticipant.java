@@ -21,7 +21,7 @@ public class MapGroupPosCompletionParticipant extends CompletionParticipantAdapt
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
 
-        if (MapGroupPosModel.isMapGroupPos(doc)) {
+        if (MapGroupPosModel.match(doc)) {
             computeCompletion(request, response, doc);
         }
     }

@@ -1,5 +1,6 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import org.eclipse.lemminx.dom.DOMDocument;
 
 import java.util.Set;
@@ -17,11 +18,7 @@ public class CfgWeatherModel {
             Set.of(DURATION_ATTRIBUTE, MAX_ATTRIBUTE, MIN_ATTRIBUTE, TIME_ATTRIBUTE);
 
 
-    public static boolean isCfgWeather(DOMDocument document) {
-        if (document == null) {
-            return false;
-        }
-        var uri = document.getDocumentURI();
-        return uri != null && uri.toLowerCase().endsWith(CFGWEATHER_FILE);
+    public static boolean match(DOMDocument document) {
+        return DocumentUtils.filenameMatch(document, CFGWEATHER_FILE);
     }
 }

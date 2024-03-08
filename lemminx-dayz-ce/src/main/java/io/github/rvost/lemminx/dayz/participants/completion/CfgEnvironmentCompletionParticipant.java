@@ -1,9 +1,7 @@
 package io.github.rvost.lemminx.dayz.participants.completion;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
-import io.github.rvost.lemminx.dayz.model.CfgEconomyCoreModel;
 import io.github.rvost.lemminx.dayz.model.CfgEnvironmentModel;
-import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
 import io.github.rvost.lemminx.dayz.participants.DOMUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -27,7 +25,7 @@ public class CfgEnvironmentCompletionParticipant extends CompletionParticipantAd
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
 
-        if (CfgEnvironmentModel.isCfgEnvironment(doc)) {
+        if (CfgEnvironmentModel.match(doc)) {
             computeCfgEnvironmentCompletion(request, response, doc);
         }
     }

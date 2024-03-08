@@ -2,6 +2,7 @@ package io.github.rvost.lemminx.dayz.model;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.participants.IndentUtils;
+import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -20,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,12 +38,8 @@ public class CfgEconomyCoreModel {
                     "\n\t<file name=\"%s\" type=\"%s\"/>" +
                     "\n</ce>";
 
-    public static boolean isCfgEconomyCore(DOMDocument document) {
-        if (document == null) {
-            return false;
-        }
-        var uri = document.getDocumentURI();
-        return uri != null && uri.toLowerCase().endsWith(CFGECONOMYCORE_XML);
+    public static boolean match(DOMDocument document) {
+        return DocumentUtils.filenameMatch(document, CFGECONOMYCORE_XML);
     }
 
     public static Map<Path, DayzFileType> getCustomFiles(Path missionPath) {

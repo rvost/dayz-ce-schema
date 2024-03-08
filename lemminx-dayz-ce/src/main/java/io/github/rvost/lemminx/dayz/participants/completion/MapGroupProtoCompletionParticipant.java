@@ -25,7 +25,7 @@ public class MapGroupProtoCompletionParticipant extends CompletionParticipantAda
     public void onAttributeValue(String valuePrefix, ICompletionRequest request, ICompletionResponse response, CancelChecker cancelChecker) throws Exception {
         var doc = request.getXMLDocument();
 
-        if (MapGroupProtoModel.isMapGroupProto(doc)) {
+        if (MapGroupProtoModel.match(doc)) {
             computeCompletion(request, response, doc);
         }
     }

@@ -1,12 +1,12 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
-import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,9 +35,8 @@ public class EventsModel {
     public static final Path rootEventsPath = Path.of(DB_FOLDER, EVENTS_FILE);
 
 
-    public static boolean isEvents(DOMDocument document) {
-        var docElement = document.getDocumentElement();
-        return docElement != null && EVENTS_TAG.equals(docElement.getNodeName());
+    public static boolean match(DOMDocument document) {
+        return DocumentUtils.documentTagMatch(document, EVENTS_TAG);
     }
 
     public static boolean isRootEvents(Path missionRoot, Path file) {

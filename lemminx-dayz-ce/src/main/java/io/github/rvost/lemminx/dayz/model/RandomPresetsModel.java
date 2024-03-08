@@ -1,5 +1,6 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -30,12 +31,8 @@ public class RandomPresetsModel {
     public static final String ITEM_TAG = "item";
     public static final String NAME_ATTRIBUTE = "name";
 
-    public static boolean isRandomPresets(DOMDocument document) {
-        if (document == null) {
-            return false;
-        }
-        var uri = document.getDocumentURI();
-        return uri != null && uri.toLowerCase().endsWith(CFGRANDOMPRESETS_FILE);
+    public static boolean match(DOMDocument document) {
+        return DocumentUtils.filenameMatch(document, CFGRANDOMPRESETS_FILE);
     }
 
     public static Map<String, Set<String>> getRandomPresets(Path missionPath) {
@@ -68,17 +65,17 @@ public class RandomPresetsModel {
         }
     }
 
-    public static Map<String, Range> getRandomPresetsIndex(Path missionPath){
+    public static Map<String, Range> getRandomPresetsIndex(Path missionPath) {
         var filePath = missionPath.resolve(CFGRANDOMPRESETS_FILE);
         try {
             var fileContent = String.join(System.lineSeparator(), Files.readAllLines(filePath));
             var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, filePath.toString()), null);
             return doc.getDocumentElement().getChildren().stream()
                     .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
-                    .map(n ->n.getAttributeNode(NAME_ATTRIBUTE))
+                    .map(n -> n.getAttributeNode(NAME_ATTRIBUTE))
                     .collect(Collectors.toMap(
                             DOMAttr::getNodeValue,
-                            n-> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
+                            n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
                             (oldValue, newValue) -> oldValue,
                             HashMap::new));
         } catch (IOException e) {

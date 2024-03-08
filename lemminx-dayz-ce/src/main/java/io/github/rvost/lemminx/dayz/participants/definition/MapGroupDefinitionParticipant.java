@@ -22,7 +22,7 @@ public class MapGroupDefinitionParticipant implements IDefinitionParticipant {
     public void findDefinition(IDefinitionRequest request, List<LocationLink> locations, CancelChecker cancelChecker) {
         var document = request.getXMLDocument();
         var node = request.getNode();
-        if (CfgEventGroupsModel.isCfgEventGroups(document)
+        if (CfgEventGroupsModel.match(document)
                 && CfgEventGroupsModel.TYPE_ATTRIBUTE.equals(node.getLocalName())) {
             var group = node.getNodeValue();
             var index = missionService.getMapGroupIndex();

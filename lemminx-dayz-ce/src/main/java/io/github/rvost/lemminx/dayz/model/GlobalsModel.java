@@ -25,7 +25,7 @@ public class GlobalsModel {
             GlobalsVariable.TimePenalty
     );
 
-    public static boolean isGlobals(DOMDocument document) {
+    public static boolean match(DOMDocument document) {
         var docElement = document.getDocumentElement();
         return docElement != null && VARIABLES_TAG.equals(docElement.getNodeName());
     }

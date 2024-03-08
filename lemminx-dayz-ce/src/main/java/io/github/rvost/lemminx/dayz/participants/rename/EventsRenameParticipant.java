@@ -4,7 +4,6 @@ import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.CfgEventSpawnsModel;
 import io.github.rvost.lemminx.dayz.model.EventsModel;
 import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
-import org.eclipse.lemminx.XMLTextDocumentService;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.IPositionRequest;
 import org.eclipse.lemminx.services.extensions.rename.IPrepareRenameRequest;
@@ -20,7 +19,6 @@ import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -112,7 +110,7 @@ public class EventsRenameParticipant implements IRenameParticipant {
 
     private static boolean isMatchingRequest(IPositionRequest request) {
         var document = request.getXMLDocument();
-        if (!EventsModel.isEvents(document)) {
+        if (!EventsModel.match(document)) {
             return false;
         }
         var node = document.findNodeAt(request.getOffset());

@@ -1,5 +1,6 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -34,9 +35,8 @@ public class TypesModel {
     public static final Set<String> TIME_INTERVAL_TAGS = Set.of(LIFETIME_TAG, RESTOCK_TAG);
     public static final Path rootTypesPath = Path.of(TypesModel.DB_FOLDER, TypesModel.TYPES_FILE);
 
-    public static boolean isTypes(DOMDocument document) {
-        var docElement = document.getDocumentElement();
-        return docElement != null && TYPES_TAG.equals(docElement.getNodeName());
+    public static boolean match(DOMDocument document) {
+        return DocumentUtils.documentTagMatch(document, TYPES_TAG);
     }
 
     public static boolean isRootTypes(Path missionRoot, Path file) {

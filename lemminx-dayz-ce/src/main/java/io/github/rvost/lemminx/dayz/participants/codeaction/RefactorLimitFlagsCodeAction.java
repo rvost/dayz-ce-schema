@@ -32,7 +32,7 @@ public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
     public void doCodeAction(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) {
         var diagnostic = request.getDiagnostic();
         var document = request.getDocument();
-        if (TypesModel.isTypes(document) &&
+        if (TypesModel.match(document) &&
                 ParticipantsUtils.match(diagnostic, TypesDiagnosticsParticipant.LIMITS_CAN_BE_SIMPLIFIED_CODE)) {
             var userFlags = missionService.getUserFlags().inverse();
             tryGetRefactorForFlags(diagnostic, document, userFlags).ifPresent(codeActions::add);
@@ -42,7 +42,7 @@ public class RefactorLimitFlagsCodeAction implements ICodeActionParticipant {
     @Override
     public void doCodeActionUnconditional(ICodeActionRequest request, List<CodeAction> codeActions, CancelChecker cancelChecker) throws CancellationException {
         var document = request.getDocument();
-        if (!TypesModel.isTypes(document) || !missionService.isInMissionFolder(document)) {
+        if (!TypesModel.match(document) || !missionService.isInMissionFolder(document)) {
             return;
         }
         var range = request.getRange();

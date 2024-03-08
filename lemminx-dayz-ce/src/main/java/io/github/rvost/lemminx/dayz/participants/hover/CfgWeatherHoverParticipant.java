@@ -11,7 +11,7 @@ public class CfgWeatherHoverParticipant extends HoverParticipantAdapter {
     @Override
     public Hover onAttributeValue(IHoverRequest request, CancelChecker cancelChecker) throws Exception {
         var document = request.getXMLDocument();
-        if (CfgWeatherModel.isCfgWeather(document)) {
+        if (CfgWeatherModel.match(document)) {
             var parent = document.findNodeAt(request.getOffset());
             var nodeName = parent.getNodeName();
             var attrName = request.getCurrentAttributeName();
