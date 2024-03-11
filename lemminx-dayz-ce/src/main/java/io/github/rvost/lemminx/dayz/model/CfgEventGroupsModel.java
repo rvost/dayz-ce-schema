@@ -1,15 +1,11 @@
 package io.github.rvost.lemminx.dayz.model;
 
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
-import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -29,39 +25,39 @@ public class CfgEventGroupsModel {
 
     public static Map<String, Range> getCfgEventGroups(Path missionPath) {
         var filePath = missionPath.resolve(CFGEVENTGROUPS_FILE);
-        try {
-            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(filePath));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, filePath.toString()), null);
-            return doc.getDocumentElement().getChildren().stream()
-                    .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
-                    .map(n -> n.getAttributeNode(NAME_ATTRIBUTE))
-                    .collect(Collectors.toMap(
-                            DOMAttr::getNodeValue,
-                            n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
-                            (oldValue, newValue) -> oldValue,
-                            HashMap::new));
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(filePath)
+                .map(CfgEventGroupsModel::getCfgEventGroups)
+                .orElse(Map.of());
+    }
+
+    private static Map<String, Range> getCfgEventGroups(DOMDocument doc) {
+        return doc.getDocumentElement().getChildren().stream()
+                .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
+                .map(n -> n.getAttributeNode(NAME_ATTRIBUTE))
+                .collect(Collectors.toMap(
+                        DOMAttr::getNodeValue,
+                        n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
+                        (oldValue, newValue) -> oldValue,
+                        HashMap::new));
     }
 
     public static Map<String, List<Range>> getChildTypesIndex(Path missionPath) {
         var filePath = missionPath.resolve(CFGEVENTGROUPS_FILE);
-        try {
-            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(filePath));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, filePath.toString()), null);
-            return doc.getDocumentElement().getChildren().stream()
-                    .flatMap(n -> n.getChildren().stream())
-                    .filter(n -> n.hasAttribute(TYPE_ATTRIBUTE))
-                    .map(n -> n.getAttributeNode(TYPE_ATTRIBUTE))
-                    .collect(Collectors.groupingBy(
-                            DOMAttr::getNodeValue,
-                            Collectors.mapping(
-                                    n -> XMLPositionUtility.selectWholeTag(n.getStart() + 1, doc),
-                                    Collectors.toList()))
-                    );
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(filePath)
+                .map(CfgEventGroupsModel::getChildTypesIndex)
+                .orElse(Map.of());
+    }
+
+    private static Map<String, List<Range>> getChildTypesIndex(DOMDocument doc) {
+        return doc.getDocumentElement().getChildren().stream()
+                .flatMap(n -> n.getChildren().stream())
+                .filter(n -> n.hasAttribute(TYPE_ATTRIBUTE))
+                .map(n -> n.getAttributeNode(TYPE_ATTRIBUTE))
+                .collect(Collectors.groupingBy(
+                        DOMAttr::getNodeValue,
+                        Collectors.mapping(
+                                n -> XMLPositionUtility.selectWholeTag(n.getStart() + 1, doc),
+                                Collectors.toList()))
+                );
     }
 }

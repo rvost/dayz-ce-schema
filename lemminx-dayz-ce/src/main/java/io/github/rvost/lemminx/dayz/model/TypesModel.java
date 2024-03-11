@@ -1,15 +1,11 @@
 package io.github.rvost.lemminx.dayz.model;
 
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
-import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -50,13 +46,9 @@ public class TypesModel {
     }
 
     public static Map<String, Range> getTypes(Path path) {
-        try {
-            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
-            return getTypes(doc);
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(path)
+                .map(TypesModel::getTypes)
+                .orElse(Map.of());
     }
 
     public static Map<String, Range> getTypes(DOMDocument doc) {
@@ -71,13 +63,9 @@ public class TypesModel {
     }
 
     public static Map<String, List<Range>> getFlagIndex(Path path) {
-        try {
-            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
-            return getFlagIndex(doc);
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(path)
+                .map(TypesModel::getFlagIndex)
+                .orElse(Map.of());
     }
 
     public static Map<String, List<Range>> getFlagIndex(DOMDocument document) {
@@ -95,13 +83,9 @@ public class TypesModel {
     }
 
     public static Map<String, List<Range>> getUserFlagIndex(Path path) {
-        try {
-            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
-            return getUserFlagIndex(doc);
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(path)
+                .map(TypesModel::getUserFlagIndex)
+                .orElse(Map.of());
     }
 
     public static Map<String, List<Range>> getUserFlagIndex(DOMDocument document) {

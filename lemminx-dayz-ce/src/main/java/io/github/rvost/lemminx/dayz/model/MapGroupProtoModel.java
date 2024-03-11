@@ -1,15 +1,11 @@
 package io.github.rvost.lemminx.dayz.model;
 
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
-import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,16 +27,12 @@ public class MapGroupProtoModel {
 
     public static Map<String, Range> getGroups(Path missionPath) {
         var path = missionPath.resolve(MAPGROUPPROTO_FILE);
-        try {
-            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
-            return getGroups(doc);
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(path)
+                .map(MapGroupProtoModel::getGroups)
+                .orElse(Map.of());
     }
 
-    private static Map<String, Range> getGroups(DOMDocument doc) throws IOException {
+    private static Map<String, Range> getGroups(DOMDocument doc) {
         return doc.getDocumentElement().getChildren().stream()
                 .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
                 .map(n -> n.getAttributeNode(NAME_ATTRIBUTE))

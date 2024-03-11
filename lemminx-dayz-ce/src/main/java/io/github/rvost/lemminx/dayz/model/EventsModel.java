@@ -1,15 +1,11 @@
 package io.github.rvost.lemminx.dayz.model;
 
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
-import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,16 +46,12 @@ public class EventsModel {
     }
 
     public static Map<String, Range> getEvents(Path path) {
-        try {
-            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
-            return getEvents(doc);
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(path)
+                .map(EventsModel::getEvents)
+                .orElse(Map.of());
     }
 
-    public static Map<String, Range> getEvents(DOMDocument doc) throws IOException {
+    public static Map<String, Range> getEvents(DOMDocument doc) {
         return doc.getDocumentElement().getChildren().stream()
                 .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
                 .map(n -> n.getAttributeNode(NAME_ATTRIBUTE))

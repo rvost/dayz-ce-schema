@@ -3,11 +3,9 @@ package io.github.rvost.lemminx.dayz.model;
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.participants.IndentUtils;
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
-import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lemminx.utils.TextEditUtils;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
@@ -15,9 +13,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
@@ -48,21 +44,19 @@ public class CfgEconomyCoreModel {
     }
 
     public static Map<Path, DayzFileType> getCustomFilesFromFile(Path filePath, Path missionPath) {
-        try {
-            String fileContent = String.join(System.lineSeparator(), Files.readAllLines(filePath));
-            DOMDocument doc = DOMParser.getInstance().parse(new TextDocument(fileContent, filePath.toString()), null);
-            var relativeMap = getCustomFiles(doc);
-            return relativeMap.collect(Collectors.toMap(e -> missionPath.resolve(e.getKey()).toAbsolutePath(),
-                    Map.Entry::getValue,
-                    (oldValue, newValue) -> oldValue,
-                    HashMap::new)
-            );
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(filePath)
+                .map(doc -> {
+                    var relativeMap = getCustomFiles(doc);
+                    return relativeMap.collect(Collectors.toMap(e -> missionPath.resolve(e.getKey()).toAbsolutePath(),
+                            Map.Entry::getValue,
+                            (oldValue, newValue) -> oldValue,
+                            HashMap::new)
+                    );
+                })
+                .orElse(new HashMap<>());
     }
 
-    private static Stream<SimpleEntry<Path, DayzFileType>> getCustomFiles(DOMDocument document) throws IOException {
+    private static Stream<SimpleEntry<Path, DayzFileType>> getCustomFiles(DOMDocument document) {
         return document.getDocumentElement().getChildren().stream()
                 .filter(e -> CE_TAG.equals(e.getNodeName()))
                 .filter(e -> e.hasAttribute(FOLDER_ATTRIBUTE))

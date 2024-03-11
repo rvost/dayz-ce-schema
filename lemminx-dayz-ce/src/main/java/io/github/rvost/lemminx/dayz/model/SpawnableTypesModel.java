@@ -1,15 +1,11 @@
 package io.github.rvost.lemminx.dayz.model;
 
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
-import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -29,13 +25,9 @@ public class SpawnableTypesModel {
     }
 
     public static Map<String, Range> getSpawnableTypes(Path path) {
-        try {
-            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
-            return getSpawnableTypes(doc);
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(path)
+                .map(SpawnableTypesModel::getSpawnableTypes)
+                .orElse(Map.of());
     }
 
     private static Map<String, Range> getSpawnableTypes(DOMDocument doc) {
@@ -50,13 +42,9 @@ public class SpawnableTypesModel {
     }
 
     public static Map<String, List<Range>> getPresetsIndex(Path path) {
-        try {
-            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
-            return getPresetsIndex(doc);
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(path)
+                .map(SpawnableTypesModel::getPresetsIndex)
+                .orElse(Map.of());
     }
 
     public static Map<String, List<Range>> getPresetsIndex(DOMDocument document) {

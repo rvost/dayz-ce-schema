@@ -124,10 +124,8 @@ public class LimitsDefinitionUserModel {
 
     public static Map<String, Range> getUserFlagsIndex(Path missionPath) {
         var filePath = missionPath.resolve(USER_LIMITS_DEFINITION_FILE);
-        try {
-            var fileContent = String.join(System.lineSeparator(), Files.readAllLines(filePath));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, filePath.toString()), null);
-            return doc.getDocumentElement().getChildren().stream()
+        return DocumentUtils.tryParseDocument(filePath)
+                .map(doc -> doc.getDocumentElement().getChildren().stream()
                     .flatMap(n -> n.getChildren().stream())
                     .filter(n -> n.hasAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE))
                     .map(n -> n.getAttributeNode(LimitsDefinitionsModel.NAME_ATTRIBUTE))
@@ -135,9 +133,7 @@ public class LimitsDefinitionUserModel {
                             DOMAttr::getNodeValue,
                             n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
                             (oldValue, newValue) -> oldValue,
-                            HashMap::new));
-        } catch (IOException e) {
-            return Map.of();
-        }
+                                HashMap::new)))
+                .orElse(new HashMap<>());
     }
 }
