@@ -3,24 +3,19 @@ package io.github.rvost.lemminx.dayz.model;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableBiMap;
+import io.github.rvost.lemminx.dayz.participants.DOMUtils;
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
-import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Map.entry;
 
 public class LimitsDefinitionUserModel {
     public static final String USER_LIMITS_DEFINITION_FILE = "cfglimitsdefinitionuser.xml";
@@ -35,104 +30,71 @@ public class LimitsDefinitionUserModel {
 
     public static Map<String, Set<String>> getUserLimitsDefinitions(Path missionPath) {
         var path = missionPath.resolve(USER_LIMITS_DEFINITION_FILE);
-
-        try (var input = Files.newInputStream(path)) {
-            return getUserLimitsDefinitions(input);
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(path)
+                .map(LimitsDefinitionUserModel::getUserLimitsDefinitions)
+                .orElse(Map.of());
     }
 
-    public static Map<String, Set<String>> getUserLimitsDefinitions(InputStream input) throws IOException {
-        try {
-            var db = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
-            var doc = db.parse(input);
-            if (doc.getDocumentElement() != null) {
-                doc.getDocumentElement().normalize();
-                var usageflagsNode = doc.getElementsByTagName(USAGEFLAGS_TAG).item(0);
-                var valueflagsNode = doc.getElementsByTagName(VALUEFLAGS_TAG).item(0);
-                var result = new HashMap<String, Set<String>>();
-                if (usageflagsNode != null) {
-                    var usageflags = LimitsDefinitionsModel.getValues(usageflagsNode.getChildNodes());
-                    result.put(LimitsDefinitionsModel.USAGE_TAG, usageflags);
-                }
-                if (valueflagsNode != null) {
-                    var valueflags = LimitsDefinitionsModel.getValues(valueflagsNode.getChildNodes());
-                    result.put(LimitsDefinitionsModel.VALUE_TAG, valueflags);
-                }
-                return result;
-            } else {
-                return Map.of();
-            }
-        } catch (ParserConfigurationException | SAXException e) {
-            return Map.of();
-        }
+    public static Map<String, Set<String>> getUserLimitsDefinitions(DOMDocument doc) {
+        var root = doc.getDocumentElement();
+        var usageflags = DOMUtils.tryFindFirstChildElementByTagName(root, USAGEFLAGS_TAG)
+                .map(LimitsDefinitionsModel::getValues)
+                .orElse(Set.of());
+        var valueflags = DOMUtils.tryFindFirstChildElementByTagName(root, VALUEFLAGS_TAG)
+                .map(LimitsDefinitionsModel::getValues)
+                .orElse(Set.of());
+        return new HashMap<>(Map.ofEntries(
+                entry(LimitsDefinitionsModel.USAGE_TAG, usageflags),
+                entry(LimitsDefinitionsModel.VALUE_TAG, valueflags)
+        ));
     }
 
     public static BiMap<String, Set<String>> getUserFlags(Path missionPath) {
         var path = missionPath.resolve(USER_LIMITS_DEFINITION_FILE);
-
-        try (var input = Files.newInputStream(path)) {
-            return getUserFlags(input);
-        } catch (IOException e) {
-            return ImmutableBiMap.of();
-        }
+        return DocumentUtils.tryParseDocument(path)
+                .map(LimitsDefinitionUserModel::getUserFlags)
+                .orElse(ImmutableBiMap.of());
     }
 
-    public static BiMap<String, Set<String>> getUserFlags(InputStream input) throws IOException {
-        try {
-            var db = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
-            var doc = db.parse(input);
-            if (doc.getDocumentElement() != null) {
-                doc.getDocumentElement().normalize();
-                var usageflagsNode = doc.getElementsByTagName(USAGEFLAGS_TAG).item(0);
-                var valueflagsNode = doc.getElementsByTagName(VALUEFLAGS_TAG).item(0);
-                BiMap<String, Set<String>> result = HashBiMap.create();
-                if (usageflagsNode != null) {
-                    var usageflags = getFlagDefinitions(usageflagsNode.getChildNodes());
-                    result.putAll(usageflags);
-                }
-                if (valueflagsNode != null) {
-                    var valueflags = getFlagDefinitions(valueflagsNode.getChildNodes());
-                    result.putAll(valueflags);
-                }
-                return result;
-            } else {
-                return ImmutableBiMap.of();
-            }
-        } catch (ParserConfigurationException | SAXException e) {
-            return ImmutableBiMap.of();
-        }
-    }
-
-    private static Map<String, Set<String>> getFlagDefinitions(NodeList nodes) {
-        var result = new HashMap<String, Set<String>>();
-        for (int i = 0; i < nodes.getLength(); i++) {
-            var node = nodes.item(i);
-            var attributes = node.getAttributes();
-            if (attributes != null) {
-                var nameAttr = attributes.getNamedItem(LimitsDefinitionsModel.NAME_ATTRIBUTE);
-                if (nameAttr != null) {
-                    var flagName = nameAttr.getNodeValue();
-                    var flagValues = new TreeSet<>(LimitsDefinitionsModel.getOrderedValues(node.getChildNodes()));
-                    result.put(flagName, flagValues);
-                }
-            }
-        }
+    public static BiMap<String, Set<String>> getUserFlags(DOMDocument doc) {
+        var root = doc.getDocumentElement();
+        var usageflags = DOMUtils.tryFindFirstChildElementByTagName(root, USAGEFLAGS_TAG)
+                .map(LimitsDefinitionUserModel::getFlagDefinitions)
+                .orElse(Map.of());
+        var valueflags = DOMUtils.tryFindFirstChildElementByTagName(root, VALUEFLAGS_TAG)
+                .map(LimitsDefinitionUserModel::getFlagDefinitions)
+                .orElse(Map.of());
+        BiMap<String, Set<String>> result = HashBiMap.create();
+        result.putAll(usageflags);
+        result.putAll(valueflags);
         return result;
+    }
+
+    private static Map<String, Set<String>> getFlagDefinitions(DOMElement element) {
+        return element.getChildren().stream()
+                .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
+                .map(n -> Map.entry(
+                        n.getAttribute(NAME_ATTRIBUTE),
+                        LimitsDefinitionsModel.getOrderedValues((DOMElement) n))
+                )
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> new TreeSet<>(e.getValue()),
+                        (old, newV) -> newV,
+                        HashMap::new)
+                );
     }
 
     public static Map<String, Range> getUserFlagsIndex(Path missionPath) {
         var filePath = missionPath.resolve(USER_LIMITS_DEFINITION_FILE);
         return DocumentUtils.tryParseDocument(filePath)
                 .map(doc -> doc.getDocumentElement().getChildren().stream()
-                    .flatMap(n -> n.getChildren().stream())
-                    .filter(n -> n.hasAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE))
-                    .map(n -> n.getAttributeNode(LimitsDefinitionsModel.NAME_ATTRIBUTE))
-                    .collect(Collectors.toMap(
-                            DOMAttr::getNodeValue,
-                            n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
-                            (oldValue, newValue) -> oldValue,
+                        .flatMap(n -> n.getChildren().stream())
+                        .filter(n -> n.hasAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE))
+                        .map(n -> n.getAttributeNode(LimitsDefinitionsModel.NAME_ATTRIBUTE))
+                        .collect(Collectors.toMap(
+                                DOMAttr::getNodeValue,
+                                n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
+                                (oldValue, newValue) -> oldValue,
                                 HashMap::new)))
                 .orElse(new HashMap<>());
     }

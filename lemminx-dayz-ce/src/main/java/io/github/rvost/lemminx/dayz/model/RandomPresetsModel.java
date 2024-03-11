@@ -5,19 +5,9 @@ import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Map.entry;
@@ -35,32 +25,26 @@ public class RandomPresetsModel {
 
     public static Map<String, Set<String>> getRandomPresets(Path missionPath) {
         var path = missionPath.resolve(CFGRANDOMPRESETS_FILE);
-
-        try (var input = Files.newInputStream(path)) {
-            return getRandomPresets(input);
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(path)
+                .map(RandomPresetsModel::getRandomPresets)
+                .orElse(Map.of());
     }
 
-    public static Map<String, Set<String>> getRandomPresets(InputStream input) throws IOException {
-        try {
-            var db = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
-            var doc = db.parse(input);
-            if (doc.getDocumentElement() != null) {
-                doc.getDocumentElement().normalize();
-                var cargo = getValues(doc.getElementsByTagName(CARGO_TAG));
-                var attachments = getValues(doc.getElementsByTagName(ATTACHMENTS_TAG));
-                return new HashMap<>(Map.ofEntries(
-                        entry(CARGO_TAG, cargo),
-                        entry(ATTACHMENTS_TAG, attachments)
-                ));
-            } else {
-                return Map.of();
-            }
-        } catch (ParserConfigurationException | SAXException e) {
-            return Map.of();
-        }
+    public static Map<String, Set<String>> getRandomPresets(DOMDocument doc) {
+        var cargo = doc.getDocumentElement().getChildren().stream()
+                .filter(n -> CARGO_TAG.equals(n.getLocalName()))
+                .map(n -> n.getAttribute(NAME_ATTRIBUTE))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        var attachments = doc.getDocumentElement().getChildren().stream()
+                .filter(n -> ATTACHMENTS_TAG.equals(n.getLocalName()))
+                .map(n -> n.getAttribute(NAME_ATTRIBUTE))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        return new HashMap<>(Map.ofEntries(
+                entry(CARGO_TAG, cargo),
+                entry(ATTACHMENTS_TAG, attachments)
+        ));
     }
 
     public static Map<String, Range> getRandomPresetsIndex(Path missionPath) {
@@ -79,20 +63,5 @@ public class RandomPresetsModel {
                         n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
                         (oldValue, newValue) -> oldValue,
                         HashMap::new));
-    }
-
-    private static Set<String> getValues(NodeList nodes) {
-        var result = new HashSet<String>();
-        for (int i = 0; i < nodes.getLength(); i++) {
-            var node = nodes.item(i);
-            var attributes = node.getAttributes();
-            if (attributes != null) {
-                var nameAttr = attributes.getNamedItem(NAME_ATTRIBUTE);
-                if (nameAttr != null) {
-                    result.add(nameAttr.getNodeValue());
-                }
-            }
-        }
-        return result;
     }
 }

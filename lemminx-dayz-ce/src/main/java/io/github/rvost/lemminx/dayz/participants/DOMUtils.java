@@ -2,12 +2,14 @@ package io.github.rvost.lemminx.dayz.participants;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lsp4j.Range;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DOMUtils {
@@ -44,5 +46,10 @@ public class DOMUtils {
         } catch (BadLocationException ex) {
             return List.of();
         }
+    }
+
+    public static Optional<DOMElement> tryFindFirstChildElementByTagName(DOMElement element, String tagName){
+        var value = org.eclipse.lemminx.utils.DOMUtils.findFirstChildElementByTagName(element, tagName);
+        return Optional.ofNullable(value);
     }
 }

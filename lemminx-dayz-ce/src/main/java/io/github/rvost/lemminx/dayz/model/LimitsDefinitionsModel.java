@@ -1,15 +1,11 @@
 package io.github.rvost.lemminx.dayz.model;
 
+import io.github.rvost.lemminx.dayz.participants.DOMUtils;
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMElement;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -17,6 +13,10 @@ import static java.util.Map.entry;
 
 public class LimitsDefinitionsModel {
     public static final String LIMITS_DEFINITION_FILE = "cfglimitsdefinition.xml";
+    public static final String CATEGORIES_TAG = "categories";
+    public static final String TAGS_TAG = "tags";
+    public static final String USAGEFLAGS_TAG = "usageflags";
+    public static final String VALUEFLAGS_TAG = "valueflags";
     public static final String CATEGORY_TAG = "category";
     public static final String TAG_TAG = "tag";
     public static final String USAGE_TAG = "usage";
@@ -29,36 +29,31 @@ public class LimitsDefinitionsModel {
 
     public static Map<String, Set<String>> getLimitsDefinitions(Path missionPath) {
         var path = missionPath.resolve(LIMITS_DEFINITION_FILE);
-
-        try (var input = Files.newInputStream(path)) {
-            return getLimitsDefinitions(input);
-        } catch (IOException e) {
-            return Map.of();
-        }
+        return DocumentUtils.tryParseDocument(path)
+                .map(LimitsDefinitionsModel::getLimitsDefinitions)
+                .orElse(Map.of());
     }
 
-    public static Map<String, Set<String>> getLimitsDefinitions(InputStream input) throws IOException {
-        try {
-            var db = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
-            var doc = db.parse(input);
-            if (doc.getDocumentElement() != null) {
-                doc.getDocumentElement().normalize();
-                var categories = getValues(doc.getElementsByTagName(CATEGORY_TAG));
-                var tags = getValues(doc.getElementsByTagName(TAG_TAG));
-                var usages = getValues(doc.getElementsByTagName(USAGE_TAG));
-                var values = getValues(doc.getElementsByTagName(VALUE_TAG));
-                return new HashMap<>(Map.ofEntries(
-                        entry(CATEGORY_TAG, categories),
-                        entry(TAG_TAG, tags),
-                        entry(USAGE_TAG, usages),
-                        entry(VALUE_TAG, values)
-                ));
-            } else {
-                return Map.of();
-            }
-        } catch (ParserConfigurationException | SAXException e) {
-            return Map.of();
-        }
+    public static Map<String, Set<String>> getLimitsDefinitions(DOMDocument doc) {
+        var root = doc.getDocumentElement();
+        var categories = DOMUtils.tryFindFirstChildElementByTagName(root, CATEGORIES_TAG)
+                .map(LimitsDefinitionsModel::getValues)
+                .orElse(Set.of());
+        var tags = DOMUtils.tryFindFirstChildElementByTagName(root, TAGS_TAG)
+                .map(LimitsDefinitionsModel::getValues)
+                .orElse(Set.of());
+        var usages = DOMUtils.tryFindFirstChildElementByTagName(root, USAGEFLAGS_TAG)
+                .map(LimitsDefinitionsModel::getValues)
+                .orElse(Set.of());
+        var values = DOMUtils.tryFindFirstChildElementByTagName(root, VALUEFLAGS_TAG)
+                .map(LimitsDefinitionsModel::getValues)
+                .orElse(Set.of());
+        return new HashMap<>(Map.ofEntries(
+                entry(CATEGORY_TAG, categories),
+                entry(TAG_TAG, tags),
+                entry(USAGE_TAG, usages),
+                entry(VALUE_TAG, values)
+        ));
     }
 
     static Set<String> getValues(NodeList nodes) {
@@ -78,5 +73,16 @@ public class LimitsDefinitionsModel {
             }
         }
         return result;
+    }
+
+    static Set<String> getValues(DOMElement element) {
+        return new HashSet<>(getOrderedValues(element));
+    }
+
+    static List<String> getOrderedValues(DOMElement element) {
+        return element.getChildren().stream()
+                .map(e -> e.getAttribute(NAME_ATTRIBUTE))
+                .filter(Objects::nonNull)
+                .toList();
     }
 }
