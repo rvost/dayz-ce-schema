@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<randompresets>
+    <attachments chance="0.20" name="handsVillage">
+        <item name="Shovel" chance="0.8" />
+    </attachments>
+</randompresets>

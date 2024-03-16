@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<randompresets>
+    <cargo chance="0.1" name="mixArmy">
+        <item name="SodaCan_Cola" chance="0.05"/>
+        <item name="SodaCan_Pipsi" chance="0.05"/>
+        <item name="SodaCan_Spite" chance="0.05"/>
+        <item name="TunaCan" chance="0.1"/>
+        <item name="SardinesCan" chance="0.05"/>
+        <item name="PeachesCan" chance="0.05"/>
+        <item name="SpaghettiCan" chance="0.05"/>
+        <item name="BakedBeansCan" chance="0.05"/>
+        <item name="TacticalBaconCan" chance="0.1"/>
+        <item name="Canteen" chance="0.1"/>
+        <item name="Ammo_45ACP" chance="0.2"/>
+        <item name="AmmoBox_45ACP_25Rnd" chance="0.05"/>
+        <item name="Ammo_762x39" chance="0.2"/>
+        <item name="AmmoBox_762x39_20Rnd" chance="0.05"/>
+        <item name="Ammo_762x54" chance="0.2"/>
+        <item name="AmmoBox_762x54_20Rnd" chance="0.05"/>
+    </cargo>
+    <cargo chance="0.04" name="grenades">
+        <item name="RDG2SmokeGrenade_White" chance="0.25"/>
+        <item name="FlashGrenade" chance="0.25"/>
+        <item name="RDG2SmokeGrenade_Black" chance="0.25"/>
+        <item name="RGD5Grenade" chance="0.25"/>
+    </cargo>
+    <attachments chance="0.10" name="optics">
+        <item name="M4_T3NRDSOptic" chance="0.20"/>
+        <item name="ACOGOptic" chance="0.20"/>
+        <item name="M68Optic" chance="0.20"/>
+        <item name="BUISOptic" chance="0.20"/>
+        <item name="ReflexOptic" chance="0.20"/>
+    </attachments>
+    <!--NBC Cargo-->
+    <cargo chance="0.2" name="ContaminatedCargo">
+        <item name="GasMask_Filter" chance="1.00"/>
+    </cargo>
+    <!--FARM ATTACHMENTS-->
+    <attachments chance="0.20" name="hatsFarm">
+        <item name="RadarCap_Black" chance="0.1"/>
+        <item name="RadarCap_Blue" chance="0.1"/>
+        <item name="RadarCap_Brown" chance="0.1"/>
+        <item name="RadarCap_Green" chance="0.1"/>
+        <item name="RadarCap_Red" chance="0.1"/>
+        <item name="ZmijovkaCap_Black" chance="0.1"/>
+        <item name="ZmijovkaCap_Blue" chance="0.1"/>
+        <item name="ZmijovkaCap_Brown" chance="0.1"/>
+        <item name="ZmijovkaCap_Green" chance="0.1"/>
+        <item name="ZmijovkaCap_Red" chance="0.1"/>
+    </attachments>
+    <attachments chance="0.1" name="bagsHunter">
+        <item name="ArmyPouch_Beige" chance="0.35"/>
+        <item name="ArmyPouch_Green" chance="0.35"/>
+        <item name="CourierBag" chance="0.20"/>
+        <item name="HuntingBag" chance="0.10"/>
+    </attachments>
+    <attachments chance="0.20" name="vestsHunter">
+        <item name="HuntingVest" chance="0.50"/>
+        <item name="ChestHolster" chance="0.50"/>
+    </attachments>
+</randompresets>
