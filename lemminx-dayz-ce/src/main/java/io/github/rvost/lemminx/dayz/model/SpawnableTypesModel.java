@@ -39,15 +39,6 @@ public class SpawnableTypesModel {
     }
 
     public static Map<String, List<Range>> getPresetsIndex(DOMDocument document) {
-        return document.getDocumentElement().getChildren().stream()
-                .flatMap(x -> x.getChildren().stream())
-                .filter(x -> x.hasAttribute(PRESET_ATTRIBUTE))
-                .collect(Collectors.groupingBy(
-                        x -> x.getAttribute(PRESET_ATTRIBUTE),
-                        Collectors.mapping(
-                                x -> XMLPositionUtility.selectWholeTag(x.getStart() + 1, document),
-                                Collectors.toList()
-                        ))
-                );
+        return DocumentUtils.indexChildrenByAttribute(document, PRESET_ATTRIBUTE);
     }
 }

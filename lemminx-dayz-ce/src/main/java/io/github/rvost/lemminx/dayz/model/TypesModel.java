@@ -80,15 +80,6 @@ public class TypesModel {
     }
 
     public static Map<String, List<Range>> getUserFlagIndex(DOMDocument document) {
-        return document.getDocumentElement().getChildren().stream()
-                .flatMap(x -> x.getChildren().stream())
-                .filter(x -> x.hasAttribute(USER_ATTRIBUTE))
-                .collect(Collectors.groupingBy(
-                        x -> x.getAttribute(USER_ATTRIBUTE),
-                        Collectors.mapping(
-                                x -> XMLPositionUtility.selectWholeTag(x.getStart() + 1, document),
-                                Collectors.toList()
-                        ))
-                );
+        return DocumentUtils.indexChildrenByAttribute(document, USER_ATTRIBUTE);
     }
 }

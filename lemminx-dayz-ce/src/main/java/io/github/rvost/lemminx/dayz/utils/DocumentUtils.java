@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class DocumentUtils {
         return docElement != null && tagName.equals(docElement.getNodeName());
     }
 
-    public static Optional<DOMDocument> tryParseDocument(Path path){
+    public static Optional<DOMDocument> tryParseDocument(Path path) {
         try {
             var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
             var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
@@ -51,5 +52,18 @@ public class DocumentUtils {
                         n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
                         (oldValue, newValue) -> newValue,
                         HashMap::new));
+    }
+
+    public static Map<String, List<Range>> indexChildrenByAttribute(DOMDocument doc, String attribute) {
+        return doc.getDocumentElement().getChildren().stream()
+                .flatMap(x -> x.getChildren().stream())
+                .filter(x -> x.hasAttribute(attribute))
+                .collect(Collectors.groupingBy(
+                        x -> x.getAttribute(attribute),
+                        Collectors.mapping(
+                                x -> XMLPositionUtility.selectWholeTag(x.getStart() + 1, doc),
+                                Collectors.toList()
+                        ))
+                );
     }
 }

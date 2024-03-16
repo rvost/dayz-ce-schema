@@ -41,15 +41,6 @@ public class CfgEventGroupsModel {
     }
 
     private static Map<String, List<Range>> getChildTypesIndex(DOMDocument doc) {
-        return doc.getDocumentElement().getChildren().stream()
-                .flatMap(n -> n.getChildren().stream())
-                .filter(n -> n.hasAttribute(TYPE_ATTRIBUTE))
-                .map(n -> n.getAttributeNode(TYPE_ATTRIBUTE))
-                .collect(Collectors.groupingBy(
-                        DOMAttr::getNodeValue,
-                        Collectors.mapping(
-                                n -> XMLPositionUtility.selectWholeTag(n.getStart() + 1, doc),
-                                Collectors.toList()))
-                );
+        return DocumentUtils.indexChildrenByAttribute(doc, TYPE_ATTRIBUTE);
     }
 }
