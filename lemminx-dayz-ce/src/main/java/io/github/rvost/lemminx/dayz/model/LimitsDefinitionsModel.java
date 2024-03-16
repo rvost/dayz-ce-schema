@@ -4,7 +4,6 @@ import io.github.rvost.lemminx.dayz.participants.DOMUtils;
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
-import org.w3c.dom.NodeList;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -54,25 +53,6 @@ public class LimitsDefinitionsModel {
                 entry(USAGE_TAG, usages),
                 entry(VALUE_TAG, values)
         ));
-    }
-
-    static Set<String> getValues(NodeList nodes) {
-        return new HashSet<>(getOrderedValues(nodes));
-    }
-
-    static List<String> getOrderedValues(NodeList nodes) {
-        var result = new ArrayList<String>();
-        for (int i = 0; i < nodes.getLength(); i++) {
-            var node = nodes.item(i);
-            var attributes = node.getAttributes();
-            if (attributes != null) {
-                var nameAttr = attributes.getNamedItem(NAME_ATTRIBUTE);
-                if (nameAttr != null) {
-                    result.add(nameAttr.getNodeValue());
-                }
-            }
-        }
-        return result;
     }
 
     static Set<String> getValues(DOMElement element) {
