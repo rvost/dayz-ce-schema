@@ -1,13 +1,11 @@
 package io.github.rvost.lemminx.dayz.model;
 
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
-import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,14 +29,7 @@ public class SpawnableTypesModel {
     }
 
     private static Map<String, Range> getSpawnableTypes(DOMDocument doc) {
-        return doc.getDocumentElement().getChildren().stream()
-                .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
-                .map(n -> n.getAttributeNode(NAME_ATTRIBUTE))
-                .collect(Collectors.toMap(
-                        DOMAttr::getNodeValue,
-                        n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
-                        (oldValue, newValue) -> newValue,
-                        HashMap::new));
+        return DocumentUtils.indexByAttribute(doc, NAME_ATTRIBUTE);
     }
 
     public static Map<String, List<Range>> getPresetsIndex(Path path) {

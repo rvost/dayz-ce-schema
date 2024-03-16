@@ -7,7 +7,6 @@ import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,14 +30,7 @@ public class CfgEventGroupsModel {
     }
 
     private static Map<String, Range> getCfgEventGroups(DOMDocument doc) {
-        return doc.getDocumentElement().getChildren().stream()
-                .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
-                .map(n -> n.getAttributeNode(NAME_ATTRIBUTE))
-                .collect(Collectors.toMap(
-                        DOMAttr::getNodeValue,
-                        n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
-                        (oldValue, newValue) -> oldValue,
-                        HashMap::new));
+        return DocumentUtils.indexByAttribute(doc, NAME_ATTRIBUTE);
     }
 
     public static Map<String, List<Range>> getChildTypesIndex(Path missionPath) {

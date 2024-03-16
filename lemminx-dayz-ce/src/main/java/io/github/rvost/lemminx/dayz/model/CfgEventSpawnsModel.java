@@ -28,14 +28,7 @@ public class CfgEventSpawnsModel {
     }
 
     private static Map<String, Range> getCfgEventSpawns(DOMDocument doc) {
-        return doc.getDocumentElement().getChildren().stream()
-                .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
-                .map(n -> n.getAttributeNode(NAME_ATTRIBUTE))
-                .collect(Collectors.toMap(
-                        DOMAttr::getNodeValue,
-                        n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
-                        (oldValue, newValue) -> oldValue,
-                        HashMap::new));
+        return DocumentUtils.indexByAttribute(doc, NAME_ATTRIBUTE);
     }
 
     public static Map<String, Range> getCfgEventSpawnsGroupReferences(Path missionPath) {

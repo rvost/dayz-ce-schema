@@ -1,13 +1,11 @@
 package io.github.rvost.lemminx.dayz.model;
 
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
-import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,14 +50,7 @@ public class TypesModel {
     }
 
     public static Map<String, Range> getTypes(DOMDocument doc) {
-        return doc.getDocumentElement().getChildren().stream()
-                .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
-                .map(n -> n.getAttributeNode(NAME_ATTRIBUTE))
-                .collect(Collectors.toMap(
-                        DOMAttr::getNodeValue,
-                        n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
-                        (oldValue, newValue) -> newValue,
-                        HashMap::new));
+        return DocumentUtils.indexByAttribute(doc, NAME_ATTRIBUTE);
     }
 
     public static Map<String, List<Range>> getFlagIndex(Path path) {
