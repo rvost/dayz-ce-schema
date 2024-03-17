@@ -2,6 +2,7 @@ package io.github.rvost.lemminx.dayz.participants.reference;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
+import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
@@ -55,7 +56,7 @@ public class TypesReferenceParticipant extends AbstractReferenceParticipant {
         if (index.containsKey(type)) {
             var options = index.get(type);
             options.stream()
-                    .filter(e -> !e.getUri().equals(document.getDocumentURI()))
+                    .filter(e -> !ParticipantsUtils.compareUriStrings(e.getUri(), document.getDocumentURI()))
                     .forEach(locations::add);
         }
     }

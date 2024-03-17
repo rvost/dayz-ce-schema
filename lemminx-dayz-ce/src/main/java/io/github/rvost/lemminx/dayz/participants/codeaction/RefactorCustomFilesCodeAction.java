@@ -37,7 +37,7 @@ public class RefactorCustomFilesCodeAction implements ICodeActionParticipant {
         if (docType.isEmpty()) {
             return;
         }
-        var docUri = getUri(document);
+        var docUri = ParticipantsUtils.toURI(document.getDocumentURI());
         if (docUri == null) {
             return;
         }
@@ -64,19 +64,6 @@ public class RefactorCustomFilesCodeAction implements ICodeActionParticipant {
             generateActionsForExternalFile(codeActions, range, options, docType.get());
         }
 
-    }
-
-    private static URI getUri(DOMDocument document) {
-        URI docUri;
-        try {
-            docUri = new URI(document.getDocumentURI());
-            // Make URI string representation consistent
-            var p = Path.of(docUri);
-            docUri = p.toUri();
-        } catch (URISyntaxException e) {
-            return null;
-        }
-        return docUri;
     }
 
     private List<String> getOptions(DayzFileType docType, URI docUri) {

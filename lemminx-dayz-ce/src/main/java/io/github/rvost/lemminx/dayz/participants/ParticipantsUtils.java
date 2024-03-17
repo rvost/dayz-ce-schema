@@ -9,8 +9,11 @@ import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ParticipantsUtils {
@@ -86,5 +89,24 @@ public class ParticipantsUtils {
         return ranges.stream()
                 .map(r -> new TextEdit(r, value))
                 .toList();
+    }
+
+    public static URI toURI(String uriStr){
+        URI uri;
+        try {
+            uri = new URI(uriStr);
+            // Make URI string representation consistent
+            var p = Path.of(uri);
+            uri = p.toUri();
+        } catch (URISyntaxException e) {
+            return null;
+        }
+        return uri;
+    }
+
+    public static boolean compareUriStrings(String left, String right){
+        var leftUri = toURI(left);
+        var rigthUri = toURI(right);
+        return Objects.equals(leftUri, rigthUri);
     }
 }
