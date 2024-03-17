@@ -36,7 +36,8 @@ public class DocumentUtils {
     public static Optional<DOMDocument> tryParseDocument(Path path) {
         try {
             var fileContent = String.join(System.lineSeparator(), Files.readAllLines(path));
-            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, path.toString()), null);
+            var uri = path.toUri().toString();
+            var doc = DOMParser.getInstance().parse(new TextDocument(fileContent, uri), null);
             return Optional.ofNullable(doc);
         } catch (IOException e) {
             return Optional.empty();
