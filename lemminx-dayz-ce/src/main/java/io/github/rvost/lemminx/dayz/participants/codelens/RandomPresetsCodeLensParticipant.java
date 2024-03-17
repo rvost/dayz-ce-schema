@@ -2,46 +2,35 @@ package io.github.rvost.lemminx.dayz.participants.codelens;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.RandomPresetsModel;
-import org.eclipse.lemminx.client.ClientCommands;
-import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
-import org.eclipse.lemminx.services.extensions.codelens.ICodeLensRequest;
-import org.eclipse.lemminx.utils.XMLPositionUtility;
-import org.eclipse.lsp4j.CodeLens;
-import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lemminx.dom.DOMAttr;
+import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lsp4j.Range;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
-public class RandomPresetsCodeLensParticipant implements ICodeLensParticipant {
-    private static final String LABEL = "reference";
-    private final DayzMissionService missionService;
-
+public class RandomPresetsCodeLensParticipant extends ReferencesCodeLensParticipant {
     public RandomPresetsCodeLensParticipant(DayzMissionService missionService) {
-        this.missionService = missionService;
+        super(missionService);
     }
 
     @Override
-    public void doCodeLens(ICodeLensRequest request, List<CodeLens> codeLens, CancelChecker cancelChecker) {
-        var document = request.getDocument();
-        if (!RandomPresetsModel.match(document)) {
-            return;
-        }
-        var references = missionService.getRandomPresetsReferences();
-        document.getDocumentElement().getChildren().stream()
-                .map(n -> n.getAttributeNode(RandomPresetsModel.NAME_ATTRIBUTE))
-                .filter(Objects::nonNull)
-                .map(attr -> {
-                    var range = XMLPositionUtility.createRange(attr);
-                    var lens = new CodeLens(range);
-                    var size = references.getOrDefault(attr.getValue(), List.of()).size();
-                    var command = new Command(size + " " + LABEL + ((size == 1) ? "" : "s"),
-                            ClientCommands.SHOW_REFERENCES,
-                            List.of(document.getDocumentURI(), range.getStart()));
-                    lens.setCommand(command);
-                    return lens;
-                })
-                .forEach(codeLens::add);
+    protected boolean match(DOMDocument document) {
+        return RandomPresetsModel.match(document);
+    }
 
+    @Override
+    protected Map<String, List<Map.Entry<Path, Range>>> getReferencesIndex() {
+        return missionService.getRandomPresetsReferences();
+    }
+
+    @Override
+    protected Stream<DOMAttr> findAttributesForLens(DOMDocument document) {
+        return document.getDocumentElement().getChildren().stream()
+                .map(n -> n.getAttributeNode(RandomPresetsModel.NAME_ATTRIBUTE))
+                .filter(Objects::nonNull);
     }
 }
