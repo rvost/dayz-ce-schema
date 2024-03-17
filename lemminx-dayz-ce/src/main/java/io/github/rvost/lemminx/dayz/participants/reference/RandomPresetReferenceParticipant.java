@@ -43,9 +43,7 @@ public class RandomPresetReferenceParticipant extends AbstractReferenceParticipa
         var index = missionService.getRandomPresetsReferences();
         if (index.containsKey(preset)) {
             var options = index.get(preset);
-            options.stream()
-                    .map(e -> new Location(e.getKey().toUri().toString(), e.getValue()))
-                    .forEach(locations::add);
+            locations.addAll(options);
         }
     }
 }

@@ -4,6 +4,7 @@ import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
@@ -22,7 +23,7 @@ public class FlagsCodeLensParticipant extends ReferencesCodeLensParticipant {
     }
 
     @Override
-    protected Map<String, List<Map.Entry<Path, Range>>> getReferencesIndex() {
+    protected Map<String, List<Location>> getReferencesIndex() {
         return missionService.getFlagReferences();
     }
 

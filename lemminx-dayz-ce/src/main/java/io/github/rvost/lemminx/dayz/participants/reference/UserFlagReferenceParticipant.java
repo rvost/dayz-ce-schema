@@ -47,9 +47,7 @@ public class UserFlagReferenceParticipant extends AbstractReferenceParticipant {
         var index = missionService.getUserFlagReferences();
         if (index.containsKey(flag)) {
             var options = index.get(flag);
-            options.stream()
-                    .map(e -> new Location(e.getKey().toUri().toString(), e.getValue()))
-                    .forEach(locations::add);
+            locations.addAll(options);
         }
     }
 }

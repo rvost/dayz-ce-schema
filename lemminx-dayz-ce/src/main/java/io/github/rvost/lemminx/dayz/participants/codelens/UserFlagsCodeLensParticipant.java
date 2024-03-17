@@ -4,9 +4,8 @@ import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionUserModel;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.Location;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -23,7 +22,7 @@ public class UserFlagsCodeLensParticipant extends ReferencesCodeLensParticipant 
     }
 
     @Override
-    protected Map<String, List<Map.Entry<Path, Range>>> getReferencesIndex() {
+    protected Map<String, List<Location>> getReferencesIndex() {
         return missionService.getUserFlagReferences();
     }
 

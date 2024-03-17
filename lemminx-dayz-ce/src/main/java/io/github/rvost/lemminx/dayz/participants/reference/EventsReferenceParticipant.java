@@ -46,15 +46,10 @@ public class EventsReferenceParticipant extends AbstractReferenceParticipant {
     private void provideOtherFileReferences(String event, DOMDocument document, List<Location> locations) {
         var index = missionService.getEventIndex();
         if (index.containsKey(event)) {
-            try {
-                var docUri = new URI(document.getDocumentURI());
-                var options = index.get(event);
-                options.stream()
-                        .filter(e -> !e.getKey().equals(Path.of(docUri)))
-                        .forEach(e -> locations.add(new Location(e.getKey().toUri().toString(), e.getValue())));
-            } catch (URISyntaxException ignored) {
-
-            }
+            var options = index.get(event);
+            options.stream()
+                    .filter(e -> !e.getUri().equals(document.getDocumentURI()))
+                    .forEach(locations::add);
         }
     }
 

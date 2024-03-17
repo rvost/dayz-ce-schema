@@ -3,8 +3,10 @@ package io.github.rvost.lemminx.dayz;
 import com.google.common.collect.BiMap;
 import io.github.rvost.lemminx.dayz.model.*;
 import io.github.rvost.lemminx.dayz.utils.DirWatch;
+import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
 import io.github.rvost.lemminx.dayz.utils.MissionFolderEvent;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.WorkspaceFolder;
 
@@ -14,6 +16,7 @@ import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -438,63 +441,46 @@ public class DayzMissionService {
         return eventGroups;
     }
 
-    public Map<String, List<Map.Entry<Path, Range>>> getTypesIndex() {
+    public Map<String, List<Location>> getTypesIndex() {
         var rootEntry = Map.entry(missionRoot.resolve(TypesModel.rootTypesPath), rootTypes);
         return Stream.concat(customTypes.entrySet().stream(), Stream.of(rootEntry))
                 .flatMap(e -> e.getValue().entrySet().stream()
                         .map(x -> Map.entry(x.getKey(), Map.entry(e.getKey(), x.getValue()))))
+                .map(e -> {
+                    var p = e.getValue();
+                    var uri = p.getKey().toUri().toString();
+                    var loc = new Location(uri, p.getValue());
+                    return Map.entry(e.getKey(), loc);
+                })
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(Map.Entry::getValue, Collectors.toList())
                 ));
     }
 
-    public Map<String, List<Map.Entry<Path, Range>>> getEventIndex() {
+    public Map<String, List<Location>> getEventIndex() {
         var rootEntry = Map.entry(missionRoot.resolve(EventsModel.rootEventsPath), rootEvents);
         return Stream.concat(customEvents.entrySet().stream(), Stream.of(rootEntry))
                 .flatMap(e -> e.getValue().entrySet().stream()
                         .map(x -> Map.entry(x.getKey(), Map.entry(e.getKey(), x.getValue()))))
+                .map(e -> {
+                    var p = e.getValue();
+                    var uri = p.getKey().toUri().toString();
+                    var loc = new Location(uri, p.getValue());
+                    return Map.entry(e.getKey(), loc);
+                })
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(Map.Entry::getValue, Collectors.toList())
                 ));
     }
 
-    public Map<String, List<Map.Entry<Path, Range>>> getRandomPresetsReferences() {
+    public Map<String, List<Location>> getSpawnableTypesIndex() {
         return getSpawnableTypesFiles().stream()
-                .map(path -> Map.entry(path, SpawnableTypesModel.getPresetsIndex(path)))
-                .flatMap(e -> e.getValue().entrySet().stream()
-                        .flatMap(x -> x.getValue().stream()
-                                .map(r -> Map.entry(x.getKey(), Map.entry(e.getKey(), r))
-                                )
-                        )
-                )
-                .collect(Collectors.groupingBy(
-                        Map.Entry::getKey,
-                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
-                ));
-
-    }
-
-    public Map<String, List<Map.Entry<Path, Range>>> getSpawnableTypesIndex() {
-        return getSpawnableTypesFiles().stream()
-                .map(path -> Map.entry(path, SpawnableTypesModel.getSpawnableTypes(path)))
-                .flatMap(e -> e.getValue().entrySet().stream()
-                        .map(x -> Map.entry(x.getKey(), Map.entry(e.getKey(), x.getValue()))))
-                .collect(Collectors.groupingBy(
-                        Map.Entry::getKey,
-                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
-                ));
-    }
-
-    public Map<String, List<Map.Entry<Path, Range>>> getFlagReferences() {
-        return getTypesFiles().stream()
-                .map(path -> Map.entry(path, TypesModel.getFlagIndex(path)))
-                .flatMap(e -> e.getValue().entrySet().stream()
-                        .flatMap(x -> x.getValue().stream()
-                                .map(r -> Map.entry(x.getKey(), Map.entry(e.getKey(), r))
-                                )
-                        )
+                .map(DocumentUtils::tryParseDocument)
+                .flatMap(Optional::stream)
+                .flatMap(doc -> SpawnableTypesModel.getSpawnableTypes(doc).entrySet().stream()
+                        .map(e -> Map.entry(e.getKey(), new Location(doc.getDocumentURI(), e.getValue())))
                 )
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
@@ -502,19 +488,16 @@ public class DayzMissionService {
                 ));
     }
 
-    public Map<String, List<Map.Entry<Path, Range>>> getUserFlagReferences() {
-        return getTypesFiles().stream()
-                .map(path -> Map.entry(path, TypesModel.getUserFlagIndex(path)))
-                .flatMap(e -> e.getValue().entrySet().stream()
-                        .flatMap(x -> x.getValue().stream()
-                                .map(r -> Map.entry(x.getKey(), Map.entry(e.getKey(), r))
-                                )
-                        )
-                )
-                .collect(Collectors.groupingBy(
-                        Map.Entry::getKey,
-                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
-                ));
+    public Map<String, List<Location>> getRandomPresetsReferences() {
+        return indexFiles(getSpawnableTypesFiles(), SpawnableTypesModel::getPresetsIndex);
+    }
+
+    public Map<String, List<Location>> getFlagReferences() {
+        return indexFiles(getTypesFiles(), TypesModel::getFlagIndex);
+    }
+
+    public Map<String, List<Location>> getUserFlagReferences() {
+        return indexFiles(getTypesFiles(), TypesModel::getUserFlagIndex);
     }
 
     public List<Path> getTypesFiles() {
@@ -536,5 +519,21 @@ public class DayzMissionService {
         var result = new ArrayList<>(customEvents.keySet());
         result.add(0, missionRoot.resolve(EventsModel.rootEventsPath));
         return result;
+    }
+
+    private static Map<String, List<Location>> indexFiles(
+            List<Path> paths,
+            Function<DOMDocument, Map<String, List<Range>>> indexer) {
+        return paths.stream()
+                .map(DocumentUtils::tryParseDocument)
+                .flatMap(Optional::stream)
+                .flatMap(doc -> indexer.apply(doc).entrySet().stream()
+                        .flatMap(x -> x.getValue().stream()
+                                .map(r -> Map.entry(x.getKey(), new Location(doc.getDocumentURI(), r)))
+                        ))
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+                ));
     }
 }

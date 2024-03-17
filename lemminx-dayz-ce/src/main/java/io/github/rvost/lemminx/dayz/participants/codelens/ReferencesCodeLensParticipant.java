@@ -8,13 +8,9 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensParticipant;
 import org.eclipse.lemminx.services.extensions.codelens.ICodeLensRequest;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
-import org.eclipse.lsp4j.CodeLens;
-import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +26,7 @@ public abstract class ReferencesCodeLensParticipant implements ICodeLensParticip
 
     protected abstract boolean match(DOMDocument document);
 
-    protected abstract Map<String, List<Map.Entry<Path, Range>>> getReferencesIndex();
+    protected abstract Map<String, List<Location>> getReferencesIndex();
 
     protected abstract Stream<DOMAttr> findAttributesForLens(DOMDocument document);
 

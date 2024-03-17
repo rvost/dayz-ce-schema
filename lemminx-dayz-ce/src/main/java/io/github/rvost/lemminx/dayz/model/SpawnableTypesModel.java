@@ -28,7 +28,7 @@ public class SpawnableTypesModel {
                 .orElse(Map.of());
     }
 
-    private static Map<String, Range> getSpawnableTypes(DOMDocument doc) {
+    public static Map<String, Range> getSpawnableTypes(DOMDocument doc) {
         return DocumentUtils.indexByAttribute(doc, NAME_ATTRIBUTE);
     }
 

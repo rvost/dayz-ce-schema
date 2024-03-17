@@ -44,26 +44,19 @@ public class TypesReferenceParticipant extends AbstractReferenceParticipant {
 
     private void provideSpawnableTypesReferences(String type, List<Location> locations) {
         var index = missionService.getSpawnableTypesIndex();
-        if(index.containsKey(type)){
+        if (index.containsKey(type)) {
             var options = index.get(type);
-            options.stream()
-                    .map(e -> new Location(e.getKey().toUri().toString(), e.getValue()))
-                    .forEach(locations::add);
+            locations.addAll(options);
         }
     }
 
     private void provideOtherFileReferences(String type, DOMDocument document, List<Location> locations) {
         var index = missionService.getTypesIndex();
         if (index.containsKey(type)) {
-            try {
-                var docUri = new URI(document.getDocumentURI());
-                var options = index.get(type);
-                options.stream()
-                        .filter(e -> !e.getKey().equals(Path.of(docUri)))
-                        .forEach(e -> locations.add(new Location(e.getKey().toUri().toString(), e.getValue())));
-            } catch (URISyntaxException ignored) {
-
-            }
+            var options = index.get(type);
+            options.stream()
+                    .filter(e -> !e.getUri().equals(document.getDocumentURI()))
+                    .forEach(locations::add);
         }
     }
 }

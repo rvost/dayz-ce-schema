@@ -7,6 +7,7 @@ import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.IDefinitionParticipant;
 import org.eclipse.lemminx.services.extensions.IDefinitionRequest;
+import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
@@ -36,11 +37,12 @@ public class CfgEventSpawnsDefinitionParticipant implements IDefinitionParticipa
 
     private void provideEventDefinitions(DOMNode node, List<LocationLink> locations) {
         var event = node.getNodeValue();
+        var originRange = XMLPositionUtility.createRange(node);
         var index = missionService.getEventIndex();
         if (index.containsKey(event)) {
-            index.get(event).forEach(
-                    e -> locations.add(ParticipantsUtils.toDefinitionLocationLink(e.getKey(), e.getValue(), node))
-            );
+            index.get(event).stream()
+                    .map(l -> new LocationLink(l.getUri(), l.getRange(), l.getRange(), originRange))
+                    .forEach(locations::add);
         }
     }
 
