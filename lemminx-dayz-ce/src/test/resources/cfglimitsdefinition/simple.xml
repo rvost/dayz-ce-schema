@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<lists>
+    <categories>
+        <category name="tools"/>
+        <category name="containers"/>
+    </categories>
+    <tags>
+        <tag name="floor"/>
+        <tag name="ground"/>
+    </tags>
+    <usageflags>
+        <usage name="Military"/>
+        <usage name="Police"/>
+    </usageflags>
+    <valueflags>
+        <value name="Tier1"/>
+        <value name="Tier2"/>
+    </valueflags>
+</lists>

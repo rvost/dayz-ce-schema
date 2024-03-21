@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<lists>
+    <categories>
+        <category name="tools"/>
+        <category name="containers"/>
+    </categories>
+    <tags>
+        <tag name="floor"/>
+        <tag name="ground"/>
+    </tags>
+    <usageflags/>
+    <valueflags>
+    </valueflags>
+</lists>
