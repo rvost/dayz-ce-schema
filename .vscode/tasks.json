@@ -7,7 +7,7 @@
 			"label": "tasks: generate-vscode-jars",
 			"type": "shell",
 			"command": "mvn",
-			"args": ["package", "-DskipTests", "-Pgenerate-vscode-jars"],
+			"args": ["package", "--%", "-Dmaven.test.skip", "-Pgenerate-vscode-jars"],
 			"group": "build"
 		},
 		{
