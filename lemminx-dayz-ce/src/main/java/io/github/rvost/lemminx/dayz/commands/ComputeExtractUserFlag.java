@@ -2,7 +2,7 @@ package io.github.rvost.lemminx.dayz.commands;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionUserModel;
-import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionModel;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
 import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import io.github.rvost.lemminx.dayz.participants.codeaction.RefactorLimitFlagsCodeAction;
@@ -87,14 +87,14 @@ public class ComputeExtractUserFlag extends AbstractDOMDocumentCommandHandler {
         var body = formatDefinitionBody(flagType, flags);
         return String.format("\n\t\t<%1$s %2$s=\"%3$s\">\n\t\t\t%4$s\n\t\t</%1$s>",
                 LimitsDefinitionUserModel.USER_TAG,
-                LimitsDefinitionsModel.NAME_ATTRIBUTE,
+                LimitsDefinitionModel.NAME_ATTRIBUTE,
                 flagName,
                 body);
     }
 
     private static String formatDefinitionBody(String flagType, String[] flags) {
         return Arrays.stream(flags)
-                .map(flag -> String.format("<%s %s=\"%s\"/>", flagType, LimitsDefinitionsModel.NAME_ATTRIBUTE, flag))
+                .map(flag -> String.format("<%s %s=\"%s\"/>", flagType, LimitsDefinitionModel.NAME_ATTRIBUTE, flag))
                 .collect(Collectors.joining("\n\t\t\t"));
     }
 }

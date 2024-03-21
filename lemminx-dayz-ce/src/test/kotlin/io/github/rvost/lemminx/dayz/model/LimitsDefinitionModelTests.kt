@@ -13,7 +13,7 @@ class LimitsDefinitionModelTests {
         val path = Path.of(url.toURI())
 
         val definitions = DocumentUtils.tryParseDocument(path)
-            .map { doc -> LimitsDefinitionsModel.getLimitsDefinitions(doc) }
+            .map { doc -> LimitsDefinitionModel.getLimitsDefinitions(doc) }
             .orElseThrow()
 
         assertEquals(0, definitions["category"]!!.size)
@@ -28,7 +28,7 @@ class LimitsDefinitionModelTests {
         val path = Path.of(url.toURI())
 
         val definitions = DocumentUtils.tryParseDocument(path)
-            .map { doc -> LimitsDefinitionsModel.getLimitsDefinitions(doc) }
+            .map { doc -> LimitsDefinitionModel.getLimitsDefinitions(doc) }
             .orElseThrow()
 
         assertEquals(setOf("tools", "containers"), definitions["category"])
@@ -43,7 +43,7 @@ class LimitsDefinitionModelTests {
         val path = Path.of(url.toURI())
 
         val definitions = DocumentUtils.tryParseDocument(path)
-            .map { doc -> LimitsDefinitionsModel.getLimitsDefinitions(doc) }
+            .map { doc -> LimitsDefinitionModel.getLimitsDefinitions(doc) }
             .orElseThrow()
 
         assertEquals(setOf("tools", "containers"), definitions["category"])

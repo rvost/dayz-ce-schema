@@ -88,7 +88,7 @@ public class DayzMissionService {
 
         var missionFiles = getMissionFiles(rootPath);
         var customFiles = CfgEconomyCoreModel.getCustomFiles(rootPath);
-        var limitsDefinitions = LimitsDefinitionsModel.getLimitsDefinitions(rootPath);
+        var limitsDefinitions = LimitsDefinitionModel.getLimitsDefinitions(rootPath);
         var userLimitsDefinitions = LimitsDefinitionUserModel.getUserLimitsDefinitions(rootPath);
         var userFlags = LimitsDefinitionUserModel.getUserFlags(rootPath);
         var randomPresets = RandomPresetsModel.getRandomPresets(rootPath);
@@ -167,8 +167,8 @@ public class DayzMissionService {
                 refreshCustomEvents();
             }
         }
-        if (path.getFileName().toString().equals(LimitsDefinitionsModel.LIMITS_DEFINITION_FILE)) {
-            var val = LimitsDefinitionsModel.getLimitsDefinitions(missionRoot);
+        if (path.getFileName().toString().equals(LimitsDefinitionModel.LIMITS_DEFINITION_FILE)) {
+            var val = LimitsDefinitionModel.getLimitsDefinitions(missionRoot);
             if (!val.isEmpty()) {
                 limitsDefinitions = val;
             }

@@ -10,7 +10,7 @@ import java.util.*;
 
 import static java.util.Map.entry;
 
-public class LimitsDefinitionsModel {
+public class LimitsDefinitionModel {
     public static final String LIMITS_DEFINITION_FILE = "cfglimitsdefinition.xml";
     public static final String CATEGORIES_TAG = "categories";
     public static final String TAGS_TAG = "tags";
@@ -29,23 +29,23 @@ public class LimitsDefinitionsModel {
     public static Map<String, Set<String>> getLimitsDefinitions(Path missionPath) {
         var path = missionPath.resolve(LIMITS_DEFINITION_FILE);
         return DocumentUtils.tryParseDocument(path)
-                .map(LimitsDefinitionsModel::getLimitsDefinitions)
+                .map(LimitsDefinitionModel::getLimitsDefinitions)
                 .orElse(Map.of());
     }
 
     public static Map<String, Set<String>> getLimitsDefinitions(DOMDocument doc) {
         var root = doc.getDocumentElement();
         var categories = DOMUtils.tryFindFirstChildElementByTagName(root, CATEGORIES_TAG)
-                .map(LimitsDefinitionsModel::getValues)
+                .map(LimitsDefinitionModel::getValues)
                 .orElse(Set.of());
         var tags = DOMUtils.tryFindFirstChildElementByTagName(root, TAGS_TAG)
-                .map(LimitsDefinitionsModel::getValues)
+                .map(LimitsDefinitionModel::getValues)
                 .orElse(Set.of());
         var usages = DOMUtils.tryFindFirstChildElementByTagName(root, USAGEFLAGS_TAG)
-                .map(LimitsDefinitionsModel::getValues)
+                .map(LimitsDefinitionModel::getValues)
                 .orElse(Set.of());
         var values = DOMUtils.tryFindFirstChildElementByTagName(root, VALUEFLAGS_TAG)
-                .map(LimitsDefinitionsModel::getValues)
+                .map(LimitsDefinitionModel::getValues)
                 .orElse(Set.of());
         return new HashMap<>(Map.ofEntries(
                 entry(CATEGORY_TAG, categories),

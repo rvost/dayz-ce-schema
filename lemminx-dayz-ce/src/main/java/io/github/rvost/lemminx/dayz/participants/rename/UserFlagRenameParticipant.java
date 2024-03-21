@@ -2,7 +2,7 @@ package io.github.rvost.lemminx.dayz.participants.rename;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionUserModel;
-import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionModel;
 import io.github.rvost.lemminx.dayz.model.TypesModel;
 import io.github.rvost.lemminx.dayz.participants.ParticipantsUtils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -111,6 +111,6 @@ public class UserFlagRenameParticipant implements IRenameParticipant {
         }
 
         return LimitsDefinitionUserModel.USER_TAG.equals(node.getLocalName())
-                && LimitsDefinitionsModel.NAME_ATTRIBUTE.equals(attr.getName());
+                && LimitsDefinitionModel.NAME_ATTRIBUTE.equals(attr.getName());
     }
 }

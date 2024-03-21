@@ -38,14 +38,14 @@ public class LimitsDefinitionUserModel {
     public static Map<String, Set<String>> getUserLimitsDefinitions(DOMDocument doc) {
         var root = doc.getDocumentElement();
         var usageflags = DOMUtils.tryFindFirstChildElementByTagName(root, USAGEFLAGS_TAG)
-                .map(LimitsDefinitionsModel::getValues)
+                .map(LimitsDefinitionModel::getValues)
                 .orElse(Set.of());
         var valueflags = DOMUtils.tryFindFirstChildElementByTagName(root, VALUEFLAGS_TAG)
-                .map(LimitsDefinitionsModel::getValues)
+                .map(LimitsDefinitionModel::getValues)
                 .orElse(Set.of());
         return new HashMap<>(Map.ofEntries(
-                entry(LimitsDefinitionsModel.USAGE_TAG, usageflags),
-                entry(LimitsDefinitionsModel.VALUE_TAG, valueflags)
+                entry(LimitsDefinitionModel.USAGE_TAG, usageflags),
+                entry(LimitsDefinitionModel.VALUE_TAG, valueflags)
         ));
     }
 
@@ -75,7 +75,7 @@ public class LimitsDefinitionUserModel {
                 .filter(n -> n.hasAttribute(NAME_ATTRIBUTE))
                 .map(n -> Map.entry(
                         n.getAttribute(NAME_ATTRIBUTE),
-                        LimitsDefinitionsModel.getOrderedValues((DOMElement) n))
+                        LimitsDefinitionModel.getOrderedValues((DOMElement) n))
                 )
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         e -> new TreeSet<>(e.getValue()),
@@ -89,8 +89,8 @@ public class LimitsDefinitionUserModel {
         return DocumentUtils.tryParseDocument(filePath)
                 .map(doc -> doc.getDocumentElement().getChildren().stream()
                         .flatMap(n -> n.getChildren().stream())
-                        .filter(n -> n.hasAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE))
-                        .map(n -> n.getAttributeNode(LimitsDefinitionsModel.NAME_ATTRIBUTE))
+                        .filter(n -> n.hasAttribute(LimitsDefinitionModel.NAME_ATTRIBUTE))
+                        .map(n -> n.getAttributeNode(LimitsDefinitionModel.NAME_ATTRIBUTE))
                         .collect(Collectors.toMap(
                                 DOMAttr::getNodeValue,
                                 n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),

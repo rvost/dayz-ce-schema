@@ -2,7 +2,7 @@ package io.github.rvost.lemminx.dayz.participants.diagnostics;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionUserModel;
-import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionModel;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
@@ -45,10 +45,10 @@ public class CfgLimitsDefinitionsUserDiagnosticsParticipant implements IDiagnost
             if (node.hasChildNodes()) {
                 switch (nodeName) {
                     case LimitsDefinitionUserModel.USAGEFLAGS_TAG -> {
-                        validateUserNodes(node.getChildren(), limitsDefinitions.get(LimitsDefinitionsModel.USAGE_TAG), diagnostics);
+                        validateUserNodes(node.getChildren(), limitsDefinitions.get(LimitsDefinitionModel.USAGE_TAG), diagnostics);
                     }
                     case LimitsDefinitionUserModel.VALUEFLAGS_TAG -> {
-                        validateUserNodes(node.getChildren(), limitsDefinitions.get(LimitsDefinitionsModel.VALUE_TAG), diagnostics);
+                        validateUserNodes(node.getChildren(), limitsDefinitions.get(LimitsDefinitionModel.VALUE_TAG), diagnostics);
                     }
                     default -> {
                     }
@@ -63,9 +63,9 @@ public class CfgLimitsDefinitionsUserDiagnosticsParticipant implements IDiagnost
                 if (node.hasChildNodes()) {
                     var visited = new HashSet<String>();
                     for (var limitNode : node.getChildren()) {
-                        if (limitNode.hasAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE)) {
+                        if (limitNode.hasAttribute(LimitsDefinitionModel.NAME_ATTRIBUTE)) {
                             var kind = limitNode.getNodeName();
-                            var attr = limitNode.getAttributeNode(LimitsDefinitionsModel.NAME_ATTRIBUTE);
+                            var attr = limitNode.getAttributeNode(LimitsDefinitionModel.NAME_ATTRIBUTE);
                             var value = attr.getValue();
                             if (visited.contains(value)) {
                                 var range = XMLPositionUtility.createRange(limitNode.getStart(), limitNode.getEnd(), limitNode.getOwnerDocument());
@@ -81,13 +81,13 @@ public class CfgLimitsDefinitionsUserDiagnosticsParticipant implements IDiagnost
                         }
                     }
                     if (visited.isEmpty()){
-                        var name = node.getAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE);
+                        var name = node.getAttribute(LimitsDefinitionModel.NAME_ATTRIBUTE);
                         var range = XMLPositionUtility.createRange(node.getStart(), node.getEnd(), node.getOwnerDocument());
                         String message = String.format(EMPTY_DEFINITION_MESSAGE, name);
                         diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Warning, ERROR_SOURCE, EMPTY_DEFINITION_CODE));
                     }
                 } else {
-                    var name = node.getAttribute(LimitsDefinitionsModel.NAME_ATTRIBUTE);
+                    var name = node.getAttribute(LimitsDefinitionModel.NAME_ATTRIBUTE);
                     var range = XMLPositionUtility.createRange(node.getStart(), node.getEnd(), node.getOwnerDocument());
                     String message = String.format(EMPTY_DEFINITION_MESSAGE, name);
                     diagnostics.add(new Diagnostic(range, message, DiagnosticSeverity.Warning, ERROR_SOURCE, EMPTY_DEFINITION_CODE));

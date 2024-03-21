@@ -1,7 +1,7 @@
 package io.github.rvost.lemminx.dayz.participants.reference;
 
 import io.github.rvost.lemminx.dayz.DayzMissionService;
-import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionModel;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
@@ -22,7 +22,7 @@ public class FlagReferenceParticipant extends AbstractReferenceParticipant {
 
     @Override
     protected boolean match(DOMDocument document) {
-        return LimitsDefinitionsModel.match(document);
+        return LimitsDefinitionModel.match(document);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class FlagReferenceParticipant extends AbstractReferenceParticipant {
                                   List<Location> locations,
                                   CancelChecker cancelChecker) {
         DOMAttr attr = node.findAttrAt(offset);
-        if (attr != null && LimitsDefinitionsModel.NAME_ATTRIBUTE.equals(attr.getName())) {
+        if (attr != null && LimitsDefinitionModel.NAME_ATTRIBUTE.equals(attr.getName())) {
             var flag = attr.getValue();
             provideFlagsReferences(flag, locations);
         }

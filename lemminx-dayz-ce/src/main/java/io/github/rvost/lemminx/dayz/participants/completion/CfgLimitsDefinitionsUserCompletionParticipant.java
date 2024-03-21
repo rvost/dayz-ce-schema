@@ -3,7 +3,7 @@ package io.github.rvost.lemminx.dayz.participants.completion;
 import io.github.rvost.lemminx.dayz.model.LimitsDefinitionUserModel;
 import io.github.rvost.lemminx.dayz.participants.DOMUtils;
 import io.github.rvost.lemminx.dayz.DayzMissionService;
-import io.github.rvost.lemminx.dayz.model.LimitsDefinitionsModel;
+import io.github.rvost.lemminx.dayz.model.LimitsDefinitionModel;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.services.extensions.completion.CompletionParticipantAdapter;
@@ -37,13 +37,13 @@ public class CfgLimitsDefinitionsUserCompletionParticipant extends CompletionPar
         var node = document.findNodeAt(offset);
         var attr = node.findAttrAt(offset);
 
-        if (LimitsDefinitionsModel.NAME_ATTRIBUTE.equals(attr.getName())) {
+        if (LimitsDefinitionModel.NAME_ATTRIBUTE.equals(attr.getName())) {
             var availableDefinitions = missionService.getLimitsDefinitions();
             if (availableDefinitions.containsKey(node.getNodeName())) {
                 var siblingNodes = DOMUtils.getSiblings(node);
                 var exclusions = new HashSet<String>();
                 if (!siblingNodes.isEmpty()) {
-                    var siblingValues = DOMUtils.getAttributeValues(siblingNodes, LimitsDefinitionsModel.NAME_ATTRIBUTE);
+                    var siblingValues = DOMUtils.getAttributeValues(siblingNodes, LimitsDefinitionModel.NAME_ATTRIBUTE);
                     exclusions.addAll(siblingValues);
                 }
                 availableDefinitions.get(node.getNodeName()).stream()
