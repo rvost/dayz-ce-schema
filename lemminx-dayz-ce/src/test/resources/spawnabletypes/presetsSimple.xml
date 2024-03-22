@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<spawnabletypes>
+    <type name="SlingBag_Gray">
+        <cargo preset="foodVillage" />
+        <cargo preset="mixVillage" />
+    </type>
+    <type name="CoyoteBag_Winter">
+        <cargo preset="mixArmy" />
+        <cargo preset="mixArmy" />
+        <cargo preset="mixArmy" />
+    </type>
+</spawnabletypes>
