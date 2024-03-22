@@ -28,7 +28,7 @@ public class MapGroupProtoModel {
                 .orElse(Map.of());
     }
 
-    private static Map<String, Range> getGroups(DOMDocument doc) {
+    public static Map<String, Range> getGroups(DOMDocument doc) {
         return DocumentUtils.indexByAttribute(doc, NAME_ATTRIBUTE);
     }
 }

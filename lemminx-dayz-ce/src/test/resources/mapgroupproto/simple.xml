@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<prototype>
+    <defaults>
+        <default name="group" lootmax="6"/>
+        <default name="container" lootmax="4"/>
+        <default name="keepInvalidPoints" enabled="yes"/>
+        <default name="clusterMatrix" de="TrajectoryApple" width="12" height="12"/>
+        <default name="clusterMatrix" de="TrajectoryStones" width="12" height="12"/>
+        <default name="clusterMatrix" de="TrajectoryConiferous" width="12" height="12"/>
+        <default name="clusterMatrix" de="TrajectoryDeciduous" width="12" height="12"/>
+        <default name="clusterMatrix" de="TrajectoryHumus" width="12" height="12"/>
+        <default name="clusterMatrix" de="TrajectoryPear" width="12" height="12"/>
+        <default name="clusterMatrix" de="TrajectoryPlum" width="12" height="12"/>
+        <!--
+                        <default name="clusterMatrix" de="TrajectoryStumps" width="12" height="12"/>
+        -->
+    </defaults>
+    <group name="Land_Shed_M1" lootmax="2">
+        <usage name="Industrial"/>
+        <usage name="Farm"/>
+        <container name="lootFloor" lootmax="2">
+            <category name="tools"/>
+            <category name="containers"/>
+            <tag name="ground"/>
+            <tag name="floor"/>
+            <point pos="0.504883 -1.174019 0.807373" range="0.587867" height="1.469666" flags="32"/>
+            <point pos="0.852539 -1.174019 -0.850342" range="0.595474" height="1.488685" flags="32"/>
+            <point pos="-0.238281 -1.174019 -0.895996" range="0.497570" height="1.243926" flags="32"/>
+        </container>
+    </group>
+    <group name="Land_Shed_M3" lootmax="2">
+        <usage name="Industrial"/>
+        <usage name="Farm"/>
+        <container name="lootFloor" lootmax="2">
+            <category name="tools"/>
+            <category name="containers"/>
+            <tag name="ground"/>
+            <tag name="floor"/>
+            <point pos="-1.299217 -1.048233 0.636453" range="0.302246" height="0.755615" flags="32"/>
+            <point pos="1.220291 -1.346603 -0.727190" range="0.328613" height="0.821533" flags="32"/>
+            <point pos="-0.119549 -1.132118 0.619993" range="0.374268" height="0.935669" flags="32"/>
+            <point pos="0.972915 -1.270203 0.433790" range="0.579346" height="1.448365" flags="32"/>
+            <point pos="-0.871971 -1.076309 -0.342246" range="0.725586" height="1.813965" flags="32"/>
+        </container>
+    </group>
+</prototype>
