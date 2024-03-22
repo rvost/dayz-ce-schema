@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<eventposdef>
+    <event name="VehicleVodnik">
+        <!-- Military Base Tisy -->
+        <pos x="567.561096" y="503.953217" z="13655.631836" a="0.000000" />
+        <!-- Plotina Tishina Dam -->
+        <pos x="1159.035278" y="153.176682" z="6219.569824" a="0.000000" />
+    </event>
+    <event name="StaticPoliceSituation">
+        <zone smin="0" smax="0" dmin="1" dmax="2" r="20" />
+        <pos x="11909.426" z="6432.040" a="0" y="49.747" group="Block_Dolina" />
+        <pos x="10400.112" z="2237.542" a="0" y="5.930" group="Block_Elektro" />
+    </event>
+    <event name="AnimalRoeDeer" />
+    <event name="AnimalWolf" />
+    <event name="AnimalWildBoar" />
+</eventposdef>

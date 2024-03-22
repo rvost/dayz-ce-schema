@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<eventposdef>
+    <event name="VehicleVodnik">
+        <!-- Military Base Tisy -->
+        <pos x="567.561096" y="503.953217" z="13655.631836" a="0.000000" />
+        <!-- Plotina Tishina Dam -->
+        <pos x="1159.035278" y="153.176682" z="6219.569824" a="0.000000" />
+    </event>
+    <event name="AnimalRoeDeer" />
+    <event name="AnimalWolf" />
+    <event name="AnimalWildBoar" />
+</eventposdef>

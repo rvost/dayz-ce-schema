@@ -27,7 +27,7 @@ public class CfgEventSpawnsModel {
                 .orElse(Map.of());
     }
 
-    private static Map<String, Range> getCfgEventSpawns(DOMDocument doc) {
+    public static Map<String, Range> getCfgEventSpawns(DOMDocument doc) {
         return DocumentUtils.indexByAttribute(doc, NAME_ATTRIBUTE);
     }
 
@@ -38,7 +38,7 @@ public class CfgEventSpawnsModel {
                 .orElse(Map.of());
     }
 
-    private static Map<String, Range> getEventSpawnGroupReferences(DOMDocument doc) {
+    public static Map<String, Range> getEventSpawnGroupReferences(DOMDocument doc) {
         return doc.getDocumentElement().getChildren().stream()
                 .flatMap(n -> n.getChildren().stream())
                 .filter(n -> n.hasAttribute(GROUP_ATTRIBUTE))
