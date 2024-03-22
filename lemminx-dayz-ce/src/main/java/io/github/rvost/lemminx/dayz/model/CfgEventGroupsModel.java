@@ -1,15 +1,12 @@
 package io.github.rvost.lemminx.dayz.model;
 
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils;
-import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class CfgEventGroupsModel {
     public static final String CFGEVENTGROUPS_FILE = "cfgeventgroups.xml";
@@ -29,7 +26,7 @@ public class CfgEventGroupsModel {
                 .orElse(Map.of());
     }
 
-    private static Map<String, Range> getCfgEventGroups(DOMDocument doc) {
+    public static Map<String, Range> getCfgEventGroups(DOMDocument doc) {
         return DocumentUtils.indexByAttribute(doc, NAME_ATTRIBUTE);
     }
 
@@ -40,7 +37,7 @@ public class CfgEventGroupsModel {
                 .orElse(Map.of());
     }
 
-    private static Map<String, List<Range>> getChildTypesIndex(DOMDocument doc) {
+    public static Map<String, List<Range>> getChildTypesIndex(DOMDocument doc) {
         return DocumentUtils.indexChildrenByAttribute(doc, TYPE_ATTRIBUTE);
     }
 }

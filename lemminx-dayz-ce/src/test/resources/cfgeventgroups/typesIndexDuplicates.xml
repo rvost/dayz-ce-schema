@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<eventgroupdef>
+    <!--pos
+    x="5587.466" z="2063.353" a="0" y="7.591" group="Train_Abandoned_Cherno"/-->
+    <group name="Train_Abandoned_Cherno">
+        <child type="StaticObj_Wreck_Train_742_Red_DE" deloot="0" lootmax="3" lootmin="1" x="0"
+               z="0" a="78.123" y="1.9"/>
+        <child type="Land_Train_Wagon_Box_DE" deloot="0" lootmax="3" lootmin="2" x="34.546"
+               z="8.424" a="255.837" y="1.32"/>
+        <child type="Land_Train_Wagon_Box_DE" deloot="0" lootmax="3" lootmin="2" x="46.285"
+               z="11.341" a="255.321" y="1.398"/>
+    </group>
+</eventgroupdef>
