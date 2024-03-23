@@ -52,7 +52,7 @@ public class RandomPresetsModel {
                 .orElse(Map.of());
     }
 
-    private static Map<String, Range> getRandomPresetsIndex(DOMDocument doc) {
+    public static Map<String, Range> getRandomPresetsIndex(DOMDocument doc) {
         return DocumentUtils.indexByAttribute(doc, NAME_ATTRIBUTE);
     }
 }
