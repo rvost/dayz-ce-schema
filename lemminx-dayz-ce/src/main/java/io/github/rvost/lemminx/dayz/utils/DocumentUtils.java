@@ -1,5 +1,6 @@
 package io.github.rvost.lemminx.dayz.utils;
 
+import com.google.common.base.Strings;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -48,6 +49,7 @@ public class DocumentUtils {
         return doc.getDocumentElement().getChildren().stream()
                 .filter(n -> n.hasAttribute(attribute))
                 .map(n -> n.getAttributeNode(attribute))
+                .filter(attr-> !Strings.isNullOrEmpty(attr.getNodeValue()))
                 .collect(Collectors.toMap(
                         DOMAttr::getNodeValue,
                         n -> XMLPositionUtility.selectWholeTag(n.getStart(), doc),
@@ -58,7 +60,7 @@ public class DocumentUtils {
     public static Map<String, List<Range>> indexChildrenByAttribute(DOMDocument doc, String attribute) {
         return doc.getDocumentElement().getChildren().stream()
                 .flatMap(x -> x.getChildren().stream())
-                .filter(x -> x.hasAttribute(attribute))
+                .filter(x -> !Strings.isNullOrEmpty(x.getAttribute(attribute)))
                 .collect(Collectors.groupingBy(
                         x -> x.getAttribute(attribute),
                         Collectors.mapping(
