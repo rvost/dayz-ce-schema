@@ -1,8 +1,7 @@
 package io.github.rvost.lemminx.dayz.model
 
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils
-import org.eclipse.lsp4j.Position
-import org.eclipse.lsp4j.Range
+import org.eclipse.lemminx.XMLAssert.r
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 import kotlin.test.assertEquals
@@ -84,13 +83,13 @@ class RandomPresetsModelTests {
         val url = javaClass.classLoader.getResource("cfgrandompresets/multiplePresets.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "mixArmy" to Range(Position(2, 4), Position(19, 12)),
-            "grenades" to Range(Position(20, 4), Position(25, 12)),
-            "optics" to Range(Position(26, 4), Position(32, 18)),
-            "ContaminatedCargo" to Range(Position(34, 4), Position(36, 12)),
-            "hatsFarm" to Range(Position(38, 4), Position(49, 18)),
-            "bagsHunter" to Range(Position(50, 4), Position(55, 18)),
-            "vestsHunter" to Range(Position(56, 4), Position(59, 18)),
+            "mixArmy" to r(2, 4, 19, 12),
+            "grenades" to r(20, 4, 25, 12),
+            "optics" to r(26, 4, 32, 18),
+            "ContaminatedCargo" to r(34, 4, 36, 12),
+            "hatsFarm" to r(38, 4, 49, 18),
+            "bagsHunter" to r(50, 4, 55, 18),
+            "vestsHunter" to r(56, 4, 59, 18),
         )
 
         val index = DocumentUtils.tryParseDocument(path)

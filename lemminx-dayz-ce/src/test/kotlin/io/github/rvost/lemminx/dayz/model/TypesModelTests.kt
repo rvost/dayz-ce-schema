@@ -1,8 +1,7 @@
 package io.github.rvost.lemminx.dayz.model
 
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils
-import org.eclipse.lsp4j.Position
-import org.eclipse.lsp4j.Range
+import org.eclipse.lemminx.XMLAssert.r
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 import kotlin.test.assertEquals
@@ -43,8 +42,8 @@ class TypesModelTests {
         val url = javaClass.classLoader.getResource("types/simple.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "ACOGOptic" to Range(Position(2, 4), Position(13, 11)),
-            "ACOGOptic_6x" to Range(Position(14, 4), Position(28, 11))
+            "ACOGOptic" to r(2, 4, 13, 11),
+            "ACOGOptic_6x" to r(14, 4, 28, 11),
         )
 
         val types = TypesModel.getTypes(path)
@@ -57,8 +56,8 @@ class TypesModelTests {
         val url = javaClass.classLoader.getResource("types/duplicates.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "ACOGOptic" to Range(Position(29, 4), Position(40, 11)),
-            "ACOGOptic_6x" to Range(Position(14, 4), Position(28, 11))
+            "ACOGOptic" to r(29, 4, 40, 11),
+            "ACOGOptic_6x" to r(14, 4, 28, 11),
         )
 
         val types = TypesModel.getTypes(path)
@@ -82,16 +81,16 @@ class TypesModelTests {
         val path = Path.of(url.toURI())
         val expected = mapOf(
             "weapons" to listOf(
-                Range(Position(11, 8), Position(11, 34)),
-                Range(Position(23, 8), Position(23, 34)),
+                r(11, 8, 34),
+                r(23, 8, 34),
             ),
             "Military" to listOf(
-                Range(Position(12, 8), Position(12, 32)),
-                Range(Position(24, 8), Position(24, 32)),
+                r(12, 8, 32),
+                r(24, 8, 32),
             ),
-            "Police" to listOf(Range(Position(25, 8), Position(25, 30))),
-            "Tier3" to listOf(Range(Position(26, 8), Position(26, 29))),
-            "Tier4" to listOf(Range(Position(27, 8), Position(27, 29))),
+            "Police" to listOf(r(25, 8, 30)),
+            "Tier3" to listOf(r(26,8,29)),
+            "Tier4" to listOf(r(27,8,29)),
         )
 
         val index = TypesModel.getFlagIndex(path)
@@ -114,8 +113,8 @@ class TypesModelTests {
         val url = javaClass.classLoader.getResource("types/userFlagsSimple.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "Tier34" to listOf(Range(Position(13, 8), Position(13, 30))),
-            "PoliceMilitary" to listOf(Range(Position(25, 8), Position(25, 38)))
+            "Tier34" to listOf(r(13,8,30)),
+            "PoliceMilitary" to listOf(r(25,8,38)),
         )
 
         val index = TypesModel.getUserFlagIndex(path)

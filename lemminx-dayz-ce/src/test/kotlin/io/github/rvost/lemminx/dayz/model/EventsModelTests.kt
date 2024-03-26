@@ -1,8 +1,7 @@
 package io.github.rvost.lemminx.dayz.model
 
 import io.github.rvost.lemminx.dayz.utils.DocumentUtils
-import org.eclipse.lsp4j.Position
-import org.eclipse.lsp4j.Range
+import org.eclipse.lemminx.XMLAssert.r
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 import kotlin.test.assertEquals
@@ -45,8 +44,8 @@ class EventsModelTests {
         val url = javaClass.classLoader.getResource("events/simple.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "AmbientFox" to Range(Position(2, 4), Position(18, 12)),
-            "AmbientHare" to Range(Position(19, 4), Position(35, 12))
+            "AmbientFox" to r(2,4,18,12),
+            "AmbientHare" to r(19,4,35,12),
         )
 
         val events = DocumentUtils.tryParseDocument(path)
@@ -61,8 +60,8 @@ class EventsModelTests {
         val url = javaClass.classLoader.getResource("events/duplicates.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "AmbientFox" to Range(Position(36, 4), Position(52, 12)),
-            "AmbientHare" to Range(Position(19, 4), Position(35, 12))
+            "AmbientFox" to r(36,4,52,12),
+            "AmbientHare" to r(19,4,35,12),
         )
 
         val events = DocumentUtils.tryParseDocument(path)

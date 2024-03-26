@@ -1,7 +1,6 @@
 package io.github.rvost.lemminx.dayz.utils
 
-import org.eclipse.lsp4j.Position
-import org.eclipse.lsp4j.Range
+import org.eclipse.lemminx.XMLAssert.r
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 import kotlin.test.assertEquals
@@ -86,7 +85,7 @@ class DocumentUtilsTests {
         val url = javaClass.classLoader.getResource("documentutils/index_single.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "b" to Range(Position(2, 4), Position(2, 20))
+            "b" to r(2,4,20),
         )
 
         val result = DocumentUtils.tryParseDocument(path)
@@ -101,7 +100,7 @@ class DocumentUtilsTests {
         val url = javaClass.classLoader.getResource("documentutils/index_multiple.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "b" to Range(Position(4, 4), Position(4, 20))
+            "b" to r(4,4,20),
         )
 
         val result = DocumentUtils.tryParseDocument(path)
@@ -116,8 +115,8 @@ class DocumentUtilsTests {
         val url = javaClass.classLoader.getResource("documentutils/index_no_closing_document_tag.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "b" to Range(Position(2, 4), Position(2, 20)),
-            "c" to Range(Position(3, 4), Position(3, 20))
+            "b" to r(2,4,20),
+            "c" to r(3,4,20),
         )
 
         val result = DocumentUtils.tryParseDocument(path)
@@ -132,8 +131,8 @@ class DocumentUtilsTests {
         val url = javaClass.classLoader.getResource("documentutils/index_malformed_index_element.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "b" to Range(Position(2, 4), Position(4, 8)),
-            "c" to Range(Position(5, 4), Position(5, 20))
+            "b" to r(2,4,4,8),
+            "c" to r(5,4,20),
         )
 
         val result = DocumentUtils.tryParseDocument(path)
@@ -148,8 +147,8 @@ class DocumentUtilsTests {
         val url = javaClass.classLoader.getResource("documentutils/index_empty_attribute.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "b" to Range(Position(2, 4), Position(2, 20)),
-            "c" to Range(Position(3, 4), Position(3, 20))
+            "b" to r(2,4,20),
+            "c" to r(3,4,20),
         )
 
         val result = DocumentUtils.tryParseDocument(path)
@@ -164,8 +163,8 @@ class DocumentUtilsTests {
         val url = javaClass.classLoader.getResource("documentutils/index_empty_attribute_value.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "b" to Range(Position(2, 4), Position(2, 20)),
-            "c" to Range(Position(3, 4), Position(3, 20))
+            "b" to r(2,4,20),
+            "c" to r(3,4,20),
         )
 
         val result = DocumentUtils.tryParseDocument(path)
@@ -216,7 +215,7 @@ class DocumentUtilsTests {
         val url = javaClass.classLoader.getResource("documentutils/index_children_single.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "c" to listOf(Range(Position(4, 8), Position(4, 24)))
+            "c" to listOf(r(4,8,24)),
         )
 
         val result = DocumentUtils.tryParseDocument(path)
@@ -232,9 +231,9 @@ class DocumentUtilsTests {
         val path = Path.of(url.toURI())
         val expected = mapOf(
             "c" to listOf(
-                Range(Position(3, 8), Position(3, 24)),
-                Range(Position(6, 8), Position(6, 24))
-            )
+                r(3,8,24),
+                r(6,8,24),
+            ),
         )
         val result = DocumentUtils.tryParseDocument(path)
             .map { doc -> DocumentUtils.indexChildrenByAttribute(doc, "name") }
@@ -248,7 +247,7 @@ class DocumentUtilsTests {
         val url = javaClass.classLoader.getResource("documentutils/index_children_no_closing_tag.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "c" to listOf(Range(Position(4, 8), Position(4, 24)))
+            "c" to listOf(r(4,8,24)),
         )
 
         val result = DocumentUtils.tryParseDocument(path)
@@ -263,7 +262,7 @@ class DocumentUtilsTests {
         val url = javaClass.classLoader.getResource("documentutils/index_children_malformed_elements.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "c" to listOf(Range(Position(4, 8), Position(4, 24)))
+            "c" to listOf(r(4,8,24)),
         )
 
         val result = DocumentUtils.tryParseDocument(path)
@@ -278,7 +277,7 @@ class DocumentUtilsTests {
         val url = javaClass.classLoader.getResource("documentutils/index_children_empty_attribute.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "c" to listOf(Range(Position(6, 8), Position(6, 24)))
+            "c" to listOf(r(6,8,24)),
         )
 
         val result = DocumentUtils.tryParseDocument(path)
@@ -293,7 +292,7 @@ class DocumentUtilsTests {
         val url = javaClass.classLoader.getResource("documentutils/index_children_empty_attribute_value.xml")
         val path = Path.of(url.toURI())
         val expected = mapOf(
-            "c" to listOf(Range(Position(6, 8), Position(6, 24)))
+            "c" to listOf(r(6,8,24)),
         )
 
         val result = DocumentUtils.tryParseDocument(path)
